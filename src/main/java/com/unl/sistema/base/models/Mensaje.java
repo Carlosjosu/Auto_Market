@@ -8,9 +8,10 @@ public class Mensaje {
     private String contenido;
     private Date fechaEnvio;
     private Integer idRemitente;
+    private Integer idConversacion;
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
@@ -18,7 +19,7 @@ public class Mensaje {
     }
 
     public String getContenido() {
-        return contenido;
+        return this.contenido;
     }
 
     public void setContenido(String contenido) {
@@ -26,7 +27,7 @@ public class Mensaje {
     }
 
     public Date getFechaEnvio() {
-        return fechaEnvio;
+        return this.fechaEnvio;
     }
 
     public void setFechaEnvio(Date fechaEnvio) {
@@ -34,10 +35,19 @@ public class Mensaje {
     }
 
     public Integer getIdRemitente() {
-        return idRemitente;
+        return this.idRemitente;
     }
 
     public void setIdRemitente(Integer idRemitente) {
         this.idRemitente = idRemitente;
     }
+
+    public Integer getIdConversacion() {
+        return this.idConversacion;
+    }
+
+    public void setIdConversacion(Integer idConversacion) {
+        this.idConversacion = idConversacion;
+    }
+
 }

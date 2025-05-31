@@ -1,24 +1,28 @@
 package com.unl.sistema.base.models;
 
-import java.util.List;
 import java.util.Date;
 
 public class Auto {
     private Integer id;
     private String anio;
     private String modelo;
-    private int puertas;
+    private Integer puertas;
     private String color;
     private Float kilometraje;
     private String ciudad;
     private Double precio;
+    private String matricula;
     private String codigoVIN;
     private String descripcion;
     private Date fechaRegistro;
     private boolean estaDisponible = true;
+    private Integer idVendedor;
+    private Integer idMarca;
+    private TipoCombustibleEnum tipoCombustible;
+    private CategoriaEnum Categoria;
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
@@ -26,7 +30,7 @@ public class Auto {
     }
 
     public String getAnio() {
-        return anio;
+        return this.anio;
     }
 
     public void setAnio(String anio) {
@@ -34,23 +38,23 @@ public class Auto {
     }
 
     public String getModelo() {
-        return modelo;
+        return this.modelo;
     }
 
     public void setModelo(String modelo) {
         this.modelo = modelo;
     }
 
-    public int getPuertas() {
-        return puertas;
+    public Integer getPuertas() {
+        return this.puertas;
     }
 
-    public void setPuertas(int puertas) {
+    public void setPuertas(Integer puertas) {
         this.puertas = puertas;
     }
 
     public String getColor() {
-        return color;
+        return this.color;
     }
 
     public void setColor(String color) {
@@ -58,7 +62,7 @@ public class Auto {
     }
 
     public Float getKilometraje() {
-        return kilometraje;
+        return this.kilometraje;
     }
 
     public void setKilometraje(Float kilometraje) {
@@ -66,7 +70,7 @@ public class Auto {
     }
 
     public String getCiudad() {
-        return ciudad;
+        return this.ciudad;
     }
 
     public void setCiudad(String ciudad) {
@@ -74,15 +78,23 @@ public class Auto {
     }
 
     public Double getPrecio() {
-        return precio;
+        return this.precio;
     }
 
     public void setPrecio(Double precio) {
         this.precio = precio;
     }
 
+    public String getMatricula() {
+        return this.matricula;
+    }
+
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
+    }
+
     public String getCodigoVIN() {
-        return codigoVIN;
+        return this.codigoVIN;
     }
 
     public void setCodigoVIN(String codigoVIN) {
@@ -90,7 +102,7 @@ public class Auto {
     }
 
     public String getDescripcion() {
-        return descripcion;
+        return this.descripcion;
     }
 
     public void setDescripcion(String descripcion) {
@@ -98,7 +110,7 @@ public class Auto {
     }
 
     public Date getFechaRegistro() {
-        return fechaRegistro;
+        return this.fechaRegistro;
     }
 
     public void setFechaRegistro(Date fechaRegistro) {
@@ -106,10 +118,44 @@ public class Auto {
     }
 
     public boolean isEstaDisponible() {
-        return estaDisponible;
+        return this.estaDisponible;
     }
 
     public void setEstaDisponible(boolean estaDisponible) {
         this.estaDisponible = estaDisponible;
     }
+
+    public Integer getIdVendedor() {
+        return this.idVendedor;
+    }
+
+    public void setIdVendedor(Integer idVendedor) {
+        this.idVendedor = idVendedor;
+    }
+
+    public Integer getIdMarca() {
+        return this.idMarca;
+    }
+
+    public void setIdMarca(Integer idMarca) {
+        this.idMarca = idMarca;
+    }
+
+    public TipoCombustibleEnum getTipoCombustible() {
+        return this.tipoCombustible;
+    }
+
+    public void setTipoCombustible(TipoCombustibleEnum tipoCombustible) {
+        this.tipoCombustible = tipoCombustible;
+    }
+
+    public CategoriaEnum getCategoria() {
+        return this.Categoria;
+    }
+
+    public void setCategoria(CategoriaEnum Categoria) {
+        this.Categoria = Categoria;
+    }
+    
+    
 }

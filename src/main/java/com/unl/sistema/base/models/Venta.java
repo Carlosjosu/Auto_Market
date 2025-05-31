@@ -4,50 +4,50 @@ import java.util.Date;
 
 public class Venta {
     private Integer id;
-    private float precioFinal;
-    private Date fechaVenta;
-    private Integer idVendedor;
+    private Float precioFinal;
+    private Date fecha;
+    private Integer idAuto;
     private Integer idComprador;
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public float getPrecioFinal() {
-        return precioFinal;
+    public Float getPrecioFinal() {
+        return this.precioFinal;
     }
 
-    public void setPrecioFinal(float precioFinal) {
+    public void setPrecioFinal(Float precioFinal) {
         this.precioFinal = precioFinal;
     }
 
-    public Date getFechaVenta() {
-        return fechaVenta;
+    public Date getFecha() {
+        return this.fecha;
     }
 
-    public void setFechaVenta(Date fechaVenta) {
-        this.fechaVenta = fechaVenta;
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
 
-    public Integer getIdVendedor() {
-        return idVendedor;
+    public Integer getIdAuto() {
+        return this.idAuto;
     }
 
-    public void setIdVendedor(Integer idVendedor) {
-        this.idVendedor = idVendedor;
+    public void setIdAuto(Integer idAuto) {
+        this.idAuto = idAuto;
     }
 
     public Integer getIdComprador() {
-        return idComprador;
+        return this.idComprador;
     }
 
     public void setIdComprador(Integer idComprador) {
         this.idComprador = idComprador;
-
     }
 
+   
 }

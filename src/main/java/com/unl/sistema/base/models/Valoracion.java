@@ -4,57 +4,50 @@ import java.util.Date;
 
 public class Valoracion {
     private Integer id;
-    private int puntuacion;
-    private String comentario;
+    private Integer puntuacion;
     private Date fecha;
-    private Integer idVendedor;
-    private Integer idComprador;
+    private String comentario;
+    private Integer idVenta;
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getPuntuacion() {
-        return puntuacion;
+    public Integer getPuntuacion() {
+        return this.puntuacion;
     }
 
-    public void setPuntuacion(int puntuacion) {
+    public void setPuntuacion(Integer puntuacion) {
         this.puntuacion = puntuacion;
     }
 
-    public String getComentario() {
-        return comentario;
-    }
-
-    public void setComentario(String comentario) {
-        this.comentario = comentario;
-    }
-
     public Date getFecha() {
-        return fecha;
+        return this.fecha;
     }
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
 
-    public Integer getIdVendedor() {
-        return idVendedor;
+    public String getComentario() {
+        return this.comentario;
     }
 
-    public void setIdVendedor(Integer idVendedor) {
-        this.idVendedor = idVendedor;
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
     }
 
-    public Integer getIdComprador() {
-        return idComprador;
+    public Integer getIdVenta() {
+        return this.idVenta;
     }
 
-    public void setIdComprador(Integer idComprador) {
-        this.idComprador = idComprador;
+    public void setIdVenta(Integer idVenta) {
+        this.idVenta = idVenta;
     }
+
+
 }

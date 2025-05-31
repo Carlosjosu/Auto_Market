@@ -1,0 +1,41 @@
+[
+  {
+    "route": "",
+    "flowLayout": false,
+    "params": {},
+    "title": "Main Layout",
+    "children": [
+      {
+        "route": "",
+        "menu": {
+          "exclude": true
+        },
+        "flowLayout": false,
+        "params": {},
+        "title": "Main"
+      },
+      {
+        "route": "marca-list",
+        "title": "Marca",
+        "menu": {
+          "icon": "vaadin:tag",
+          "order": 1,
+          "title": "Marca"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "task-list",
+        "title": "Task List",
+        "menu": {
+          "icon": "vaadin:clipboard-check",
+          "order": 1,
+          "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
+      }
+    ]
+  }
+]

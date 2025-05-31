@@ -1,17 +1,15 @@
 package com.unl.sistema.base.models;
 
-import java.util.List;
-
 public class Usuario {
     private Integer id;
     private String nombre;
     private String apellido;
     private String cedula;
     private String telefono;
-    private boolean esAdministrador = false;
+    private Integer idCuenta;
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
@@ -19,7 +17,7 @@ public class Usuario {
     }
 
     public String getNombre() {
-        return nombre;
+        return this.nombre;
     }
 
     public void setNombre(String nombre) {
@@ -27,7 +25,7 @@ public class Usuario {
     }
 
     public String getApellido() {
-        return apellido;
+        return this.apellido;
     }
 
     public void setApellido(String apellido) {
@@ -35,7 +33,7 @@ public class Usuario {
     }
 
     public String getCedula() {
-        return cedula;
+        return this.cedula;
     }
 
     public void setCedula(String cedula) {
@@ -43,19 +41,21 @@ public class Usuario {
     }
 
     public String getTelefono() {
-        return telefono;
+        return this.telefono;
     }
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
-    public boolean isEsAdministrador() {
-        return esAdministrador;
+    public Integer getIdCuenta() {
+        return this.idCuenta;
     }
 
-    public void setEsAdministrador(boolean esAdministrador) {
-        this.esAdministrador = esAdministrador;
+    public void setIdCuenta(Integer idCuenta) {
+        this.idCuenta = idCuenta;
     }
 
+
+    
 }

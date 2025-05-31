@@ -5,6 +5,7 @@ public class Imagen {
     private Integer id;
     private String url;
     private String descripcion;
+    private Integer idAuto;
 
     public Integer getId() {
         return this.id;
@@ -30,4 +31,13 @@ public class Imagen {
         this.descripcion = descripcion;
     }
 
+    public Integer getIdAuto() {
+        return this.idAuto;
+    }
+
+    public void setIdAuto(Integer idAuto) {
+        this.idAuto = idAuto;
+    }
+
 }
+

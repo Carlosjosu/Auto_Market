@@ -3,7 +3,8 @@ package com.unl.sistema.base.models;
 public class Marca {
 
     private Integer id;
-    private String url;
+    private String nombre;
+    private boolean estaActiva;
 
     public Integer getId() {
         return this.id;
@@ -13,11 +14,20 @@ public class Marca {
         this.id = id;
     }
 
-    public String getUrl() {
-        return this.url;
+    public String getNombre() {
+        return this.nombre;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
+
+    public boolean isEstaActiva() {
+        return this.estaActiva;
+    }
+
+    public void setEstaActiva(boolean estaActiva) {
+        this.estaActiva = estaActiva;
+    }
+
 }

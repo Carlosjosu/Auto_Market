@@ -6,9 +6,10 @@ public class Favorito {
     private Integer id;
     private Date fechaGuardado;
     private Integer idAuto;
+    private Integer idUsuario;
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
@@ -16,7 +17,7 @@ public class Favorito {
     }
 
     public Date getFechaGuardado() {
-        return fechaGuardado;
+        return this.fechaGuardado;
     }
 
     public void setFechaGuardado(Date fechaGuardado) {
@@ -24,10 +25,19 @@ public class Favorito {
     }
 
     public Integer getIdAuto() {
-        return idAuto;
+        return this.idAuto;
     }
 
     public void setIdAuto(Integer idAuto) {
         this.idAuto = idAuto;
     }
+
+    public Integer getIdUsuario() {
+        return this.idUsuario;
+    }
+
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
 }

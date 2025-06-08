@@ -8,7 +8,6 @@ import java.util.Scanner;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class AdapterDao<T> implements InterfaceDao<T> {
     private Class<T> clazz;
@@ -17,10 +16,7 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     public AdapterDao(Class<T> clazz) {
         this.clazz = clazz;
-        // Configura Gson para manejar fechas en formato ISO
-        this.g = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-                .create();
+        this.g = new Gson();
     }
 
     private String readFile() throws Exception {
@@ -41,7 +37,6 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         File file = new File(base_path + clazz.getSimpleName() + ".json");
         // file.getParentFile().m
         if (!file.exists()) {
-            System.out.println("Aqui estoy " + file.getAbsolutePath());
             file.createNewFile();
         }
         // if(!file.exists()) {

@@ -1,5 +1,5 @@
-AutoService.ts
 FavoritoService.ts
+<<<<<<< HEAD
 ImagenService.ts
 <<<<<<< HEAD
 MarcaService.ts
@@ -16,6 +16,16 @@ UsuarioService.ts
 VentaService.ts
 TaskService.ts
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+MarcaService.ts
+ValoracionService.ts
+VentaService.ts
+TaskService.ts
+com/unl/sistema/base/models/Favorito.ts
+com/unl/sistema/base/models/Marca.ts
+com/unl/sistema/base/models/Valoracion.ts
+com/unl/sistema/base/models/Venta.ts
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 com/vaadin/hilla/mappedtypes/Pageable.ts
 com/unl/sistema/taskmanagement/domain/Task.ts
 com/vaadin/hilla/mappedtypes/Sort.ts
@@ -26,12 +36,18 @@ org/springframework/data/domain/Sort/NullHandling.ts
 connect-client.default.ts
 endpoints.ts
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 com/unl/sistema/base/models/FavoritoModel.ts
 com/unl/sistema/base/models/MarcaModel.ts
 com/unl/sistema/base/models/ValoracionModel.ts
 com/unl/sistema/base/models/VentaModel.ts
+<<<<<<< HEAD
 =======
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 com/vaadin/hilla/mappedtypes/PageableModel.ts
 com/unl/sistema/taskmanagement/domain/TaskModel.ts
 com/vaadin/hilla/mappedtypes/SortModel.ts

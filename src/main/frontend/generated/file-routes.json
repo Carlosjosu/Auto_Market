@@ -16,6 +16,7 @@
       },
       {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "route": "Auto",
         "title": "Auto",
         "menu": {
@@ -64,6 +65,8 @@
         "params": {}
       },
       {
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -75,23 +78,12 @@
         "params": {}
       },
       {
-        "route": "imagen-list",
-        "title": "Imagen",
+        "route": "marca-list",
+        "title": "Marca",
         "menu": {
-          "icon": "vaadin:picture",
+          "icon": "vaadin:tag",
           "order": 1,
-          "title": "Imagen"
-        },
-        "flowLayout": false,
-        "params": {}
-      },
-      {
-        "route": "publicacion-list",
-        "title": "Publicación",
-        "menu": {
-          "icon": "vaadin:book",
-          "order": 1,
-          "title": "Publicación"
+          "title": "Marca"
         },
         "flowLayout": false,
         "params": {}
@@ -109,6 +101,7 @@
       },
       {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "route": "valoracion-list",
         "title": "Valoracion",
         "menu": {
@@ -118,11 +111,19 @@
 =======
         "route": "usuario-list",
         "title": "Usuario",
+=======
+        "route": "valoracion-list",
+        "title": "Valoracion",
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
         "menu": {
-          "icon": "vaadin:user",
+          "icon": "vaadin:comments",
           "order": 1,
+<<<<<<< HEAD
           "title": "Usuario"
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+          "title": "Valoracion"
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
         },
         "flowLayout": false,
         "params": {}
@@ -132,10 +133,14 @@
         "title": "Venta",
         "menu": {
 <<<<<<< HEAD
+<<<<<<< HEAD
           "icon": "vaadin:cart",
 =======
           "icon": "vaadin:dollar",
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+          "icon": "vaadin:cart",
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
           "order": 1,
           "title": "Venta"
         },

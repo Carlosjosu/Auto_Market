@@ -1,6 +1,7 @@
 package com.unl.sistema.base.models;
 
 public class Imagen {
+
     private Integer id;
     private String url;
     private String descripcion;
@@ -47,7 +48,13 @@ public class Imagen {
         this.idAuto = idAuto;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 }
+=======
+
+}
+
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

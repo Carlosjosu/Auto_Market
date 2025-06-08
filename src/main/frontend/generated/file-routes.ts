@@ -3,6 +3,7 @@ import type { AgnosticRoute as AgnosticRoute_1 } from "@vaadin/hilla-file-router
 import * as Page_1 from "../views/@index.js";
 import * as Layout_1 from "../views/@layout.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import * as Page_2 from "../views/Auto.js";
 import * as Page_3 from "../views/favorito-list.js";
 import * as Page_4 from "../views/Imagen.js";
@@ -37,6 +38,21 @@ const routes: readonly AgnosticRoute_1[] = [
         createRoute_1("usuario-list", Page_7),
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
         createRoute_1("venta-list", Page_8)
+=======
+import * as Page_2 from "../views/favorito-list.js";
+import * as Page_3 from "../views/marca-list.js";
+import * as Page_4 from "../views/task-list.js";
+import * as Page_5 from "../views/valoracion-list.js";
+import * as Page_6 from "../views/venta-list.js";
+const routes: readonly AgnosticRoute_1[] = [
+    createRoute_1("", Layout_1, [
+        createRoute_1("", Page_1),
+        createRoute_1("favorito-list", Page_2),
+        createRoute_1("marca-list", Page_3),
+        createRoute_1("task-list", Page_4),
+        createRoute_1("valoracion-list", Page_5),
+        createRoute_1("venta-list", Page_6)
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     ])
 ];
 export default routes;

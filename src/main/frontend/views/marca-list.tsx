@@ -105,14 +105,6 @@ export default function MarcaView() {
         });
     }
 
-    //kkk
-    //   const dataProvider = useDataProvider<any>({
-    //     list: async () => {
-    //       const result = await MarcaService.listMarca();
-    //       return (result ?? []).filter((item): item is Record<string, unknown> => item !== undefined);
-    //     },
-    //   });
-
     function indexIndex({ model }: { model: GridItemModel<any> }) {
         return <span>{model.index + 1}</span>;
     }

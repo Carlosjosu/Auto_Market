@@ -1,84 +1,99 @@
 package com.unl.sistema.base.models;
 
-import java.util.List;
+import java.util.Date;
 
 public class Auto {
     private Integer id;
-    private String marca;
-    private int anio;
-    private float precio;
-    private float kilometraje;
+    private String anio;
+    private String modelo;
+    private Integer puertas;
     private String color;
+<<<<<<< HEAD
 <<<<<<< HEAD
     private Float kilometraje;
     private String ciudad;
     private Float precio;
+=======
+    private Float kilometraje;
+    private String ciudad;
+    private Double precio;
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     private String matricula;
     private String codigoVIN;
     private String descripcion;
     private Date fechaRegistro;
     private boolean estaDisponible = true;
+<<<<<<< HEAD
     private Integer idVenta;
     private Integer idMarca;
 =======
 	private String matricula;
     private CategoriaEnum categoria;
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+    private Integer idVendedor;
+    private Integer idMarca;
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     private TipoCombustibleEnum tipoCombustible;
+    private CategoriaEnum Categoria;
 
+    public Integer getId() {
+        return this.id;
+    }
 
-	public Integer getId() {
-		return this.id;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public String getAnio() {
+        return this.anio;
+    }
 
-	public String getMarca() {
-		return this.marca;
-	}
+    public void setAnio(String anio) {
+        this.anio = anio;
+    }
 
-	public void setMarca(String marca) {
-		this.marca = marca;
-	}
+    public String getModelo() {
+        return this.modelo;
+    }
 
-	public int getAnio() {
-		return this.anio;
-	}
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
 
-	public void setAnio(int anio) {
-		this.anio = anio;
-	}
+    public Integer getPuertas() {
+        return this.puertas;
+    }
 
-	public float getPrecio() {
-		return this.precio;
-	}
+    public void setPuertas(Integer puertas) {
+        this.puertas = puertas;
+    }
 
-	public void setPrecio(float precio) {
-		this.precio = precio;
-	}
+    public String getColor() {
+        return this.color;
+    }
 
-	public float getKilometraje() {
-		return this.kilometraje;
-	}
+    public void setColor(String color) {
+        this.color = color;
+    }
 
-	public void setKilometraje(float kilometraje) {
-		this.kilometraje = kilometraje;
-	}
+    public Float getKilometraje() {
+        return this.kilometraje;
+    }
 
-	public String getColor() {
-		return this.color;
-	}
+    public void setKilometraje(Float kilometraje) {
+        this.kilometraje = kilometraje;
+    }
 
-	public void setColor(String color) {
-		this.color = color;
-	}
+    public String getCiudad() {
+        return this.ciudad;
+    }
 
-	public String getMatricula() {
-		return this.matricula;
-	}
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     public Float getPrecio() {
         return this.precio;
@@ -96,20 +111,32 @@ public class Auto {
 		return this.categoria;
 	}
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+    public Double getPrecio() {
+        return this.precio;
+    }
 
-	public void setCategoria(CategoriaEnum categoria) {
-		this.categoria = categoria;
-	}
+    public void setPrecio(Double precio) {
+        this.precio = precio;
+    }
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 
-	public TipoCombustibleEnum getTipoCombustible() {
-		return this.tipoCombustible;
-	}
+    public String getMatricula() {
+        return this.matricula;
+    }
 
-	public void setTipoCombustible(TipoCombustibleEnum tipoCombustible) {
-		this.tipoCombustible = tipoCombustible;
-	}
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
+    }
+
+    public String getCodigoVIN() {
+        return this.codigoVIN;
+    }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     public void setCodigoVIN(String codigoVIN) {
         this.codigoVIN = codigoVIN;
     }
@@ -138,12 +165,21 @@ public class Auto {
         this.estaDisponible = estaDisponible;
     }
 
+<<<<<<< HEAD
     public Integer getIdVenta() {
         return this.idVenta;
     }
 
     public void setIdVenta(Integer idVenta) {
         this.idVenta = idVenta;
+=======
+    public Integer getIdVendedor() {
+        return this.idVendedor;
+    }
+
+    public void setIdVendedor(Integer idVendedor) {
+        this.idVendedor = idVendedor;
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     }
 
     public Integer getIdMarca() {
@@ -169,7 +205,12 @@ public class Auto {
     public void setCategoria(CategoriaEnum Categoria) {
         this.Categoria = Categoria;
     }
+<<<<<<< HEAD
 
 =======
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+    
+    
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 }

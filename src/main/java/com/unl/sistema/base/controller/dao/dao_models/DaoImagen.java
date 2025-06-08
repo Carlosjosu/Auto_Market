@@ -7,19 +7,19 @@ import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Imagen;
 
-public class DaoImagen extends AdapterDao<Imagen> {
+public class DaoImagen extends AdapterDao<Imagen>{
     private Imagen obj;
 
-    public DaoImagen() {
+    public DaoImagen(){
         super(Imagen.class);
     }
-
+    
     public Imagen getObj() {
         if (obj == null)
             this.obj = new Imagen();
         return this.obj;
     }
-
+    
     public void setObj(Imagen obj) {
         this.obj = obj;
     }
@@ -27,27 +27,33 @@ public class DaoImagen extends AdapterDao<Imagen> {
     public Boolean save() {
         try {
 <<<<<<< HEAD
+<<<<<<< HEAD
             obj.setId(listAll().getLength() + 1);
 =======
             System.out.println("Entrando a save() de DaoImagen");
             obj.setId(listAll().getLength() + 1);
             System.out.println("Guardando imagen: " + obj);
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+            obj.setId(listAll().getLength()+1);
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
             this.persist(obj);
-            System.out.println("Imagen guardada en persistencia");
             return true;
         } catch (Exception e) {
+            //Log de error
             e.printStackTrace();
             System.out.println(e);
             return false;
+            // TODO: handle exception
         }
     }
 
     public Boolean update(Integer pos) {
         try {
-            this.update(obj, pos);
+            this.update(obj,pos);
             return true;
         } catch (Exception e) {
+<<<<<<< HEAD
 <<<<<<< HEAD
             return false;
         }
@@ -167,10 +173,17 @@ public class DaoImagen extends AdapterDao<Imagen> {
 
 =======
 
+=======
+            //Log de error
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
             return false;
-
+            // TODO: handle exception
         }
     }
+<<<<<<< HEAD
 
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 }
+=======
+}
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

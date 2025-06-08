@@ -1,10 +1,13 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.HashMap;
 =======
 import java.util.Date;
 
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 import com.unl.sistema.base.controller.dao.AdapterDao;
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 
@@ -14,9 +17,12 @@ import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 public class DaoAuto extends AdapterDao<Auto> {
 =======
 
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 public class DaoAuto extends AdapterDao<Auto>{
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
     private Auto obj;
@@ -56,6 +62,7 @@ public class DaoAuto extends AdapterDao<Auto>{
         }
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
@@ -187,3 +194,15 @@ public class DaoAuto extends AdapterDao<Auto>{
  
 }
 >>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+    //Auto
+    //Marca
+    //Valoracion
+    //Venta??
+    //Conversacion
+    //Mensaje
+    //Favorito
+    
+
+}
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

@@ -15,6 +15,7 @@
         "title": "Main"
       },
       {
+<<<<<<< HEAD
         "route": "Auto",
         "title": "Auto",
         "menu": {
@@ -50,10 +51,47 @@
       {
         "route": "Marca",
         "title": "Marca",
+=======
+        "route": "auto-list",
+        "title": "Auto",
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
         "menu": {
-          "icon": "vaadin:tag",
+          "icon": "vaadin:car",
           "order": 1,
-          "title": "Marca"
+          "title": "Auto"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "favorito-list",
+        "title": "Favorito",
+        "menu": {
+          "icon": "vaadin:star",
+          "order": 1,
+          "title": "Favorito"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "imagen-list",
+        "title": "Imagen",
+        "menu": {
+          "icon": "vaadin:picture",
+          "order": 1,
+          "title": "Imagen"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "publicacion-list",
+        "title": "Publicación",
+        "menu": {
+          "icon": "vaadin:book",
+          "order": 1,
+          "title": "Publicación"
         },
         "flowLayout": false,
         "params": {}
@@ -70,12 +108,21 @@
         "params": {}
       },
       {
+<<<<<<< HEAD
         "route": "valoracion-list",
         "title": "Valoracion",
         "menu": {
           "icon": "vaadin:comments",
           "order": 1,
           "title": "Valoracion"
+=======
+        "route": "usuario-list",
+        "title": "Usuario",
+        "menu": {
+          "icon": "vaadin:user",
+          "order": 1,
+          "title": "Usuario"
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
         },
         "flowLayout": false,
         "params": {}
@@ -84,7 +131,11 @@
         "route": "venta-list",
         "title": "Venta",
         "menu": {
+<<<<<<< HEAD
           "icon": "vaadin:cart",
+=======
+          "icon": "vaadin:dollar",
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
           "order": 1,
           "title": "Venta"
         },

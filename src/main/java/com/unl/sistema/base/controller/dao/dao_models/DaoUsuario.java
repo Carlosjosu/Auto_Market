@@ -1,5 +1,6 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
+import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 
 import com.unl.sistema.base.models.Usuario;
@@ -27,11 +28,9 @@ public class DaoUsuario extends AdapterDao<Usuario>{
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            //Log de error
             e.printStackTrace();
             System.out.println(e);
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -44,5 +43,15 @@ public class DaoUsuario extends AdapterDao<Usuario>{
             return false;
             // TODO: handle exception
         }
+    }
+
+    public Boolean saveUsuario(Usuario usuario) {
+        setObj(usuario);
+        return save();
+    }
+
+    public LinkedList<Usuario> listUsuarios(org.springframework.data.domain.Pageable pageable) {
+        // Si tienes paginación, implementa aquí la lógica. Por ahora retorna todos.
+        return listAll();
     }
 }

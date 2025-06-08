@@ -1,13 +1,15 @@
 package com.unl.sistema.base.models;
 
-import java.util.Date;
+import java.util.List;
 
 public class Auto {
     private Integer id;
-    private String anio;
-    private String modelo;
-    private Integer puertas;
+    private String marca;
+    private int anio;
+    private float precio;
+    private float kilometraje;
     private String color;
+<<<<<<< HEAD
     private Float kilometraje;
     private String ciudad;
     private Float precio;
@@ -18,65 +20,66 @@ public class Auto {
     private boolean estaDisponible = true;
     private Integer idVenta;
     private Integer idMarca;
+=======
+	private String matricula;
+    private CategoriaEnum categoria;
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
     private TipoCombustibleEnum tipoCombustible;
-    private CategoriaEnum Categoria;
 
-    public Integer getId() {
-        return this.id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public Integer getId() {
+		return this.id;
+	}
 
-    public String getAnio() {
-        return this.anio;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setAnio(String anio) {
-        this.anio = anio;
-    }
+	public String getMarca() {
+		return this.marca;
+	}
 
-    public String getModelo() {
-        return this.modelo;
-    }
+	public void setMarca(String marca) {
+		this.marca = marca;
+	}
 
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
+	public int getAnio() {
+		return this.anio;
+	}
 
-    public Integer getPuertas() {
-        return this.puertas;
-    }
+	public void setAnio(int anio) {
+		this.anio = anio;
+	}
 
-    public void setPuertas(Integer puertas) {
-        this.puertas = puertas;
-    }
+	public float getPrecio() {
+		return this.precio;
+	}
 
-    public String getColor() {
-        return this.color;
-    }
+	public void setPrecio(float precio) {
+		this.precio = precio;
+	}
 
-    public void setColor(String color) {
-        this.color = color;
-    }
+	public float getKilometraje() {
+		return this.kilometraje;
+	}
 
-    public Float getKilometraje() {
-        return this.kilometraje;
-    }
+	public void setKilometraje(float kilometraje) {
+		this.kilometraje = kilometraje;
+	}
 
-    public void setKilometraje(Float kilometraje) {
-        this.kilometraje = kilometraje;
-    }
+	public String getColor() {
+		return this.color;
+	}
 
-    public String getCiudad() {
-        return this.ciudad;
-    }
+	public void setColor(String color) {
+		this.color = color;
+	}
 
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
-    }
+	public String getMatricula() {
+		return this.matricula;
+	}
 
+<<<<<<< HEAD
     public Float getPrecio() {
         return this.precio;
     }
@@ -84,19 +87,29 @@ public class Auto {
     public void setPrecio(Float precio) {
         this.precio = precio;
     }
+=======
+	public void setMatricula(String matricula) {
+		this.matricula = matricula;
+	}
 
-    public String getMatricula() {
-        return this.matricula;
-    }
+	public CategoriaEnum getCategoria() {
+		return this.categoria;
+	}
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
+	public void setCategoria(CategoriaEnum categoria) {
+		this.categoria = categoria;
+	}
 
-    public String getCodigoVIN() {
-        return this.codigoVIN;
-    }
+	public TipoCombustibleEnum getTipoCombustible() {
+		return this.tipoCombustible;
+	}
 
+	public void setTipoCombustible(TipoCombustibleEnum tipoCombustible) {
+		this.tipoCombustible = tipoCombustible;
+	}
+
+<<<<<<< HEAD
     public void setCodigoVIN(String codigoVIN) {
         this.codigoVIN = codigoVIN;
     }
@@ -157,4 +170,6 @@ public class Auto {
         this.Categoria = Categoria;
     }
 
+=======
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 }

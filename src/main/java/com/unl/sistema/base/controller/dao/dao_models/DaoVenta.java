@@ -1,6 +1,12 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
+<<<<<<< HEAD
 import java.util.HashMap;
+=======
+import java.util.Date;
+
+import com.unl.sistema.base.controller.dao.AdapterDao;
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
@@ -18,6 +24,7 @@ public class DaoVenta extends AdapterDao<Venta> {
         if (obj == null)
             this.obj = new Venta();
         return this.obj;
+
     }
 
     public void setObj(Venta obj) {
@@ -48,6 +55,7 @@ public class DaoVenta extends AdapterDao<Venta> {
             // TODO: handle exception
         }
     }
+<<<<<<< HEAD
 
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
@@ -164,3 +172,17 @@ public class DaoVenta extends AdapterDao<Venta> {
     }
 
 }
+=======
+    public Boolean delete(Integer pos) {
+        try {
+            this.delete(pos);
+            return true;
+        } catch (Exception e) {
+            // Log de error
+            return false;
+        }
+    }
+    
+
+}
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)

@@ -26,8 +26,15 @@ public class DaoImagen extends AdapterDao<Imagen> {
 
     public Boolean save() {
         try {
+<<<<<<< HEAD
             obj.setId(listAll().getLength() + 1);
+=======
+            System.out.println("Entrando a save() de DaoImagen");
+            obj.setId(listAll().getLength() + 1);
+            System.out.println("Guardando imagen: " + obj);
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
             this.persist(obj);
+            System.out.println("Imagen guardada en persistencia");
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,6 +48,7 @@ public class DaoImagen extends AdapterDao<Imagen> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
+<<<<<<< HEAD
             return false;
         }
     }
@@ -157,4 +165,12 @@ public class DaoImagen extends AdapterDao<Imagen> {
         quickSortDES(vec, elemDer + 1, fin);
     }
 
+=======
+
+            return false;
+
+        }
+    }
+
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 }

@@ -1,13 +1,24 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
+<<<<<<< HEAD
 import java.util.HashMap;
+=======
+import java.util.Date;
+
+import com.unl.sistema.base.controller.dao.AdapterDao;
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
 
+<<<<<<< HEAD
 public class DaoAuto extends AdapterDao<Auto> {
+=======
+
+public class DaoAuto extends AdapterDao<Auto>{
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
     private Auto obj;
 
     public DaoAuto() {
@@ -45,6 +56,7 @@ public class DaoAuto extends AdapterDao<Auto> {
         }
     }
 
+<<<<<<< HEAD
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
@@ -171,3 +183,7 @@ public class DaoAuto extends AdapterDao<Auto> {
     }
 
 }
+=======
+ 
+}
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)

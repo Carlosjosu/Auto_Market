@@ -1,14 +1,12 @@
 package com.unl.sistema.base.models;
 
-import java.util.List;
-
 public class Usuario {
     private Integer id;
     private String nombre;
-    private String correo;
-    private String contrasenia;
-    private Boolean esAdministrador;
+    private String apellido;
+    private String cedula;
     private String telefono;
+    private Integer idCuenta;
 
     public Integer getId() {
         return this.id;
@@ -26,28 +24,20 @@ public class Usuario {
         this.nombre = nombre;
     }
 
-    public String getCorreo() {
-        return this.correo;
+    public String getApellido() {
+        return this.apellido;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
     }
 
-    public String getContrasenia() {
-        return this.contrasenia;
+    public String getCedula() {
+        return this.cedula;
     }
 
-    public void setContrasenia(String contrasenia) {
-        this.contrasenia = contrasenia;
-    }
-
-    public Boolean getEsAdministrador() {
-        return this.esAdministrador;
-    }
-
-    public void setEsAdministrador(Boolean esAdministrador) {
-        this.esAdministrador = esAdministrador;
+    public void setCedula(String cedula) {
+        this.cedula = cedula;
     }
 
     public String getTelefono() {
@@ -57,5 +47,15 @@ public class Usuario {
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
+
+    public Integer getIdCuenta() {
+        return this.idCuenta;
+    }
+
+    public void setIdCuenta(Integer idCuenta) {
+        this.idCuenta = idCuenta;
+    }
+
+
     
 }

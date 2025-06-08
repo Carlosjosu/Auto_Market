@@ -15,17 +15,6 @@
         "title": "Main"
       },
       {
-        "route": "auto-list",
-        "title": "Auto",
-        "menu": {
-          "icon": "vaadin:car",
-          "order": 1,
-          "title": "Auto"
-        },
-        "flowLayout": false,
-        "params": {}
-      },
-      {
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -37,23 +26,12 @@
         "params": {}
       },
       {
-        "route": "imagen-list",
-        "title": "Imagen",
+        "route": "marca-list",
+        "title": "Marca",
         "menu": {
-          "icon": "vaadin:picture",
+          "icon": "vaadin:tag",
           "order": 1,
-          "title": "Imagen"
-        },
-        "flowLayout": false,
-        "params": {}
-      },
-      {
-        "route": "publicacion-list",
-        "title": "Publicación",
-        "menu": {
-          "icon": "vaadin:book",
-          "order": 1,
-          "title": "Publicación"
+          "title": "Marca"
         },
         "flowLayout": false,
         "params": {}
@@ -70,12 +48,12 @@
         "params": {}
       },
       {
-        "route": "usuario-list",
-        "title": "Usuario",
+        "route": "valoracion-list",
+        "title": "Valoracion",
         "menu": {
-          "icon": "vaadin:user",
+          "icon": "vaadin:comments",
           "order": 1,
-          "title": "Usuario"
+          "title": "Valoracion"
         },
         "flowLayout": false,
         "params": {}
@@ -84,7 +62,7 @@
         "route": "venta-list",
         "title": "Venta",
         "menu": {
-          "icon": "vaadin:dollar",
+          "icon": "vaadin:cart",
           "order": 1,
           "title": "Venta"
         },

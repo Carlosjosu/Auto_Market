@@ -1,5 +1,5 @@
 package com.unl.sistema.base.models;
 
-public enum TipoCombustibleEnum{
-    GASOLINA, DIESEL, ELECTRICO;
+public enum TipoCombustibleEnum {
+    DIESEL, ECOPAIS, SUPER, EXTRA, ELECTRICO;
 }

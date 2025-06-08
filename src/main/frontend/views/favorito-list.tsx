@@ -1,144 +1,152 @@
+import { useEffect, useState } from 'react';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Dialog, Grid, GridColumn, GridItemModel, DatePicker, ComboBox, VerticalLayout } from '@vaadin/react-components';
+import { Button, Grid, GridColumn, VerticalLayout, Dialog, GridSortColumn, DatePicker, NumberField } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { FavoritoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import { useDataProvider } from '@vaadin/hilla-react-crud';
-import { useEffect } from 'react';
+import type { GridItemModel } from '@vaadin/react-components';
 
 export const config: ViewConfig = {
-  title: 'Favorito',
-  menu: {
-    icon: 'vaadin:star',
-    order: 1,
     title: 'Favorito',
-  },
+    menu: {
+        icon: 'vaadin:star',
+        order: 1,
+        title: 'Favorito',
+    },
 };
 
 type FavoritoEntryFormProps = {
-  onFavoritoCreated?: () => void;
+    onFavoritoCreated?: () => void;
 };
-
 function FavoritoEntryForm(props: FavoritoEntryFormProps) {
-  const usuario = useSignal('');
-  const publicacion = useSignal('');
-  const fechaMarcado = useSignal('');
-  const dialogOpened = useSignal(false);
+    const fechaGuardado = useSignal<string>('');
+    const idAuto = useSignal<number | undefined>(undefined);
+    const idUsuario = useSignal<number | undefined>(undefined);
 
-  const usuarios = useSignal<{ value: string, label: string }[]>([]);
-  const publicaciones = useSignal<{ value: string, label: string }[]>([]);
+    const dialogOpened = useSignal(false);
 
-  useEffect(() => {
-    FavoritoService.listaUsuario().then(data => {
-      usuarios.value = (data ?? []).map((u: any) => ({
-        value: u.value,
-        label: u.label
-      }));
-    });
-    FavoritoService.listaPublicacion().then(data => {
-      publicaciones.value = (data ?? []).map((p: any) => ({
-        value: p.value,
-        label: p.label
-      }));
-    });
-  }, []);
-
-  const createFavorito = async () => {
-    try {
-      if (usuario.value && publicacion.value && fechaMarcado.value) {
-        const idUsuario = parseInt(usuario.value) + 1;
-        const idPublicacion = parseInt(publicacion.value) + 1;
-        await FavoritoService.create(
-          fechaMarcado.value,
-            idUsuario,
-            idPublicacion
-        );
-        if (props.onFavoritoCreated) props.onFavoritoCreated();
-        usuario.value = '';
-        publicacion.value = '';
-        fechaMarcado.value = '';
-        dialogOpened.value = false;
-        Notification.show('Favorito creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
-      } else {
-        Notification.show('No se pudo crear, faltan datos', { duration: 5000, position: 'top-center', theme: 'error' });
-      }
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  return (
-    <>
-      <Dialog
-        modeless
-        headerTitle="Nuevo favorito"
-        opened={dialogOpened.value}
-        onOpenedChanged={({ detail }: { detail: { value: boolean } }) => {
-          dialogOpened.value = detail.value;
-        }}
-        footer={
-          <>
-            <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
-            <Button onClick={createFavorito} theme="primary">Registrar</Button>
-          </>
+    const createFavorito = async () => {
+        try {
+            if (
+                fechaGuardado.value &&
+                idAuto.value !== undefined &&
+                idUsuario.value !== undefined
+            ) {
+                await FavoritoService.create(
+                    fechaGuardado.value,
+                    idAuto.value,
+                    idUsuario.value
+                );
+                if (props.onFavoritoCreated) props.onFavoritoCreated();
+                fechaGuardado.value = '';
+                idAuto.value = undefined;
+                idUsuario.value = undefined;
+                dialogOpened.value = false;
+                Notification.show('Favorito creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
+            } else {
+                Notification.show('No se pudo crear, faltan o hay datos inválidos', {
+                    duration: 5000,
+                    position: 'top-center',
+                    theme: 'error',
+                });
+            }
+        } catch (error) {
+            handleError(error);
         }
-      >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <ComboBox
-            label="Usuario"
-            items={usuarios.value}
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={usuario.value}
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (usuario.value = evt.detail.value)}
-          />
-          <ComboBox
-            label="Publicación"
-            items={publicaciones.value}
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={publicacion.value}
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (publicacion.value = evt.detail.value)}
-          />
-          <DatePicker
-            label="Fecha marcado"
-            value={fechaMarcado.value}
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (fechaMarcado.value = evt.detail.value)}
-          />
-        </VerticalLayout>
-      </Dialog>
-      <Button onClick={() => (dialogOpened.value = true)}>Agregar</Button>
-    </>
-  );
+    };
+
+    return (
+        <>
+            <Dialog
+                modeless
+                headerTitle="Nuevo Favorito"
+                opened={dialogOpened.value}
+                onOpenedChanged={({ detail }: { detail: { value: boolean } }) => {
+                    dialogOpened.value = detail.value;
+                }}
+                footer={
+                    <>
+                        <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
+                        <Button onClick={createFavorito} theme="primary">
+                            Registrar
+                        </Button>
+                    </>
+                }>
+                <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
+                    <DatePicker
+                        label="Fecha Guardado"
+                        value={fechaGuardado.value}
+                        onValueChanged={(evt: CustomEvent<{ value: string }>) => (fechaGuardado.value = evt.detail.value)}
+                        required
+                    />
+                    <NumberField
+                        label="ID Auto"
+                        value={idAuto.value !== undefined ? String(idAuto.value) : ''}
+                        onValueChanged={(e) => {
+                            const val = e.detail.value;
+                            idAuto.value = val !== '' ? Number(val) : undefined;
+                        }}
+                        min={1}
+                        required
+                    />
+                    <NumberField
+                        label="ID Usuario"
+                        value={idUsuario.value !== undefined ? String(idUsuario.value) : ''}
+                        onValueChanged={(e) => {
+                            const val = e.detail.value;
+                            idUsuario.value = val !== '' ? Number(val) : undefined;
+                        }}
+                        min={1}
+                        required
+                    />
+                </VerticalLayout>
+            </Dialog>
+            <Button onClick={() => (dialogOpened.value = true)}>Agregar</Button>
+        </>
+    );
 }
 
 export default function FavoritoView() {
-  const dataProvider = useDataProvider<any>({
-    list: async () => {
-      const result = await FavoritoService.listFavorito();
-      return (result ?? []).filter((item): item is Record<string, unknown> => item !== undefined);
-    },
-  });
+    const [items, setItems] = useState<any[]>([]);
 
-  function indexIndex({ model }: { model: GridItemModel<any> }) {
-    return <span>{model.index + 1}</span>;
-  }
+    const callData = () => {
+        FavoritoService.listFavorito().then(function(data){
+            setItems(data);
+        });
+    };
+    
+    useEffect(() => {
+        callData();
+    }, []);
 
-  return (
-    <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <ViewToolbar title="Lista de favoritos">
-        <Group>
-          <FavoritoEntryForm onFavoritoCreated={dataProvider.refresh} />
-        </Group>
-      </ViewToolbar>
-      <Grid dataProvider={dataProvider.dataProvider}>
-        <GridColumn renderer={indexIndex} header="ID" />
-        <GridColumn path="Usuario" header="Usuario" />
-        <GridColumn path="Publicacion" header="Publicación" />
-        <GridColumn path="fechaMarcado" header="Fecha marcado" />
-      </Grid>
-    </main>
-  );
+    const order = (event: any, columnId: string) => {
+        const direction = event.detail.value;
+        var dir = (direction == 'asc') ? 1 : 2;
+        FavoritoService.ordenar(columnId, dir).then(function (data) {
+            setItems(data);
+        });
+    }
+
+    function indexIndex({ model }: { model: GridItemModel<any> }) {
+        return <span>{model.index + 1}</span>;
+    }
+
+    return (
+        <main className="w-full h-full flex flex-col box-border gap-s p-m">
+            <ViewToolbar title="Lista de Favoritos">
+                <Group>
+                    <FavoritoEntryForm onFavoritoCreated={callData}/>
+                </Group>
+            </ViewToolbar>
+            <Grid items={items}>
+                <GridColumn renderer={indexIndex} header="N°" />
+                <GridSortColumn path="id" header="ID" onDirectionChanged={(e) => order(e, 'id')} />
+                <GridSortColumn path="fechaGuardado" header="Fecha Guardado" onDirectionChanged={(e) => order(e, 'fechaGuardado')} />
+                <GridSortColumn path="idAuto" header="ID Auto" onDirectionChanged={(e) => order(e, 'idAuto')} />
+                <GridSortColumn path="idUsuario" header="ID Usuario" onDirectionChanged={(e) => order(e, 'idUsuario')} />
+            </Grid>
+        </main>
+    );
 }

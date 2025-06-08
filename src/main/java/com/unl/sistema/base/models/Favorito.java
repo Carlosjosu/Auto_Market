@@ -2,11 +2,11 @@ package com.unl.sistema.base.models;
 
 import java.util.Date;
 
-public class Favorito{
+public class Favorito {
     private Integer id;
-    private Date fechaMarcado;
+    private Date fechaGuardado;
+    private Integer idAuto;
     private Integer idUsuario;
-    private Integer idPublicacion;
 
     public Integer getId() {
         return this.id;
@@ -16,12 +16,20 @@ public class Favorito{
         this.id = id;
     }
 
-    public Date getFechaMarcado() {
-        return this.fechaMarcado;
+    public Date getFechaGuardado() {
+        return this.fechaGuardado;
     }
 
-    public void setFechaMarcado(Date fechaMarcado) {
-        this.fechaMarcado = fechaMarcado;
+    public void setFechaGuardado(Date fechaGuardado) {
+        this.fechaGuardado = fechaGuardado;
+    }
+
+    public Integer getIdAuto() {
+        return this.idAuto;
+    }
+
+    public void setIdAuto(Integer idAuto) {
+        this.idAuto = idAuto;
     }
 
     public Integer getIdUsuario() {
@@ -30,14 +38,6 @@ public class Favorito{
 
     public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
-    }
-
-    public Integer getIdPublicacion() {
-        return this.idPublicacion;
-    }
-
-    public void setIdPublicacion(Integer idPublicacion) {
-        this.idPublicacion = idPublicacion;
     }
 
 }

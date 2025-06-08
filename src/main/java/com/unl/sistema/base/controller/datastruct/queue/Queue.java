@@ -3,11 +3,11 @@ package com.unl.sistema.base.controller.datastruct.queue;
 public class Queue<E> {
     private QueueImplementation<E> queue;
 
-    public Queue(Integer top){
+    public Queue(Integer top) {
         queue = new QueueImplementation<>(top);
     }
 
-    public Boolean push(E data){
+    public Boolean push(E data) {
         try {
             queue.queue(data);
             return true;
@@ -17,7 +17,7 @@ public class Queue<E> {
         }
     }
 
-    public E pop(){
+    public E pop() {
         try {
             return queue.dequeue();
         } catch (Exception e) {
@@ -26,15 +26,15 @@ public class Queue<E> {
         }
     }
 
-    public Boolean isFullQueue(){
+    public Boolean isFullQueue() {
         return queue.isFullQueue();
     }
 
-    public Integer top(){
+    public Integer top() {
         return queue.getTop();
     }
 
-    public Integer size(){
+    public Integer size() {
         return queue.getLength();
     }
 }

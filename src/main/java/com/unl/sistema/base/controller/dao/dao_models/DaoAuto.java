@@ -1,11 +1,8 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
-import java.util.Date;
-
 import com.unl.sistema.base.controller.dao.AdapterDao;
 
 import com.unl.sistema.base.models.Auto;
-
 
 public class DaoAuto extends AdapterDao<Auto>{
     private Auto obj;
@@ -49,5 +46,13 @@ public class DaoAuto extends AdapterDao<Auto>{
         }
     }
 
- 
+    //Auto
+    //Marca
+    //Valoracion
+    //Venta??
+    //Conversacion
+    //Mensaje
+    //Favorito
+    
+
 }

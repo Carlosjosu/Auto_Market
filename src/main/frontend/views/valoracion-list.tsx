@@ -1,54 +1,54 @@
 import { useEffect, useState } from 'react';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Grid, GridColumn, TextField, VerticalLayout, Dialog, GridSortColumn, DatePicker, NumberField } from '@vaadin/react-components';
+import { Button, Grid, GridColumn, TextField, VerticalLayout, Dialog, GridSortColumn, NumberField, DatePicker } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { VentaService } from 'Frontend/generated/endpoints';
+import { ValoracionService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import type { GridItemModel } from '@vaadin/react-components';
 
 export const config: ViewConfig = {
-    title: 'Venta',
+    title: 'Valoracion',
     menu: {
-        icon: 'vaadin:cart',
+        icon: 'vaadin:comments',
         order: 1,
-        title: 'Venta',
+        title: 'Valoracion',
     },
 };
 
-type VentaEntryFormProps = {
-    onVentaCreated?: () => void;
+type ValoracionEntryFormProps = {
+    onValoracionCreated?: () => void;
 };
-function VentaEntryForm(props: VentaEntryFormProps) {
-    const precioFinal = useSignal<number | undefined>(undefined);
+function ValoracionEntryForm(props: ValoracionEntryFormProps) {
+    const puntuacion = useSignal<number | undefined>(undefined);
     const fecha = useSignal<string>('');
-    const idAuto = useSignal<number | undefined>(undefined);
-    const idComprador = useSignal<number | undefined>(undefined);
+    const comentario = useSignal<string>('');
+    const idVenta = useSignal<number | undefined>(undefined);
 
     const dialogOpened = useSignal(false);
 
-    const createVenta = async () => {
+    const createValoracion = async () => {
         try {
             if (
-                precioFinal.value !== undefined &&
+                puntuacion.value !== undefined &&
                 fecha.value &&
-                idAuto.value !== undefined &&
-                idComprador.value !== undefined
+                comentario.value.trim() &&
+                idVenta.value !== undefined
             ) {
-                await VentaService.create(
-                    precioFinal.value,
+                await ValoracionService.create(
+                    puntuacion.value,
                     fecha.value,
-                    idAuto.value,
-                    idComprador.value
+                    comentario.value,
+                    idVenta.value
                 );
-                if (props.onVentaCreated) props.onVentaCreated();
-                precioFinal.value = undefined;
+                if (props.onValoracionCreated) props.onValoracionCreated();
+                puntuacion.value = undefined;
                 fecha.value = '';
-                idAuto.value = undefined;
-                idComprador.value = undefined;
+                comentario.value = '';
+                idVenta.value = undefined;
                 dialogOpened.value = false;
-                Notification.show('Venta creada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+                Notification.show('Valoración creada', { duration: 5000, position: 'bottom-end', theme: 'success' });
             } else {
                 Notification.show('No se pudo crear, faltan o hay datos inválidos', {
                     duration: 5000,
@@ -65,7 +65,7 @@ function VentaEntryForm(props: VentaEntryFormProps) {
         <>
             <Dialog
                 modeless
-                headerTitle="Nueva Venta"
+                headerTitle="Nueva Valoración"
                 opened={dialogOpened.value}
                 onOpenedChanged={({ detail }: { detail: { value: boolean } }) => {
                     dialogOpened.value = detail.value;
@@ -73,21 +73,21 @@ function VentaEntryForm(props: VentaEntryFormProps) {
                 footer={
                     <>
                         <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
-                        <Button onClick={createVenta} theme="primary">
+                        <Button onClick={createValoracion} theme="primary">
                             Registrar
                         </Button>
                     </>
                 }>
                 <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
                     <NumberField
-                        label="Precio Final"
-                        value={precioFinal.value !== undefined ? String(precioFinal.value) : undefined}
-                        onValueChanged={(e) => {
+                        label="Puntuación"
+                        value={puntuacion.value !== undefined ? String(puntuacion.value) : ''}
+                        onValueChanged={e => {
                             const val = e.detail.value;
-                            precioFinal.value = val !== '' && val !== undefined ? Number(val) : undefined;
+                            puntuacion.value = val !== '' ? Number(val) : undefined;
                         }}
-                        min={0}
-                        step={0.01}
+                        min={1}
+                        max={5}
                         required
                     />
                     <DatePicker
@@ -96,22 +96,18 @@ function VentaEntryForm(props: VentaEntryFormProps) {
                         onValueChanged={(evt: CustomEvent<{ value: string }>) => (fecha.value = evt.detail.value)}
                         required
                     />
-                    <NumberField
-                        label="ID Auto"
-                        value={idAuto.value !== undefined ? String(idAuto.value) : undefined}
-                        onValueChanged={(e) => {
-                            const val = e.detail.value;
-                            idAuto.value = val !== '' && val !== undefined ? Number(val) : undefined;
-                        }}
-                        min={1}
+                    <TextField
+                        label="Comentario"
+                        value={comentario.value}
+                        onValueChanged={e => (comentario.value = e.detail.value)}
                         required
                     />
                     <NumberField
-                        label="ID Comprador"
-                        value={idComprador.value !== undefined ? String(idComprador.value) : undefined}
-                        onValueChanged={(e) => {
+                        label="ID Venta"
+                        value={idVenta.value !== undefined ? String(idVenta.value) : ''}
+                        onValueChanged={e => {
                             const val = e.detail.value;
-                            idComprador.value = val !== '' && val !== undefined ? Number(val) : undefined;
+                            idVenta.value = val !== '' ? Number(val) : undefined;
                         }}
                         min={1}
                         required
@@ -123,11 +119,11 @@ function VentaEntryForm(props: VentaEntryFormProps) {
     );
 }
 
-export default function VentaView() {
+export default function ValoracionView() {
     const [items, setItems] = useState<any[]>([]);
 
     const callData = () => {
-        VentaService.listVenta().then(function (data) {
+        ValoracionService.listValoracion().then(function (data) {
             setItems(data);
         });
     };
@@ -138,11 +134,11 @@ export default function VentaView() {
 
     const order = (event: any, columnId: string) => {
         const direction = event.detail.value;
-        var dir = direction === 'asc' ? 1 : 2;
-        VentaService.ordenar(columnId, dir).then(function (data) {
+        var dir = (direction == 'asc') ? 1 : 2;
+        ValoracionService.ordenar(columnId, dir).then(function (data) {
             setItems(data);
         });
-    };
+    }
 
     function indexIndex({ model }: { model: GridItemModel<any> }) {
         return <span>{model.index + 1}</span>;
@@ -150,18 +146,18 @@ export default function VentaView() {
 
     return (
         <main className="w-full h-full flex flex-col box-border gap-s p-m">
-            <ViewToolbar title="Lista de Ventas">
+            <ViewToolbar title="Lista de Valoraciones">
                 <Group>
-                    <VentaEntryForm onVentaCreated={callData} />
+                    <ValoracionEntryForm onValoracionCreated={callData} />
                 </Group>
             </ViewToolbar>
             <Grid items={items}>
                 <GridColumn renderer={indexIndex} header="N°" />
                 <GridSortColumn path="id" header="ID" onDirectionChanged={(e) => order(e, 'id')} />
-                <GridSortColumn path="precioFinal" header="Precio Final" onDirectionChanged={(e) => order(e, 'precioFinal')} />
+                <GridSortColumn path="puntuacion" header="Puntuación" onDirectionChanged={(e) => order(e, 'puntuacion')} />
                 <GridSortColumn path="fecha" header="Fecha" onDirectionChanged={(e) => order(e, 'fecha')} />
-                <GridSortColumn path="idAuto" header="ID Auto" onDirectionChanged={(e) => order(e, 'idAuto')} />
-                <GridSortColumn path="idComprador" header="ID Comprador" onDirectionChanged={(e) => order(e, 'idComprador')} />
+                <GridSortColumn path="comentario" header="Comentario" onDirectionChanged={(e) => order(e, 'comentario')} />
+                <GridSortColumn path="idVenta" header="ID Venta" onDirectionChanged={(e) => order(e, 'idVenta')} />
             </Grid>
         </main>
     );

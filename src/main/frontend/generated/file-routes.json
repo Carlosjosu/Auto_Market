@@ -15,15 +15,10 @@
         "title": "Main"
       },
       {
-        "route": "marca-list",
-        "title": "Marca",
-        "menu": {
-          "icon": "vaadin:tag",
-          "order": 1,
-          "title": "Marca"
-        },
+        "route": "MensajeView",
         "flowLayout": false,
-        "params": {}
+        "params": {},
+        "title": "Mensajes"
       },
       {
         "route": "task-list",

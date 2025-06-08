@@ -1,7 +1,9 @@
 package com.unl.sistema.base.models;
 
 import java.util.Date;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class Mensaje {
 
     private Integer id;
@@ -48,6 +50,14 @@ public class Mensaje {
 
     public void setIdConversacion(Integer idConversacion) {
         this.idConversacion = idConversacion;
+    }
+
+    public void setConversacion(Conversacion conversacion) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setRemitente(Usuario remitente) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

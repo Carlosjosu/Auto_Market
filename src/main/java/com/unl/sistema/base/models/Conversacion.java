@@ -59,5 +59,14 @@ public class Conversacion {
         this.estaActiva = estaActiva;
     }
 
-    
+    public void setUsuario1(Usuario usuario1) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setUsuario1'");
+    }
+
+    public void setUsuario2(Usuario usuario2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setUsuario2'");
+    }
+
 }

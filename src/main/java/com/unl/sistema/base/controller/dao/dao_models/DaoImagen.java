@@ -6,7 +6,6 @@ import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Imagen;
-import com.unl.sistema.base.models.Marca;
 
 public class DaoImagen extends AdapterDao<Imagen> {
     private Imagen obj;
@@ -31,11 +30,9 @@ public class DaoImagen extends AdapterDao<Imagen> {
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            // Log de error
             e.printStackTrace();
             System.out.println(e);
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -44,9 +41,7 @@ public class DaoImagen extends AdapterDao<Imagen> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
-            // Log de error
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -61,14 +56,12 @@ public class DaoImagen extends AdapterDao<Imagen> {
         return lista;
     }
 
-    public HashMap<String, String> toDict(Imagen arreglo) {
-        DaoImagen da = new DaoImagen();
+    public HashMap<String, String> toDict(Imagen img) {
         HashMap<String, String> aux = new HashMap<>();
-        aux.put("id", arreglo.getId().toString());
-        aux.put("url", arreglo.getUrl());
-        aux.put("descripcion", String.valueOf(arreglo.getDescripcion()));
-        aux.put("idAuto", String.valueOf(arreglo.getIdAuto()));
-
+        aux.put("id", String.valueOf(img.getId()));
+        aux.put("url", img.getUrl());
+        aux.put("descripcion", img.getDescripcion());
+        aux.put("idAuto", String.valueOf(img.getIdAuto()));
         return aux;
     }
 
@@ -95,7 +88,7 @@ public class DaoImagen extends AdapterDao<Imagen> {
                 for (int i = 0; i < n; i++) {
                     try {
                         String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                        String val = String.valueOf(Marca.class.getMethod(getter).invoke(arreglo[i]));
+                        String val = String.valueOf(Imagen.class.getMethod(getter).invoke(arreglo[i]));
                         if (arreglo[i] != null && val.equals(valor)) {
                             lista.add(arreglo[i]);
                         }
@@ -104,7 +97,6 @@ public class DaoImagen extends AdapterDao<Imagen> {
                     }
                 }
             }
-
         }
         return lista;
     }

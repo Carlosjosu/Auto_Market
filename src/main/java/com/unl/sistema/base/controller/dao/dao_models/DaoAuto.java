@@ -6,7 +6,6 @@ import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
-import com.unl.sistema.base.models.Marca;
 
 public class DaoAuto extends AdapterDao<Auto> {
     private Auto obj;
@@ -31,11 +30,9 @@ public class DaoAuto extends AdapterDao<Auto> {
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            // Log de error
             e.printStackTrace();
             System.out.println(e);
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -44,9 +41,7 @@ public class DaoAuto extends AdapterDao<Auto> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
-            // Log de error
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -61,26 +56,25 @@ public class DaoAuto extends AdapterDao<Auto> {
         return lista;
     }
 
-    public HashMap<String, String> toDict(Auto arreglo) {
-        DaoAuto da = new DaoAuto();
+    public HashMap<String, String> toDict(Auto auto) {
         HashMap<String, String> aux = new HashMap<>();
-        aux.put("id", arreglo.getId().toString());
-        aux.put("anio", arreglo.getAnio().toString());
-        aux.put("modelo", String.valueOf(arreglo.getModelo()));
-        aux.put("puertas", String.valueOf(arreglo.getPuertas()));
-        aux.put("color", String.valueOf(arreglo.getColor()));
-        aux.put("Kilometraje", String.valueOf(arreglo.getKilometraje()));
-        aux.put("ciudad", String.valueOf(arreglo.getCiudad()));
-        aux.put("precio", String.valueOf(arreglo.getPrecio()));
-        aux.put("matricula", String.valueOf(arreglo.getMatricula()));
-        aux.put("codigoVIN", String.valueOf(arreglo.getCodigoVIN()));
-        aux.put("descripcion", String.valueOf(arreglo.getDescripcion()));
-        aux.put("fechaRegistro", String.valueOf(arreglo.getFechaRegistro()));
-        aux.put("estaDisponible", String.valueOf(arreglo.isEstaDisponible()));
-        aux.put("idVendedor", String.valueOf(arreglo.getIdVendedor()));
-        aux.put("idMarca", String.valueOf(arreglo.getIdMarca()));
-        aux.put("tipoCombustible", String.valueOf(arreglo.getTipoCombustible()));
-        aux.put("Categoria", String.valueOf(arreglo.getCategoria()));
+        aux.put("id", String.valueOf(auto.getId()));
+        aux.put("anio", String.valueOf(auto.getAnio()));
+        aux.put("modelo", String.valueOf(auto.getModelo()));
+        aux.put("puertas", String.valueOf(auto.getPuertas()));
+        aux.put("color", String.valueOf(auto.getColor()));
+        aux.put("kilometraje", String.valueOf(auto.getKilometraje()));
+        aux.put("ciudad", String.valueOf(auto.getCiudad()));
+        aux.put("precio", String.valueOf(auto.getPrecio()));
+        aux.put("matricula", String.valueOf(auto.getMatricula()));
+        aux.put("codigoVIN", String.valueOf(auto.getCodigoVIN()));
+        aux.put("descripcion", String.valueOf(auto.getDescripcion()));
+        aux.put("fechaRegistro", String.valueOf(auto.getFechaRegistro()));
+        aux.put("estaDisponible", String.valueOf(auto.isEstaDisponible()));
+        aux.put("idVenta", String.valueOf(auto.getIdVenta()));
+        aux.put("idMarca", String.valueOf(auto.getIdMarca()));
+        aux.put("tipoCombustible", String.valueOf(auto.getTipoCombustible()));
+        aux.put("categoria", String.valueOf(auto.getCategoria()));
         return aux;
     }
 
@@ -107,7 +101,7 @@ public class DaoAuto extends AdapterDao<Auto> {
                 for (int i = 0; i < n; i++) {
                     try {
                         String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                        String val = String.valueOf(Marca.class.getMethod(getter).invoke(arreglo[i]));
+                        String val = String.valueOf(Auto.class.getMethod(getter).invoke(arreglo[i]));
                         if (arreglo[i] != null && val.equals(valor)) {
                             lista.add(arreglo[i]);
                         }
@@ -116,7 +110,6 @@ public class DaoAuto extends AdapterDao<Auto> {
                     }
                 }
             }
-
         }
         return lista;
     }

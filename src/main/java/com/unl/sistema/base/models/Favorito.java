@@ -8,6 +8,15 @@ public class Favorito {
     private Integer idAuto;
     private Integer idUsuario;
 
+    public Favorito() {
+    }
+
+    public Favorito(Date fechaGuardado, Integer idAuto, Integer idUsuario) {
+        this.fechaGuardado = fechaGuardado;
+        this.idAuto = idAuto;
+        this.idUsuario = idUsuario;
+    }
+
     public Integer getId() {
         return this.id;
     }

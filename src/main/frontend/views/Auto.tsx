@@ -1,179 +1,317 @@
 import { useEffect, useState } from 'react';
-import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Grid, GridColumn, TextField, VerticalLayout, Dialog, GridSortColumn, Checkbox, ComboBox } from '@vaadin/react-components';
+import { Button, Grid, GridColumn, GridSortColumn, TextField, VerticalLayout, Dialog, Checkbox, ComboBox } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { AutoService } from 'Frontend/generated/endpoints';
-import { useSignal } from '@vaadin/hilla-react-signals';
-import handleError from 'Frontend/views/_ErrorHandler';
+import { AutoService, MarcaService } from 'Frontend/generated/endpoints';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import { useDataProvider } from '@vaadin/hilla-react-crud';
 import type { GridItemModel } from '@vaadin/react-components';
+import { useSignal } from '@vaadin/hilla-react-signals';
+import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout';
+import { TextArea } from '@vaadin/react-components/TextArea';
 
-export const config: ViewConfig = {
+
+interface AutoItem {
+  modelo: string;
+  anio: string;
+  puertas: number;
+  color: string;
+  kilometraje: number;
+  ciudad: string;
+  precio: number;
+  matricula: string;
+  codigoVIN: string;
+  descripcion: string;
+  fechaRegistro: string;
+  estaDisponible: boolean;
+  idVenta: number;
+  idMarca: number;
+  tipoCombustible: string;
+  categoria: string;
+}
+
+export const config = {
     title: 'Auto',
     menu: {
-        icon: 'vaadin:tag',
-        order: 1,
+        icon: 'vaadin:car',
+        order: 2,
         title: 'Auto',
     },
 };
 
-type AutoEntryFormProps = {
-    onAutoCreated?: () => void;
-};
-function AutoEntryForm(props: AutoEntryFormProps) {
-    const anio = useSignal('');
-    const modelo = useSignal('');
-    const puertas = useSignal(0);
-    const color = useSignal('');
-    const kilometraje = useSignal(0);
-    const ciudad = useSignal('');
-    const precio = useSignal(0);
-    const matricula = useSignal('');
-    const codigoVIN = useSignal('');
-    const descripcion = useSignal('');
-    const fechaRegistro = useSignal(new Date());
-    const estaDisponible = useSignal(false);
-    const idVendedor = useSignal(0);
-    const idMarca = useSignal(0);
-    const tipoCombustible = useSignal('');
-    const categoria = useSignal('');
-
-    const dialogOpened = useSignal(false);
+function AutoEntryForm({ onAutoCreated }: { onAutoCreated?: () => void }) {
+    const [modelo, setModelo] = useState('');
+    const [anio, setAnio] = useState('');
+    const [puertas, setPuertas] = useState(''); // string
+    const [color, setColor] = useState('');
+    const [kilometraje, setKilometraje] = useState('');
+    const [ciudad, setCiudad] = useState('');
+    const [precio, setPrecio] = useState('');
+    const [matricula, setMatricula] = useState('');
+    const [codigoVIN, setCodigoVIN] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [fechaRegistro, setFechaRegistro] = useState('');
+    const [estaDisponible, setEstaDisponible] = useState(true);
+    const [idVenta, setIdVenta] = useState(''); // string
+    const [idMarca, setIdMarca] = useState(''); // string
+    const [tipoCombustible, setTipoCombustible] = useState('');
+    const [categoria, setCategoria] = useState('');
+    const [dialogOpened, setDialogOpened] = useState(false);
+    const [showDeleteButton, setShowDeleteButton] = useState(false);
+    const [editMode, setEditMode] = useState<'edit' | 'create' | null>(null);
+    const [tiposCombustible, setTiposCombustible] = useState<string[]>([]);
+    const [categorias, setCategorias] = useState<string[]>([]);
+    const [marcas, setMarcas] = useState<{ id: number, nombre: string }[]>([]);
+    const [ventas, setVentas] = useState<{ id: number }[]>([]);
 
     const createAuto = async () => {
         try {
-            if (anio.value.trim() && modelo.value.trim()) {
-                await AutoService.create(anio.value, modelo.value, puertas.value, color.value, kilometraje.value, ciudad.value, precio.value, matricula.value, codigoVIN.value, descripcion.value, fechaRegistro.value.toISOString(), estaDisponible.value, idVendedor.value, idMarca.value, tipoCombustible.value, categoria.value);
-                if (props.onAutoCreated) props.onAutoCreated();
-                anio.value = '';
-                modelo.value = '';
-                puertas.value = 0;
-                color.value = '';
-                kilometraje.value = 0;
-                ciudad.value = '';
-                precio.value = 0;
-                matricula.value = '';
-                codigoVIN.value = '';
-                descripcion.value = '';
-                fechaRegistro.value = new Date();
-                estaDisponible.value = false;
-                idVendedor.value = 0;
-                idMarca.value = 0;
-                tipoCombustible.value = '';
-                categoria.value = '';
-                dialogOpened.value = false;
-                Notification.show('Auto creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
-            } else {
-                Notification.show('No se pudo crear, faltan o hay datos inválidos', {
-                    duration: 5000,
-                    position: 'top-center',
-                    theme: 'error',
-                });
+            if (!modelo.trim()) {
+                Notification.show('El campo Modelo es obligatorio', { duration: 5000, position: 'top-center', theme: 'error' });
+                return;
             }
-        } catch (error) {
-            handleError(error);
+            await AutoService.create(
+                modelo,
+                anio,
+                puertas ? Number(puertas) : undefined,
+                color,
+                kilometraje || undefined,
+                ciudad,
+                precio || undefined,
+                matricula,
+                codigoVIN,
+                descripcion,
+                fechaRegistro,
+                estaDisponible,
+                idVenta ? Number(idVenta) : undefined,
+                idMarca ? Number(idMarca) : undefined,
+                tipoCombustible,
+                categoria
+            );
+            if (onAutoCreated) onAutoCreated();
+            setModelo('');
+            setAnio('');
+            setPuertas('');
+            setColor('');
+            setKilometraje('');
+            setCiudad('');
+            setPrecio('');
+            setMatricula('');
+            setCodigoVIN('');
+            setDescripcion('');
+            setFechaRegistro('');
+            setEstaDisponible(true);
+            setIdVenta('');
+            setIdMarca('');
+            setTipoCombustible('');
+            setCategoria('');
+            setDialogOpened(false);
+            Notification.show('Auto creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
+        } catch (error: any) {
+            Notification.show(error?.message || 'Error al guardar el auto', { duration: 5000, position: 'top-center', theme: 'error' });
         }
     };
 
-    // Opciones para los ComboBox
-    const [tipoCombustibleOptions, setTipoCombustibleOptions] = useState<string[]>([]);
-    const [categoriaOptions, setCategoriaOptions] = useState<string[]>([]);
-
-    // Cargar opciones de enums desde el backend
     useEffect(() => {
-        const fetchOptions = async () => {
-            try {
-                const tipos = await AutoService.getTipoCombustibleOptions();
-                setTipoCombustibleOptions((tipos || []).filter((t): t is string => typeof t === 'string'));
-            } catch (e) {
-                Notification.show('Error cargando tipos de combustible', { theme: 'error' });
+        AutoService.getTiposCombustible().then((data) => setTiposCombustible((data ?? []).filter(Boolean) as string[]));
+        AutoService.getCategorias().then((data) => setCategorias((data ?? []).filter(Boolean) as string[]));
+        MarcaService.listMarca().then((data: any) => {
+            setMarcas((data ?? []).filter(Boolean).map((m: any) => ({ id: Number(m.id), nombre: m.nombre })));
+        });
+        // Obtener ventas
+        import('Frontend/generated/endpoints').then(({ VentaService }) => {
+            if (VentaService && VentaService.listVenta) {
+                VentaService.listVenta().then((data: any) => {
+                    setVentas((data ?? []).filter(Boolean).map((v: any) => ({ id: Number(v.id) })));
+                });
             }
-            try {
-                const categorias = await AutoService.getCategoriaOptions();
-                setCategoriaOptions((categorias || []).filter((c): c is string => typeof c === 'string'));
-            } catch (e) {
-                Notification.show('Error cargando categorías', { theme: 'error' });
-            }
-        };
-        fetchOptions();
+        });
     }, []);
 
+    // Lista de autos de ejemplo para edición
+    const autosEjemplo: AutoItem[] = [
+        {
+            modelo: 'Corolla', anio: '2020', puertas: 4, color: 'Rojo', kilometraje: 35000, ciudad: 'Quito', precio: 15000, matricula: 'ABC123', codigoVIN: '1HGCM82633A004352', descripcion: 'Auto en excelente estado', fechaRegistro: '2024-06-08', estaDisponible: true, idVenta: 1, idMarca: 1, tipoCombustible: 'GASOLINA', categoria: 'SEDAN'
+        },
+        {
+            modelo: 'Sentra', anio: '2019', puertas: 4, color: 'Azul', kilometraje: 42000, ciudad: 'Guayaquil', precio: 12000, matricula: 'DEF456', codigoVIN: '2HGCM82633A004353', descripcion: 'Buen estado, único dueño', fechaRegistro: '2023-05-10', estaDisponible: false, idVenta: 2, idMarca: 2, tipoCombustible: 'DIESEL', categoria: 'HATCHBACK'
+        }
+    ];
+    const [autoEjemploSeleccionado, setAutoEjemploSeleccionado] = useState(autosEjemplo[0]);
+
+    const handleEdit = () => {
+        const item = autoEjemploSeleccionado;
+        setModelo(item.modelo);
+        setAnio(item.anio);
+        setPuertas(String(item.puertas));
+        setColor(item.color);
+        setKilometraje(String(item.kilometraje));
+        setCiudad(item.ciudad);
+        setPrecio(String(item.precio));
+        setMatricula(item.matricula);
+        setCodigoVIN(item.codigoVIN);
+        setDescripcion(item.descripcion);
+        setFechaRegistro(item.fechaRegistro);
+        setEstaDisponible(item.estaDisponible);
+        setIdVenta(String(item.idVenta));
+        setIdMarca(String(item.idMarca));
+        setTipoCombustible(item.tipoCombustible);
+        setCategoria(item.categoria);
+        setEditMode('edit');
+        setDialogOpened(true);
+    };
+    const handleCreate = () => {
+        setModelo('');
+        setAnio('');
+        setPuertas('');
+        setColor('');
+        setKilometraje('');
+        setCiudad('');
+        setPrecio('');
+        setMatricula('');
+        setCodigoVIN('');
+        setDescripcion('');
+        setFechaRegistro('');
+        setEstaDisponible(true);
+        setIdVenta('');
+        setIdMarca('');
+        setTipoCombustible('');
+        setCategoria('');
+        setEditMode('create');
+        setDialogOpened(true);
+    };
+    const toggleDeleteButtonVisibility = () => {
+        setShowDeleteButton(v => !v);
+    };
+    const handleDeleteSuccess = () => {
+        Notification.show(`Auto eliminado: ${JSON.stringify({ modelo, anio, puertas, color, kilometraje, ciudad, precio, matricula, codigoVIN, descripcion, fechaRegistro, estaDisponible, idVenta, idMarca, tipoCombustible, categoria })}`);
+        setDialogOpened(false);
+    };
+
     return (
-        <>
+        <VerticalLayout>
+            <HorizontalLayout theme="spacing">
+                <ComboBox
+                    label="Selecciona un auto de ejemplo para editar"
+                    items={autosEjemplo.map((a, idx) => ({ label: `${a.modelo} (${a.anio})`, value: String(idx) }))}
+                    value={String(autosEjemplo.indexOf(autoEjemploSeleccionado))}
+                    onValueChanged={e => setAutoEjemploSeleccionado(autosEjemplo[Number(e.detail.value)])}
+                    style={{ width: 200 }}
+                />
+                <Button onClick={handleEdit}>Editar Auto</Button>
+                <Button onClick={handleCreate}>Crear nuevo</Button>
+                <Button onClick={toggleDeleteButtonVisibility}>
+                    {showDeleteButton ? 'Ocultar Eliminar' : 'Mostrar Eliminar'}
+                </Button>
+            </HorizontalLayout>
             <Dialog
                 modeless
-                headerTitle="Nuevo Auto"
-                opened={dialogOpened.value}
-                onOpenedChanged={({ detail }: { detail: { value: boolean } }) => {
-                    dialogOpened.value = detail.value;
-                }}
+                headerTitle={editMode === 'edit' ? 'Editar Auto' : 'Nuevo Auto'}
+                opened={dialogOpened}
+                onOpenedChanged={({ detail }: { detail: { value: boolean } }) => setDialogOpened(detail.value)}
                 footer={
                     <>
-                        <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
-                        <Button onClick={createAuto} theme="primary">
-                            Registrar
-                        </Button>
+                        <Button onClick={() => setDialogOpened(false)}>Cancelar</Button>
+                        {showDeleteButton && editMode === 'edit' && (
+                            <Button theme="error" onClick={handleDeleteSuccess}>Eliminar</Button>
+                        )}
+                        <Button onClick={createAuto} theme="primary">Registrar</Button>
                     </>
                 }>
-                <VerticalLayout style={{ alignItems: 'stretch', width: '100%', maxWidth: '30rem', gap: '1rem', padding: '1rem' }}>
-                    <TextField label="Año" value={anio.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (anio.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <TextField label="Modelo" value={modelo.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (modelo.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <TextField label="Puertas" value={String(puertas.value)} onValueChanged={(evt: CustomEvent<{ value: string }>) => (puertas.value = Number(evt.detail.value))} style={{ width: '100%' }} />
-                    <TextField label="Color" value={color.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (color.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <TextField label="Kilometraje" value={String(kilometraje.value)} onValueChanged={(evt: CustomEvent<{ value: string }>) => (kilometraje.value = Number(evt.detail.value))} style={{ width: '100%' }} />
-                    <TextField label="Ciudad" value={ciudad.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (ciudad.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <TextField label="Precio" value={String(precio.value)} onValueChanged={(evt: CustomEvent<{ value: string }>) => (precio.value = Number(evt.detail.value))} style={{ width: '100%' }} />
-                    <TextField label="Matrícula" value={matricula.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (matricula.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <TextField label="Código VIN" value={codigoVIN.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (codigoVIN.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <TextField label="Descripción" value={descripcion.value} onValueChanged={(evt: CustomEvent<{ value: string }>) => (descripcion.value = evt.detail.value)} style={{ width: '100%' }} />
-                    <Checkbox label="¿Está disponible?" checked={estaDisponible.value} onCheckedChanged={(evt: CustomEvent<{ value: boolean }>) => (estaDisponible.value = evt.detail.value)} style={{ marginBottom: '0.5rem' }} />
-                    <TextField label="ID Vendedor" value={String(idVendedor.value)} onValueChanged={(evt: CustomEvent<{ value: string }>) => (idVendedor.value = Number(evt.detail.value))} style={{ width: '100%' }} />
-                    <TextField label="ID Marca" value={String(idMarca.value)} onValueChanged={(evt: CustomEvent<{ value: string }>) => (idMarca.value = Number(evt.detail.value))} style={{ width: '100%' }} />
-                    <ComboBox
-                      label="Tipo Combustible"
-                      items={tipoCombustibleOptions}
-                      value={tipoCombustible.value}
-                      onValueChanged={(evt: CustomEvent<{ value: string }>) => (tipoCombustible.value = evt.detail.value)}
-                      style={{ width: '100%' }}
-                    />
-                    <ComboBox
-                      label="Categoría"
-                      items={categoriaOptions}
-                      value={categoria.value}
-                      onValueChanged={(evt: CustomEvent<{ value: string }>) => (categoria.value = evt.detail.value)}
-                      style={{ width: '100%' }}
-                    />
+                <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
+                    <TextField label="Modelo" value={modelo} placeholder="Ej: Corolla" onValueChanged={e => setModelo(e.detail.value)} />
+                    <TextField label="Año" value={anio} placeholder="Ej: 2020" onValueChanged={e => setAnio(e.detail.value)} />
+                    <TextField label="Puertas" value={puertas} placeholder="Ej: 4" onValueChanged={e => setPuertas(e.detail.value)} />
+                    <TextField label="Color" value={color} placeholder="Ej: Rojo" onValueChanged={e => setColor(e.detail.value)} />
+                    <TextField label="Kilometraje" value={kilometraje} placeholder="Ej: 35000" onValueChanged={e => setKilometraje(e.detail.value)} />
+                    <TextField label="Ciudad" value={ciudad} placeholder="Ej: Quito" onValueChanged={e => setCiudad(e.detail.value)} />
+                    <TextField label="Precio" value={precio} placeholder="Ej: 15000" onValueChanged={e => setPrecio(e.detail.value)} />
+                    <TextField label="Matrícula" value={matricula} placeholder="Ej: ABC123" onValueChanged={e => setMatricula(e.detail.value)} />
+                    <TextField label="VIN" value={codigoVIN} placeholder="Ej: 1HGCM82633A004352" onValueChanged={e => setCodigoVIN(e.detail.value)} />
+                    <TextArea label="Descripción" value={descripcion} style={{ width: '100%', minHeight: '100px', maxHeight: '150px' }} onValueChanged={e => setDescripcion(e.detail.value)} />
+                    <TextField label="Fecha Registro (yyyy-MM-dd)" value={fechaRegistro} placeholder="Ej: 2024-06-08" onValueChanged={e => setFechaRegistro(e.detail.value)} />
+                    <Checkbox label="¿Disponible?" checked={estaDisponible} onCheckedChanged={e => setEstaDisponible(e.detail.value)} />
+                    <ComboBox label="Venta" items={ventas.map(v => ({ label: String(v.id), value: String(v.id) }))} value={idVenta} placeholder="Seleccione una venta" onValueChanged={e => setIdVenta(e.detail.value)} />
+                    <ComboBox label="Marca" items={marcas.map(m => ({ label: m.nombre, value: String(m.id) }))} value={idMarca} placeholder="Seleccione una marca" onValueChanged={e => setIdMarca(e.detail.value)} />
+                    <ComboBox label="Tipo Combustible" items={tiposCombustible} value={tipoCombustible} placeholder="Ej: GASOLINA" onValueChanged={e => setTipoCombustible(e.detail.value)} />
+                    <ComboBox label="Categoría" items={categorias} value={categoria} placeholder="Ej: SEDAN" onValueChanged={e => setCategoria(e.detail.value)} />
                 </VerticalLayout>
             </Dialog>
-            <Button onClick={() => (dialogOpened.value = true)}>Agregar</Button>
-        </>
+        </VerticalLayout>
     );
 }
 
 export default function AutoView() {
+    const [items, setItems] = useState<AutoItem[]>([]);
+    const [marcas, setMarcas] = useState<{ id: number, nombre: string }[]>([]);
+
     const callData = () => {
-        AutoService.listAuto().then(function(data){
-            setItems(Array.isArray(data) ? data.filter(Boolean) : []);
-        });
+        AutoService.listAuto()
+            .then(data => setItems(
+                (data ?? [])
+                    .filter(Boolean)
+                    .map((item: any) => ({
+                        modelo: item.modelo ?? '',
+                        anio: item.anio ?? '',
+                        puertas: Number(item.puertas) || 0,
+                        color: item.color ?? '',
+                        kilometraje: Number(item.kilometraje) || 0,
+                        ciudad: item.ciudad ?? '',
+                        precio: Number(item.precio) || 0,
+                        matricula: item.matricula ?? '',
+                        codigoVIN: item.codigoVIN ?? '',
+                        descripcion: item.descripcion ?? '',
+                        fechaRegistro: item.fechaRegistro ?? '',
+                        estaDisponible: Boolean(item.estaDisponible),
+                        idVenta: Number(item.idVenta) || 0,
+                        idMarca: Number(item.idMarca) || 0,
+                        tipoCombustible: item.tipoCombustible ?? '',
+                        categoria: item.categoria ?? ''
+                    }))
+            ))
+            .catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
     };
-    
-    const [items, setItems] = useState<any[]>([]);
+
     useEffect(() => {
         callData();
     }, []);
 
-    const order = (event: any, columnId: any) => {
+    const order = (event: any, columnId: string) => {
         const direction = event.detail.value;
         var dir = (direction == 'asc') ? 1 : 2;
-        AutoService.ordenar(columnId, dir).then(function (data) {
-            setItems(Array.isArray(data) ? data.filter(Boolean) : []);
-        });
-    }
+        AutoService.ordenar(columnId, dir)
+            .then(data => setItems(
+                (data ?? [])
+                    .filter(Boolean)
+                    .map((item: any) => ({
+                        modelo: item.modelo ?? '',
+                        anio: item.anio ?? '',
+                        puertas: Number(item.puertas) || 0,
+                        color: item.color ?? '',
+                        kilometraje: Number(item.kilometraje) || 0,
+                        ciudad: item.ciudad ?? '',
+                        precio: Number(item.precio) || 0,
+                        matricula: item.matricula ?? '',
+                        codigoVIN: item.codigoVIN ?? '',
+                        descripcion: item.descripcion ?? '',
+                        fechaRegistro: item.fechaRegistro ?? '',
+                        estaDisponible: Boolean(item.estaDisponible),
+                        idVenta: Number(item.idVenta) || 0,
+                        idMarca: Number(item.idMarca) || 0,
+                        tipoCombustible: item.tipoCombustible ?? '',
+                        categoria: item.categoria ?? ''
+                    }))
+            ))
+            .catch(() => Notification.show('Error al ordenar', { duration: 5000, position: 'top-center', theme: 'error' }));
+    };
 
     function indexIndex({ model }: { model: GridItemModel<any> }) {
         return <span>{model.index + 1}</span>;
     }
+
+    useEffect(() => {
+        MarcaService.listMarca().then((data: any) => {
+            setMarcas((data ?? []).filter(Boolean).map((m: any) => ({ id: Number(m.id), nombre: m.nombre })));
+        });
+    }, []);
 
     return (
         <main className="w-full h-full flex flex-col box-border gap-s p-m">
@@ -193,8 +331,17 @@ export default function AutoView() {
                 <GridSortColumn path="codigoVIN" header="Código VIN" onDirectionChanged={(e) => order(e, 'codigoVIN')} />
                 <GridSortColumn path="descripcion" header="Descripción" onDirectionChanged={(e) => order(e, 'descripcion')} />
                 <GridSortColumn path="estaDisponible" header="¿Disponible?" onDirectionChanged={(e) => order(e, 'estaDisponible')} />
-                <GridSortColumn path="idVendedor" header="ID Vendedor" onDirectionChanged={(e) => order(e, 'idVendedor')} />
-                <GridSortColumn path="idMarca" header="ID Marca" onDirectionChanged={(e) => order(e, 'idMarca')} />
+                <GridColumn
+                  header="Venta"
+                  renderer={({ item }) => <span>{item.idVenta}</span>}
+                />
+                <GridColumn
+                  header="Marca"
+                  renderer={({ item }) => {
+                    const marca = marcas.find(m => m.id === item.idMarca);
+                    return <span>{marca ? marca.nombre : item.idMarca}</span>;
+                  }}
+                />
                 <GridSortColumn path="tipoCombustible" header="Tipo Combustible" onDirectionChanged={(e) => order(e, 'tipoCombustible')} />
                 <GridSortColumn path="categoria" header="Categoría" onDirectionChanged={(e) => order(e, 'categoria')} />
             </Grid>

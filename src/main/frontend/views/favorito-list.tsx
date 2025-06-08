@@ -124,10 +124,10 @@ export default function FavoritoView() {
     const order = (event: any, columnId: string) => {
         const direction = event.detail.value;
         var dir = (direction == 'asc') ? 1 : 2;
-        FavoritoService.ordenar(columnId, dir).then(function (data) {
+        <FavoritoService className="ordenar"></FavoritoService>.then(function (data) {
             setItems(data);
         });
-    }
+    };
 
     function indexIndex({ model }: { model: GridItemModel<any> }) {
         return <span>{model.index + 1}</span>;

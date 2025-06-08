@@ -8,6 +8,17 @@ public class Usuario {
     private String telefono;
     private Integer idCuenta;
 
+    public Usuario() {
+    }
+
+    public Usuario(String nombre, String apellido, String cedula, String telefono, Integer idCuenta) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.cedula = cedula;
+        this.telefono = telefono;
+        this.idCuenta = idCuenta;
+    }
+
     public Integer getId() {
         return this.id;
     }
@@ -56,6 +67,4 @@ public class Usuario {
         this.idCuenta = idCuenta;
     }
 
-
-    
 }

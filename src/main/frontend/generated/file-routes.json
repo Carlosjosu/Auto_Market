@@ -18,8 +18,8 @@
         "route": "Auto",
         "title": "Auto",
         "menu": {
-          "icon": "vaadin:tag",
-          "order": 1,
+          "icon": "vaadin:car",
+          "order": 2,
           "title": "Auto"
         },
         "flowLayout": false,
@@ -40,8 +40,8 @@
         "route": "Imagen",
         "title": "Imagen",
         "menu": {
-          "icon": "vaadin:tag",
-          "order": 1,
+          "icon": "lumo:photo",
+          "order": 3,
           "title": "Imagen"
         },
         "flowLayout": false,

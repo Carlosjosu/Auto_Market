@@ -10,7 +10,7 @@ public class Auto {
     private String color;
     private Float kilometraje;
     private String ciudad;
-    private Double precio;
+    private Float precio;
     private String matricula;
     private String codigoVIN;
     private String descripcion;
@@ -77,11 +77,11 @@ public class Auto {
         this.ciudad = ciudad;
     }
 
-    public Double getPrecio() {
+    public Float getPrecio() {
         return this.precio;
     }
 
-    public void setPrecio(Double precio) {
+    public void setPrecio(Float precio) {
         this.precio = precio;
     }
 
@@ -156,6 +156,5 @@ public class Auto {
     public void setCategoria(CategoriaEnum Categoria) {
         this.Categoria = Categoria;
     }
-    
-    
+
 }

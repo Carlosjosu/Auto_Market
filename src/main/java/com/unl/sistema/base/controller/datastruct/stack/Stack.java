@@ -3,11 +3,11 @@ package com.unl.sistema.base.controller.datastruct.stack;
 public class Stack<E> {
     private StackImplementation<E> stack;
 
-    public Stack(Integer top) {
+    public Stack(Integer top){
         stack = new StackImplementation<>(top);
     }
 
-    public Boolean push(E data) {
+    public Boolean push(E data){
         try {
             stack.push(data);
             return true;
@@ -17,7 +17,7 @@ public class Stack<E> {
         }
     }
 
-    public E pop() {
+    public E pop(){
         try {
             return stack.pop();
         } catch (Exception e) {
@@ -26,15 +26,15 @@ public class Stack<E> {
         }
     }
 
-    public Boolean isFullStack() {
+    public Boolean isFullStack(){
         return stack.isFullStack();
     }
 
-    public Integer top() {
+    public Integer top(){
         return stack.getTop();
     }
 
-    public Integer size() {
+    public Integer size(){
         return stack.getLength();
     }
 }

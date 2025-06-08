@@ -15,12 +15,45 @@
         "title": "Main"
       },
       {
-        "route": "marca-list",
-        "title": "Marca",
+        "route": "auto-list",
+        "title": "Auto",
         "menu": {
-          "icon": "vaadin:tag",
+          "icon": "vaadin:car",
           "order": 1,
-          "title": "Marca"
+          "title": "Auto"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "favorito-list",
+        "title": "Favorito",
+        "menu": {
+          "icon": "vaadin:star",
+          "order": 1,
+          "title": "Favorito"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "imagen-list",
+        "title": "Imagen",
+        "menu": {
+          "icon": "vaadin:picture",
+          "order": 1,
+          "title": "Imagen"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "publicacion-list",
+        "title": "Publicación",
+        "menu": {
+          "icon": "vaadin:book",
+          "order": 1,
+          "title": "Publicación"
         },
         "flowLayout": false,
         "params": {}
@@ -32,6 +65,28 @@
           "icon": "vaadin:clipboard-check",
           "order": 1,
           "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "usuario-list",
+        "title": "Usuario",
+        "menu": {
+          "icon": "vaadin:user",
+          "order": 1,
+          "title": "Usuario"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "venta-list",
+        "title": "Venta",
+        "menu": {
+          "icon": "vaadin:dollar",
+          "order": 1,
+          "title": "Venta"
         },
         "flowLayout": false,
         "params": {}

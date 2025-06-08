@@ -1,6 +1,10 @@
-MarcaService.ts
+AutoService.ts
+FavoritoService.ts
+ImagenService.ts
+PublicacionService.ts
+UsuarioService.ts
+VentaService.ts
 TaskService.ts
-com/unl/sistema/base/models/Marca.ts
 com/vaadin/hilla/mappedtypes/Pageable.ts
 com/unl/sistema/taskmanagement/domain/Task.ts
 com/vaadin/hilla/mappedtypes/Sort.ts
@@ -10,7 +14,6 @@ org/springframework/data/domain/Sort/Direction.ts
 org/springframework/data/domain/Sort/NullHandling.ts
 connect-client.default.ts
 endpoints.ts
-com/unl/sistema/base/models/MarcaModel.ts
 com/vaadin/hilla/mappedtypes/PageableModel.ts
 com/unl/sistema/taskmanagement/domain/TaskModel.ts
 com/vaadin/hilla/mappedtypes/SortModel.ts

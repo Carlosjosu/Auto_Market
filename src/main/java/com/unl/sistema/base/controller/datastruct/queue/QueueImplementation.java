@@ -8,25 +8,25 @@ public class QueueImplementation<E> extends LinkedList<E> {
     public Integer getTop() {
         return this.top;
     }
-
-    public QueueImplementation(Integer top) {
+    
+    public QueueImplementation(Integer top){
         this.top = top;
     }
 
-    protected boolean isFullQueue() {
+    protected boolean isFullQueue(){
         return this.top >= getLength();
     }
 
-    protected void queue(E info) throws Exception {
-        if (!isFullQueue()) {
+    protected void queue(E info) throws Exception{
+        if (!isFullQueue()){
             add(info);
-        } else {
+        } else{
             throw new ArrayIndexOutOfBoundsException("Queue full");
         }
     }
 
-    protected E dequeue() throws Exception {
+    protected E dequeue() throws Exception{
         return deleteFirst();
     }
-
+    
 }

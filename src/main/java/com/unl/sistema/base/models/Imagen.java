@@ -1,7 +1,6 @@
 package com.unl.sistema.base.models;
 
 public class Imagen {
-
     private Integer id;
     private String url;
     private String descripcion;
@@ -38,6 +37,5 @@ public class Imagen {
     public void setIdAuto(Integer idAuto) {
         this.idAuto = idAuto;
     }
-
+    
 }
-

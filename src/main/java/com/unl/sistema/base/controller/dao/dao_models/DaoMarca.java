@@ -61,7 +61,6 @@ public class DaoMarca extends AdapterDao<Marca> {
     }
 
     public HashMap<String, String> toDict(Marca arreglo) {
-        DaoMarca da = new DaoMarca();
         HashMap<String, String> aux = new HashMap<>();
         aux.put("id", arreglo.getId().toString());
         aux.put("nombre", arreglo.getNombre());

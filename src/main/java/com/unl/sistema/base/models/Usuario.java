@@ -2,6 +2,7 @@ package com.unl.sistema.base.models;
 
 public class Usuario {
     private Integer id;
+    private String nickname;
     private String nombre;
     private String apellido;
     private String cedula;
@@ -14,6 +15,14 @@ public class Usuario {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getNombre() {
@@ -56,6 +65,4 @@ public class Usuario {
         this.idCuenta = idCuenta;
     }
 
-
-    
 }

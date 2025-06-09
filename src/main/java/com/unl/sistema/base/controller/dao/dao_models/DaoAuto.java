@@ -50,8 +50,6 @@ public class DaoAuto extends AdapterDao<Auto>{
     //Marca
     //Valoracion
     //Venta??
-    //Conversacion
-    //Mensaje
     //Favorito
     
 

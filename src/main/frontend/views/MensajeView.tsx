@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { MessageInput } from "@vaadin/react-components/MessageInput";
 import { Avatar } from "@vaadin/react-components/Avatar";
 import { Notification } from "@vaadin/react-components/Notification";
+import "./mensaje-view.css";
 
 // Interfaces
 interface Usuario {
@@ -63,7 +64,24 @@ const MensajesView: React.FC = () => {
   const [notificacion, setNotificacion] = useState<string | null>(null);
   const mensajesEndRef = useRef<HTMLDivElement>(null);
 
-  // Cuando seleccionas un usuario destino, crea o busca la conversación y carga mensajes
+  // Polling para mensajes en tiempo real (cada 1.5 segundos)
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (conversacion) {
+      fetchMensajes(conversacion.id).then(setMensajes);
+      interval = setInterval(() => {
+        fetchMensajes(conversacion.id).then(setMensajes);
+      }, 1500);
+    }
+    return () => clearInterval(interval);
+  }, [conversacion]);
+
+  // Scroll automático al final
+  useEffect(() => {
+    mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes]);
+
+  // Cambia de usuario o conversación
   useEffect(() => {
     if (usuarioDestino) {
       fetchConversacion(usuarioActual.id, usuarioDestino.id).then(conv => {
@@ -77,15 +95,11 @@ const MensajesView: React.FC = () => {
     }
   }, [usuarioDestino, usuarioActual]);
 
-  useEffect(() => {
-    mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [mensajes]);
-
   const enviarMensaje = async (e: CustomEvent) => {
     const contenido = e.detail.value;
     if (conversacion && contenido.trim()) {
       await enviarMensajeApi(conversacion.id, usuarioActual.id, contenido);
-      fetchMensajes(conversacion.id).then(setMensajes);
+      // El polling traerá el mensaje nuevo automáticamente
       setNotificacion("Mensaje enviado");
     }
   };
@@ -175,7 +189,7 @@ const MensajesView: React.FC = () => {
             <span style={{fontSize: 18}}>Selecciona un chat</span>
           )}
         </div>
-        {/* Mensajes */}
+        {/* Mensajes tipo MessageList */}
         <div style={{
           flex: 1,
           overflowY: "auto",
@@ -186,6 +200,7 @@ const MensajesView: React.FC = () => {
         }}>
           {conversacion && mensajes.map((m, i) => {
             const esActual = m.remitente.id === usuarioActual.id;
+            const userColorIndex = (m.remitente.id % 5) + 1;
             return (
               <div
                 key={m.id}
@@ -196,17 +211,16 @@ const MensajesView: React.FC = () => {
                   gap: 8
                 }}
               >
-                <Avatar name={m.remitente.nombre} />
-                <div style={{
-                  background: esActual ? "#005c4b" : "#202c33",
-                  color: "#fff",
-                  borderRadius: 12,
-                  padding: "10px 16px",
-                  maxWidth: 350,
-                  wordBreak: "break-word",
-                  boxShadow: "0 1px 2px #0002"
-                }}>
-                  <div style={{fontSize: 15}}>{m.contenido}</div>
+                <Avatar
+                  name={m.remitente.nombre}
+                  style={{
+                    border: `2px solid var(--user-color-${userColorIndex}, #25d366)`
+                  }}
+                />
+                <div
+                  className={`mensaje ${esActual ? "actual current-user" : "otro"}`}
+                >
+                  <div>{m.contenido}</div>
                   <div style={{fontSize: 11, textAlign: "right", opacity: 0.7, marginTop: 4}}>
                     {new Date(m.fechaEnvio).toLocaleTimeString()}
                   </div>
@@ -224,8 +238,7 @@ const MensajesView: React.FC = () => {
             borderTop: "1px solid #222"
           }}>
             <MessageInput
-              label=""
-              placeholder="Escribe un mensaje..."
+              label=" "
               onSubmit={enviarMensaje}
               style={{ width: "100%" }}
             />

@@ -1,10 +1,8 @@
 ChatService.ts
-MarcaService.ts
 TaskService.ts
 com/unl/sistema/base/models/Conversacion.ts
 com/unl/sistema/base/models/Mensaje.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacion.ts
-com/unl/sistema/base/models/Marca.ts
 com/vaadin/hilla/mappedtypes/Pageable.ts
 com/unl/sistema/taskmanagement/domain/Task.ts
 com/unl/sistema/base/models/Usuario.ts
@@ -19,7 +17,6 @@ endpoints.ts
 com/unl/sistema/base/models/ConversacionModel.ts
 com/unl/sistema/base/models/MensajeModel.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacionModel.ts
-com/unl/sistema/base/models/MarcaModel.ts
 com/vaadin/hilla/mappedtypes/PageableModel.ts
 com/unl/sistema/taskmanagement/domain/TaskModel.ts
 com/unl/sistema/base/models/UsuarioModel.ts

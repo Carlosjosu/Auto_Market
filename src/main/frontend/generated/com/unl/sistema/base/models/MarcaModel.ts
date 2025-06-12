@@ -11,5 +11,8 @@ class MarcaModel<T extends Marca_1 = Marca_1> extends ObjectModel_1<T> {
     get estaActiva(): BooleanModel_1 {
         return this[_getPropertyModel_1]("estaActiva", (parent, key) => new BooleanModel_1(parent, key, false, { meta: { javaType: "boolean" } }));
     }
+    get idAuto(): NumberModel_1 {
+        return this[_getPropertyModel_1]("idAuto", (parent, key) => new NumberModel_1(parent, key, true, { meta: { javaType: "java.lang.Integer" } }));
+    }
 }
 export default MarcaModel;

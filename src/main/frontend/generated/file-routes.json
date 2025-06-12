@@ -15,6 +15,20 @@
         "title": "Main"
       },
       {
+<<<<<<< HEAD
+=======
+        "route": "Auto",
+        "title": "Auto",
+        "menu": {
+          "icon": "vaadin:car",
+          "order": 2,
+          "title": "Auto"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+>>>>>>> Carlos-ModuloAuto
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -26,7 +40,22 @@
         "params": {}
       },
       {
+<<<<<<< HEAD
         "route": "marca-list",
+=======
+        "route": "Imagen",
+        "title": "Imagen",
+        "menu": {
+          "icon": "lumo:photo",
+          "order": 3,
+          "title": "Imagen"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "Marca",
+>>>>>>> Carlos-ModuloAuto
         "title": "Marca",
         "menu": {
           "icon": "vaadin:tag",

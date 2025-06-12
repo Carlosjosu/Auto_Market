@@ -5,6 +5,7 @@ public class Marca {
     private Integer id;
     private String nombre;
     private boolean estaActiva;
+    private Integer idAuto;
 
     public Integer getId() {
         return this.id;
@@ -28,6 +29,14 @@ public class Marca {
 
     public void setEstaActiva(boolean estaActiva) {
         this.estaActiva = estaActiva;
+    }
+
+    public Integer getIdAuto() {
+        return this.idAuto;
+    }
+
+    public void setIdAuto(Integer idAuto) {
+        this.idAuto = idAuto;
     }
 
 }

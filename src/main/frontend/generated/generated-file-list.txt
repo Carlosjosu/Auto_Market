@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 FavoritoService.ts
+=======
+AutoService.ts
+FavoritoService.ts
+ImagenService.ts
+>>>>>>> Carlos-ModuloAuto
 MarcaService.ts
 ValoracionService.ts
 VentaService.ts

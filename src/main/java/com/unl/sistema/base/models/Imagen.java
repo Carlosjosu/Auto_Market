@@ -7,15 +7,6 @@ public class Imagen {
     private String descripcion;
     private Integer idAuto;
 
-    public Imagen() {
-    }
-
-    public Imagen(String url, String descripcion, Integer idAuto) {
-        this.url = url;
-        this.descripcion = descripcion;
-        this.idAuto = idAuto;
-    }
-
     public Integer getId() {
         return this.id;
     }
@@ -47,14 +38,6 @@ public class Imagen {
     public void setIdAuto(Integer idAuto) {
         this.idAuto = idAuto;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-}
-=======
 
 }
 
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

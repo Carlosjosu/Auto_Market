@@ -8,32 +8,16 @@ public class Auto {
     private String modelo;
     private Integer puertas;
     private String color;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private Float kilometraje;
-    private String ciudad;
-    private Float precio;
-=======
     private Float kilometraje;
     private String ciudad;
     private Double precio;
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     private String matricula;
     private String codigoVIN;
     private String descripcion;
     private Date fechaRegistro;
     private boolean estaDisponible = true;
-<<<<<<< HEAD
-    private Integer idVenta;
-    private Integer idMarca;
-=======
-	private String matricula;
-    private CategoriaEnum categoria;
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
     private Integer idVendedor;
     private Integer idMarca;
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     private TipoCombustibleEnum tipoCombustible;
     private CategoriaEnum Categoria;
 
@@ -93,25 +77,6 @@ public class Auto {
         this.ciudad = ciudad;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    public Float getPrecio() {
-        return this.precio;
-    }
-
-    public void setPrecio(Float precio) {
-        this.precio = precio;
-    }
-=======
-	public void setMatricula(String matricula) {
-		this.matricula = matricula;
-	}
-
-	public CategoriaEnum getCategoria() {
-		return this.categoria;
-	}
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
     public Double getPrecio() {
         return this.precio;
     }
@@ -119,7 +84,6 @@ public class Auto {
     public void setPrecio(Double precio) {
         this.precio = precio;
     }
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 
     public String getMatricula() {
         return this.matricula;
@@ -133,10 +97,6 @@ public class Auto {
         return this.codigoVIN;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     public void setCodigoVIN(String codigoVIN) {
         this.codigoVIN = codigoVIN;
     }
@@ -165,21 +125,12 @@ public class Auto {
         this.estaDisponible = estaDisponible;
     }
 
-<<<<<<< HEAD
-    public Integer getIdVenta() {
-        return this.idVenta;
-    }
-
-    public void setIdVenta(Integer idVenta) {
-        this.idVenta = idVenta;
-=======
     public Integer getIdVendedor() {
         return this.idVendedor;
     }
 
     public void setIdVendedor(Integer idVendedor) {
         this.idVendedor = idVendedor;
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     }
 
     public Integer getIdMarca() {
@@ -205,12 +156,6 @@ public class Auto {
     public void setCategoria(CategoriaEnum Categoria) {
         this.Categoria = Categoria;
     }
-<<<<<<< HEAD
-
-=======
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
     
     
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 }

@@ -81,4 +81,20 @@ public class ConversacionService extends VerticalLayout {
         Notification.show("Mensaje enviado", 2000, Notification.Position.MIDDLE);
         cargarMensajes();
     }
+
+    public List<Conversacion> obtenerConversacionesUsuario(Long usuarioId) {
+        return conversacionDao.findByUsuarioId(usuarioId);
+    }
+
+    public Conversacion crearConversacion(Integer idEmisor, Integer idReceptor, Integer idAuto) {
+        Conversacion c = new Conversacion();
+        c.setIdEmisor(idEmisor);
+        c.setIdReceptor(idReceptor);
+        c.setIdAuto(idAuto);
+        return conversacionDao.save(c);
+    }
+
+    public Conversacion buscarPorId(Long id) {
+        return conversacionDao.findById(id);
+    }
 }

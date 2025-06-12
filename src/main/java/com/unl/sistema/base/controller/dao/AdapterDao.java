@@ -5,8 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
 
-import com.unl.sistema.base.controller.datastruct.list.LinkedList;
-
+import com.unl.sistema.base.controller.datastruct.list.LinkedList; // Usa tu LinkedList pública
 import com.google.gson.Gson;
 
 public class AdapterDao<T> implements InterfaceDao<T> {
@@ -35,40 +34,31 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     private void saveFile(String data) throws Exception {
         File file = new File(base_path + clazz.getSimpleName() + ".json");
-        // file.getParentFile().m
         if (!file.exists()) {
+            file.getParentFile().mkdirs();
             file.createNewFile();
         }
-        // if(!file.exists()) {
         FileWriter fw = new FileWriter(file);
         fw.write(data);
         fw.flush();
         fw.close();
-        // file.close();
-        // }
     }
 
     @Override
     public LinkedList<T> listAll() {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'listAll'");
         LinkedList<T> lista = new LinkedList<>();
         try {
             String data = readFile();
             T[] m = (T[]) g.fromJson(data, java.lang.reflect.Array.newInstance(clazz, 0).getClass());
             lista.toList(m);
-
         } catch (Exception e) {
-            System.out.println("Error lista" + e.toString());
-            // TODO: handle exception
+            System.out.println("Error lista: " + e.toString());
         }
         return lista;
     }
 
     @Override
     public void persist(T obj) throws Exception {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'persist'");
         LinkedList<T> list = listAll();
         list.add(obj);
         saveFile(g.toJson(list.toArray()));
@@ -79,20 +69,27 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         LinkedList<T> list = listAll();
         list.update(obj, pos);
         saveFile(g.toJson(list.toArray()));
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public void update_by_id(T obj, Integer id) throws Exception {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update_by_id'");
     }
 
     @Override
     public T get(Integer id) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+        LinkedList<T> list = listAll();
+        for (int i = 0; i < list.getLength(); i++) {
+            T item = list.get(i);
+            try {
+                Integer itemId = (Integer) item.getClass().getMethod("getId").invoke(item);
+                if (itemId != null && itemId.equals(id)) {
+                    return item;
+                }
+            } catch (Exception e) {
+                // Si el modelo no tiene getId, ignora
+            }
+        }
+        return null;
     }
-
 }

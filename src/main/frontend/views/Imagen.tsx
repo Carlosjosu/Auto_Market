@@ -27,20 +27,18 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
     const [autos, setAutos] = useState<{ id: number, modelo: string, matricula: string }[]>([]);
     const [dialogOpened, setDialogOpened] = useState(false);
     const [showDeleteButton, setShowDeleteButton] = useState(false);
-    const [editMode, setEditMode] = useState<'edit' | 'create' | null>(null);
-    // Estado del formulario
+    const [editMode, setEditMode] = useState<'edit' | 'create'>('create');
+
     const [url, setUrl] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [idAuto, setIdAuto] = useState('');
-
-    // Ejemplo de item existente para editar
     const exampleItem: ImagenItem = {
         url: 'https://ejemplo.com/auto.jpg',
         descripcion: 'Foto lateral del auto',
         idAuto: 1
     };
 
-    // Lista de imágenes de ejemplo para edición
+
     const imagenesEjemplo: ImagenItem[] = [
         { url: 'https://ejemplo.com/auto1.jpg', descripcion: 'Foto lateral del auto rojo', idAuto: 1 },
         { url: 'https://ejemplo.com/auto2.jpg', descripcion: 'Foto frontal del auto azul', idAuto: 2 }

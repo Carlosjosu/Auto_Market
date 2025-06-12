@@ -1,8 +1,50 @@
+<<<<<<< HEAD
 ChatService.ts
 TaskService.ts
 com/unl/sistema/base/models/Conversacion.ts
 com/unl/sistema/base/models/Mensaje.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacion.ts
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+FavoritoService.ts
+=======
+AutoService.ts
+>>>>>>> origin/develop
+FavoritoService.ts
+<<<<<<< HEAD
+ImagenService.ts
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Carlos-ModuloAuto
+>>>>>>> origin/develop
+MarcaService.ts
+ValoracionService.ts
+VentaService.ts
+TaskService.ts
+com/unl/sistema/base/models/Favorito.ts
+com/unl/sistema/base/models/Marca.ts
+com/unl/sistema/base/models/Valoracion.ts
+com/unl/sistema/base/models/Venta.ts
+=======
+PublicacionService.ts
+UsuarioService.ts
+VentaService.ts
+TaskService.ts
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+MarcaService.ts
+ValoracionService.ts
+VentaService.ts
+TaskService.ts
+com/unl/sistema/base/models/Favorito.ts
+com/unl/sistema/base/models/Marca.ts
+com/unl/sistema/base/models/Valoracion.ts
+com/unl/sistema/base/models/Venta.ts
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
+>>>>>>> origin/develop
 com/vaadin/hilla/mappedtypes/Pageable.ts
 com/unl/sistema/taskmanagement/domain/Task.ts
 com/unl/sistema/base/models/Usuario.ts
@@ -14,9 +56,25 @@ org/springframework/data/domain/Sort/Direction.ts
 org/springframework/data/domain/Sort/NullHandling.ts
 connect-client.default.ts
 endpoints.ts
+<<<<<<< HEAD
 com/unl/sistema/base/models/ConversacionModel.ts
 com/unl/sistema/base/models/MensajeModel.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacionModel.ts
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
+com/unl/sistema/base/models/FavoritoModel.ts
+com/unl/sistema/base/models/MarcaModel.ts
+com/unl/sistema/base/models/ValoracionModel.ts
+com/unl/sistema/base/models/VentaModel.ts
+<<<<<<< HEAD
+=======
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
+>>>>>>> origin/develop
 com/vaadin/hilla/mappedtypes/PageableModel.ts
 com/unl/sistema/taskmanagement/domain/TaskModel.ts
 com/unl/sistema/base/models/UsuarioModel.ts

@@ -70,7 +70,6 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         // TODO Auto-generated method stub
         // throw new UnsupportedOperationException("Unimplemented method 'persist'");
         LinkedList<T> list = listAll();
-
         list.add(obj);
         saveFile(g.toJson(list.toArray()));
     }

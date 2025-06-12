@@ -8,6 +8,17 @@ public class Usuario {
     private String telefono;
     private Integer idCuenta;
 
+    public Usuario() {
+    }
+
+    public Usuario(String nombre, String apellido, String cedula, String telefono, Integer idCuenta) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.cedula = cedula;
+        this.telefono = telefono;
+        this.idCuenta = idCuenta;
+    }
+
     public Integer getId() {
         return this.id;
     }
@@ -47,6 +58,10 @@ public class Usuario {
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 
     public Integer getIdCuenta() {
         return this.idCuenta;
@@ -56,6 +71,14 @@ public class Usuario {
         this.idCuenta = idCuenta;
     }
 
+<<<<<<< HEAD
+}
+=======
+    
+}
+>>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
+=======
 
     
 }
+>>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

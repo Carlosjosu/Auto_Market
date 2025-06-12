@@ -2,6 +2,22 @@ package com.unl.sistema.base.controller.services;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.unl.sistema.base.controller.dao.dao_models.DaoFavorito;
+import com.unl.sistema.base.models.Favorito;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.hilla.BrowserCallable;
+=======
+>>>>>>> origin/develop
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unl.sistema.base.models.Favorito;
@@ -13,11 +29,37 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+>>>>>>> Carlos-ModuloAuto
 
 @BrowserCallable
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 @AnonymousAllowed
 public class FavoritoService {
+<<<<<<< HEAD
+    private DaoFavorito da;
+    public FavoritoService() {
+        da = new DaoFavorito();
+    }
+
+    public void create(Date fechaGuardado, Integer idAuto, Integer idUsuario) throws Exception {
+        if (fechaGuardado != null && idAuto != null && idUsuario != null) {
+            da.getObj().setFechaGuardado(fechaGuardado);
+            da.getObj().setIdAuto(idAuto);
+            da.getObj().setIdUsuario(idUsuario);
+            if (!da.save())
+                throw new Exception("No se pudo guardar los datos del favorito");
+        } else {
+            throw new Exception("Todos los campos son obligatorios");
+        }
+    }
+
+    public List<Favorito> ordenar(String atributo, Integer type) {
+        return Arrays.asList(da.ordenarString(atributo, type).toArray());
+    }
+
+    public List<HashMap<String, String>> listFavorito() {
+        return Arrays.asList(da.all().toArray());
+=======
     private static final String FILE_PATH = "src/main/resources/favoritos.json";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -47,6 +89,7 @@ public class FavoritoService {
 
     private void writeFavoritos(List<Favorito> favoritos) throws Exception {
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(FILE_PATH), favoritos);
+>>>>>>> Carlos-ModuloAuto
     }
 }
 =======

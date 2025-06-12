@@ -17,6 +17,10 @@
       {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> origin/develop
         "route": "Auto",
         "title": "Auto",
         "menu": {
@@ -28,6 +32,7 @@
         "params": {}
       },
       {
+>>>>>>> Carlos-ModuloAuto
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -39,6 +44,9 @@
         "params": {}
       },
       {
+<<<<<<< HEAD
+        "route": "marca-list",
+=======
         "route": "Imagen",
         "title": "Imagen",
         "menu": {
@@ -51,6 +59,7 @@
       },
       {
         "route": "Marca",
+>>>>>>> Carlos-ModuloAuto
         "title": "Marca",
 =======
         "route": "auto-list",

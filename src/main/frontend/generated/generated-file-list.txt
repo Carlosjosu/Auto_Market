@@ -1,7 +1,18 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+FavoritoService.ts
+=======
+AutoService.ts
+>>>>>>> origin/develop
 FavoritoService.ts
 <<<<<<< HEAD
 ImagenService.ts
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Carlos-ModuloAuto
+>>>>>>> origin/develop
 MarcaService.ts
 ValoracionService.ts
 VentaService.ts

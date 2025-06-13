@@ -1,0 +1,66 @@
+package com.unl.sistema.base.controller.services;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.unl.sistema.base.models.Conversacion;
+import com.unl.sistema.base.models.Mensaje;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ConversacionJsonService {
+    private static final String CONV_PATH = "src/main/resources/conversaciones.json";
+    private static final String MSG_PATH = "src/main/resources/mensajes.json";
+    private final Gson gson = new Gson();
+
+    public List<Conversacion> getConversaciones() throws Exception {
+        try (FileReader reader = new FileReader(CONV_PATH)) {
+            List<Conversacion> list = gson.fromJson(reader, new TypeToken<List<Conversacion>>(){}.getType());
+            return list != null ? list : new ArrayList<>();
+        }
+    }
+
+    public void saveConversaciones(List<Conversacion> conversaciones) throws Exception {
+        try (FileWriter writer = new FileWriter(CONV_PATH)) {
+            gson.toJson(conversaciones, writer);
+        }
+    }
+
+    public List<Mensaje> getMensajes() throws Exception {
+        try (FileReader reader = new FileReader(MSG_PATH)) {
+            List<Mensaje> list = gson.fromJson(reader, new TypeToken<List<Mensaje>>(){}.getType());
+            return list != null ? list : new ArrayList<>();
+        }
+    }
+
+    public void saveMensajes(List<Mensaje> mensajes) throws Exception {
+        try (FileWriter writer = new FileWriter(MSG_PATH)) {
+            gson.toJson(mensajes, writer);
+        }
+    }
+
+    public void agregarConversacion(Conversacion conv) throws Exception {
+        List<Conversacion> conversaciones = getConversaciones();
+        conversaciones.add(conv);
+        saveConversaciones(conversaciones);
+    }
+
+    public void agregarMensaje(Mensaje msg) throws Exception {
+        List<Mensaje> mensajes = getMensajes();
+        mensajes.add(msg);
+        saveMensajes(mensajes);
+    }
+
+    public List<Mensaje> mensajesPorConversacion(Long conversacionId) throws Exception {
+        List<Mensaje> mensajes = getMensajes();
+        List<Mensaje> result = new ArrayList<>();
+        for (Mensaje m : mensajes) {
+            if (m.getIdConversacion().equals(conversacionId)) {
+                result.add(m);
+            }
+        }
+        return result;
+    }
+}

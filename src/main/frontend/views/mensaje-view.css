@@ -1,7 +1,7 @@
 .mensaje {
-  transition: background 0.2s;
   margin-bottom: 2px;
   position: relative;
+  transition: background 0.2s;
 }
 .mensaje.actual {
   background: #005c4b;

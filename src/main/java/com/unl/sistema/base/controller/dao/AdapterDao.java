@@ -3,14 +3,15 @@ package com.unl.sistema.base.controller.dao;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Field;
 import java.util.Scanner;
 
-import com.unl.sistema.base.controller.datastruct.list.LinkedList; // Usa tu LinkedList pública
+import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.google.gson.Gson;
 
 public class AdapterDao<T> implements InterfaceDao<T> {
-    private Class<T> clazz;
-    private Gson g;
+    private final Class<T> clazz;
+    private final Gson g;
     protected static String base_path = "data" + File.separatorChar;
 
     public AdapterDao(Class<T> clazz) {
@@ -38,10 +39,10 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             file.getParentFile().mkdirs();
             file.createNewFile();
         }
-        FileWriter fw = new FileWriter(file);
-        fw.write(data);
-        fw.flush();
-        fw.close();
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(data);
+            fw.flush();
+        }
     }
 
     @Override
@@ -57,11 +58,16 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         return lista;
     }
 
-    @Override
-    public void persist(T obj) throws Exception {
+    // Agrega un solo objeto y guarda
+    public void add(T obj) throws Exception {
         LinkedList<T> list = listAll();
         list.add(obj);
         saveFile(g.toJson(list.toArray()));
+    }
+
+    @Override
+    public void persist(T obj) throws Exception {
+        add(obj);
     }
 
     @Override
@@ -86,10 +92,30 @@ public class AdapterDao<T> implements InterfaceDao<T> {
                 if (itemId != null && itemId.equals(id)) {
                     return item;
                 }
-            } catch (Exception e) {
+            } catch (ReflectiveOperationException | ClassCastException e) {
                 // Si el modelo no tiene getId, ignora
             }
         }
         return null;
+    }
+
+    // Método para filtrar por cualquier campo (por ejemplo, idConversacion)
+    public LinkedList<T> findAllByField(String fieldName, Object value) {
+        LinkedList<T> result = new LinkedList<>();
+        LinkedList<T> all = listAll();
+        for (int i = 0; i < all.getLength(); i++) {
+            T item = all.get(i);
+            try {
+                Field field = item.getClass().getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Object fieldValue = field.get(item);
+                if (fieldValue != null && fieldValue.equals(value)) {
+                    result.add(item);
+                }
+            } catch (NoSuchFieldException | IllegalAccessException | SecurityException e) {
+                // Si el campo no existe, ignora
+            }
+        }
+        return result;
     }
 }

@@ -43,7 +43,7 @@ public class LinkedList<E> {
             throw new ArrayIndexOutOfBoundsException("Indice fuera de rango");
         } else if (pos == 0) {
             return head;
-        } else if ((length.intValue() - 1) == pos.intValue()) {
+        } else if ((length - 1) == pos) {
             return last;
         } else {
             Nodo<E> search = head;
@@ -74,7 +74,7 @@ public class LinkedList<E> {
         } else {
             Nodo<E> search_preview = getNodo(pos - 1);
             Nodo<E> search = getNodo(pos);
-            Nodo<E> aux = new Nodo<E>(data, search);
+            Nodo<E> aux = new Nodo<>(data, search);
             search_preview.setNext(aux);
             length++;
         }
@@ -86,12 +86,12 @@ public class LinkedList<E> {
 
     private void addFirst(E data) {
         if (isEmpty()) {
-            Nodo<E> aux = new Nodo<E>(data);
+            Nodo<E> aux = new Nodo<>(data);
             head = aux;
             last = aux;
         } else {
             Nodo<E> head_old = head;
-            Nodo<E> aux = new Nodo<E>(data, head_old);
+            Nodo<E> aux = new Nodo<>(data, head_old);
             head = aux;
         }
         length++;
@@ -101,7 +101,7 @@ public class LinkedList<E> {
         if (isEmpty()) {
             addFirst(data);
         } else {
-            Nodo<E> aux = new Nodo<E>(data);
+            Nodo<E> aux = new Nodo<>(data);
             last.setNext(aux);
             last = aux;
             length++;
@@ -135,24 +135,23 @@ public class LinkedList<E> {
     }
 
     public E[] toArray() {
-        Class clazz = null;
-        E[] matriz = null;
-        if (this.length > 0) {
-            clazz = head.getData().getClass();
-            matriz = (E[]) java.lang.reflect.Array.newInstance(clazz, this.length);
-            Nodo<E> aux = head;
-            for (int i = 0; i < length; i++) {
-                matriz[i] = aux.getData();
-                aux = aux.getNext();
-            }
+        if (this.length == 0) {
+            return (E[]) new Object[0];
+        }
+        Class<?> clazz = head.getData().getClass();
+        E[] matriz = (E[]) java.lang.reflect.Array.newInstance(clazz, this.length);
+        Nodo<E> aux = head;
+        for (int i = 0; i < length; i++) {
+            matriz[i] = aux.getData();
+            aux = aux.getNext();
         }
         return matriz;
     }
 
     public LinkedList<E> toList(E[] matriz) {
         clear();
-        for (int i = 0; i < matriz.length; i++) {
-            this.add(matriz[i]);
+        for (E element : matriz) {
+            this.add(element);
         }
         return this;
     }
@@ -164,7 +163,7 @@ public class LinkedList<E> {
             E element = head.getData();
             Nodo<E> aux = head.getNext();
             head = aux;
-            if (length.intValue() == 1)
+            if (length == 1)
                 last = null;
             length--;
             return element;
@@ -201,14 +200,13 @@ public class LinkedList<E> {
             throw new ArrayIndexOutOfBoundsException("Indice fuera de rango");
         } else if (pos == 0) {
             return deleteFirst();
-        } else if ((length.intValue() - 1) == pos.intValue()) {
+        } else if ((length - 1) == pos) {
             return deleteLast();
         } else {
             Nodo<E> preview = getNodo(pos - 1);
             Nodo<E> actualy = getNodo(pos);
             E element = preview.getData();
             Nodo<E> next = actualy.getNext();
-            actualy = null;
             preview.setNext(next);
             length--;
             return element;

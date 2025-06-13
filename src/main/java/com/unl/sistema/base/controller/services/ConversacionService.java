@@ -8,16 +8,21 @@ import com.unl.sistema.base.models.Mensaje;
 import com.unl.sistema.base.models.Usuario;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
 import com.vaadin.flow.component.messages.MessageInput;
 
 import java.time.ZoneOffset;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ConversacionService extends VerticalLayout {
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+
+public class ConversacionService<ConversacionRequest> extends VerticalLayout {
 
     private final DaoConversacion conversacionDao;
     private final DaoMensaje mensajeDao;
@@ -28,6 +33,7 @@ public class ConversacionService extends VerticalLayout {
     private final Long conversacionId;
     private final Long usuarioActualId;
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public ConversacionService(DaoConversacion conversacionDao, DaoMensaje mensajeDao, DaoUsuario usuarioDao, Long conversacionId, Long usuarioActualId) {
         this.conversacionDao = conversacionDao;
         this.mensajeDao = mensajeDao;
@@ -43,7 +49,12 @@ public class ConversacionService extends VerticalLayout {
         messageInput.addSubmitListener(submitEvent -> {
             String contenido = submitEvent.getValue();
             if (!contenido.trim().isEmpty()) {
-                enviarMensaje(contenido);
+                try {
+                    enviarMensaje(contenido);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -60,13 +71,13 @@ public class ConversacionService extends VerticalLayout {
                 remitente.getNombre()
             );
             // Puedes personalizar el color o la imagen del usuario aquí si lo deseas
-            item.setUserColorIndex(remitente.getId().intValue() % 5 + 1);
+            item.setUserColorIndex(remitente.getId() % 5 + 1);
             return item;
         }).collect(Collectors.toList());
         messageList.setItems(items);
     }
 
-    private void enviarMensaje(String contenido) {
+    private void enviarMensaje(String contenido) throws Exception {
         Conversacion conversacion = conversacionDao.findById(conversacionId);
         Usuario remitente = usuarioDao.findById(usuarioActualId);
 
@@ -86,7 +97,7 @@ public class ConversacionService extends VerticalLayout {
         return conversacionDao.findByUsuarioId(usuarioId);
     }
 
-    public Conversacion crearConversacion(Integer idEmisor, Integer idReceptor, Integer idAuto) {
+    public Conversacion crearConversacion(Integer idEmisor, Integer idReceptor, Integer idAuto) throws Exception {
         Conversacion c = new Conversacion();
         c.setIdEmisor(idEmisor);
         c.setIdReceptor(idReceptor);
@@ -96,5 +107,18 @@ public class ConversacionService extends VerticalLayout {
 
     public Conversacion buscarPorId(Long id) {
         return conversacionDao.findById(id);
+    }
+
+    @PostMapping("/conversaciones")
+    public ResponseEntity<Conversacion> getOrCreateConversacion(@RequestBody ConversacionRequest req) {
+        Conversacion conv = ConversacionService.findOrCreate(((Conversacion) req).getIdEmisor(), ((Conversacion) req).getIdReceptor());
+        return ResponseEntity.ok(conv);
+    }
+
+    public static Conversacion findOrCreate(Integer idEmisor, Integer idReceptor) {
+        Conversacion c = new Conversacion();
+        c.setIdEmisor(idEmisor);
+        c.setIdReceptor(idReceptor);
+        return c;
     }
 }

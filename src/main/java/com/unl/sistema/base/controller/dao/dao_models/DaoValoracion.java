@@ -21,6 +21,7 @@ public class DaoValoracion extends AdapterDao<Valoracion>{
         this.obj = obj;
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public Boolean save() {
         try {
             obj.setId(listAll().getLength()+1);

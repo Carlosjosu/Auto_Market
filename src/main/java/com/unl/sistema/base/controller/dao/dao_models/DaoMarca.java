@@ -31,8 +31,7 @@ public class DaoMarca extends AdapterDao<Marca> {
             return true;
         } catch (Exception e) {
             // Log de error
-            e.printStackTrace();
-            System.out.println(e);
+            System.out.println("Error: " + e.getMessage());
             return false;
             // TODO: handle exception
         }
@@ -53,15 +52,14 @@ public class DaoMarca extends AdapterDao<Marca> {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if(!this.listAll().isEmpty()){
             Marca[] arreglo = this.listAll().toArray();
-            for(int i = 0 ; i < arreglo.length ; i++){
-                lista.add(toDict(arreglo[i]));
+            for (Marca marca : arreglo) {
+                lista.add(toDict(marca));
             }
         }
         return lista;
     }
 
     public HashMap<String, String> toDict(Marca arreglo) {
-        DaoMarca da = new DaoMarca();
         HashMap<String, String> aux = new HashMap<>();
         aux.put("id", arreglo.getId().toString());
         aux.put("nombre", arreglo.getNombre());
@@ -79,7 +77,7 @@ public class DaoMarca extends AdapterDao<Marca> {
                 try {
                     String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
                     valores[i] = String.valueOf(Marca.class.getMethod(getter).invoke(arreglo[i]));
-                } catch (Exception e) {
+                } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
                     valores[i] = "";
                 }
             }
@@ -96,7 +94,7 @@ public class DaoMarca extends AdapterDao<Marca> {
                         if (arreglo[i] != null && val.equals(valor)) {
                             lista.add(arreglo[i]);
                         }
-                    } catch (Exception e) {
+                    } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
                         // Ignorar
                     }
                 }

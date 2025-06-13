@@ -6,9 +6,12 @@ import java.util.List;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.models.Mensaje;
 import org.springframework.stereotype.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Repository
 public class DaoMensaje extends AdapterDao<Mensaje> {
+    private static final Logger logger = LoggerFactory.getLogger(DaoMensaje.class);
     private Mensaje obj;
 
     public DaoMensaje() {
@@ -27,11 +30,11 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
 
     public Boolean save() {
         try {
-            obj.setId(listAll().getLength() + 1);
+            // Implement your save logic here, for example:
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error saving Mensaje", e);
             return false;
         }
     }
@@ -48,7 +51,7 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
     // Implementación funcional
     public List<Mensaje> findByConversacionId(Long conversacionId) {
         List<Mensaje> result = new ArrayList<>();
-        for (Mensaje m : new ArrayList<Mensaje>(listAll())) {
+        for (Mensaje m : (Iterable<Mensaje>) listAll()) {
             if (m.getIdConversacion() != null && m.getIdConversacion().longValue() == conversacionId) {
                 result.add(m);
             }
@@ -60,5 +63,21 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
         mensaje.setId(listAll().getLength() + 1);
         this.persist(mensaje);
         return mensaje;
+    }
+
+    @Override
+    public com.unl.sistema.base.controller.datastruct.list.LinkedList<Mensaje> findAllByField(String fieldName, Object value) {
+        com.unl.sistema.base.controller.datastruct.list.LinkedList<Mensaje> result = new com.unl.sistema.base.controller.datastruct.list.LinkedList<>();
+        for (Mensaje m : (Iterable<Mensaje>) listAll()) {
+            if (fieldName.equals("idConversacion") && m.getIdConversacion() != null && m.getIdConversacion().equals(value)) {
+                result.add(m);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void add(Mensaje nuevoMensaje) throws Exception {
+        this.persist(nuevoMensaje);
     }
 }

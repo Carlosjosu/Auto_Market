@@ -63,7 +63,7 @@ public class Mensaje {
     public void setRemitente(Usuario remitente) {
         this.remitente = remitente;
         if (remitente != null) {
-            this.idRemitente = remitente.getId().intValue();
+            this.idRemitente = remitente.getId();
         }
     }
 

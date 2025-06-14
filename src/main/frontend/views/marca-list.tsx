@@ -13,7 +13,7 @@ export const config: ViewConfig = {
     title: 'Marca',
     menu: {
         icon: 'vaadin:tag',
-        order: 1,
+        order: 3,
         title: 'Marca',
     },
 };

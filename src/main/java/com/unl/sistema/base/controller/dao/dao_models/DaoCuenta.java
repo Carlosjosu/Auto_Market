@@ -3,9 +3,11 @@ package com.unl.sistema.base.controller.dao.dao_models;
 import java.util.HashMap;
 import java.lang.reflect.Field;
 
+import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Cuenta;
+import com.unl.sistema.base.models.Usuario;
 
 public class DaoCuenta extends AdapterDao<Cuenta> {
     private Cuenta obj;
@@ -49,12 +51,33 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         }
     }
 
+    public LinkedList<HashMap<String, String>> all() throws Exception {
+        LinkedList<HashMap<String, String>> lista = new LinkedList<>();
+        if (!this.listAll().isEmpty()) {
+            Cuenta[] arreglo = this.listAll().toArray();
+            for (int i = 0; i < arreglo.length; i++) {
+                lista.add(toDicts(arreglo[i]));
+            }
+        }
+        return lista;
+    }
+
+    public HashMap<String, String> toDicts(Cuenta c) throws Exception {
+        HashMap<String, String> map = new HashMap<>();
+        DaoUsuario du = new DaoUsuario();
+        du.setObj(du.get(c.getId()));
+        map.put("id", c.getId().toString());
+        map.put("correo", c.getCorreo());
+        map.put("usuario", du.getObj().getNickname());
+        return map;
+    }
+
     public HashMap<String, Object> toDict(Cuenta c) throws Exception {
         HashMap<String, Object> map = new HashMap<>();
         DaoUsuario du = new DaoUsuario();
         du.setObj(du.get(c.getId()));
-        map.put("correo", c.getCorreo());
         map.put("id", c.getId());
+        map.put("correo", c.getCorreo());
         map.put("usuario", du.getObj().getNickname());
         return map;
     }
@@ -63,8 +86,8 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         HashMap<String, Object> map = new HashMap<>();
         DaoUsuario du = new DaoUsuario();
         du.setObj(du.get(c.getId()));
-        map.put("correo", c.getCorreo());
         map.put("id", c.getId());
+        map.put("correo", c.getCorreo());
         map.put("clave", c.getClave());
         map.put("usuario", du.getObj().getNickname());
         return map;
@@ -84,7 +107,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
     public HashMap<String, Object> login(String email, String password) throws Exception {
         if (!listAll().isEmpty()) {
             HashMap<String, Object>[] arreglo = listPrivate().toArray();
-            quickSort(arreglo, 0, arreglo.length - 1, "correo");
+            Utiles.quickSortObject(arreglo, 0, arreglo.length - 1, "correo", Utiles.ASCENDENTE);
             HashMap<String, Object> search = buscarAtributo(arreglo, 0, arreglo.length - 1, "correo", email);
             if (search != null) {
                 if (search.get("clave").toString().equals(password)) {

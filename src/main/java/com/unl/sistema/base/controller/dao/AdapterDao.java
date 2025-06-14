@@ -101,34 +101,6 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             return null;
     }
 
-    public static void quickSort(HashMap<String, Object> vec[], int inicio, int fin, String atributo) {
-        if (inicio >= fin)
-            return;
-        HashMap<String,Object> pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-                while (elemIzq <= fin && vec[elemIzq].get(atributo).toString().compareTo(pivote.get(atributo).toString()) <0) {
-                    elemIzq++;
-                }
-                while (elemDer > inicio && vec[elemDer].get(atributo).toString().compareTo(pivote.get(atributo).toString()) >= 0) {
-                    elemDer--;
-                }
-            if (elemIzq < elemDer) {
-                HashMap<String,Object> temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            HashMap<String,Object> temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSort(vec, inicio, elemDer - 1, atributo);
-        quickSort(vec, elemDer + 1, fin, atributo);
-    }
-
     public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {
         if (inicio > fin) {
             return null;
@@ -144,7 +116,11 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             return busquedaBinaria(datos, mitad + 1, fin, num);
         }
     }
-
+    
+    private Object getMethod(String attribute, T obj) throws Exception {
+        return obj.getClass().getMethod("get" + attribute).invoke(obj);
+    }
+    
     public HashMap<String, Object> buscarAtributo(HashMap<String, Object>  datos[], int inicio, int fin, String atributo, String valor) throws Exception {
         if (inicio > fin) {
             return null;
@@ -160,9 +136,35 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             return buscarAtributo(datos, mitad + 1, fin, atributo, valor);
         }
     }
-    
-    private Object getMethod(String attribute, T obj) throws Exception {
-        return obj.getClass().getMethod("get" + attribute).invoke(obj);
+
+    public LinkedList<HashMap<String, String>> ordenarAtributo(LinkedList<HashMap<String, String>> lista,
+            String atributo, Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            String[] valores = new String[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = arreglo[i].get(atributo).toString();
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
     }
 
+    public LinkedList<HashMap<String, String>> ordenarNumero(LinkedList<HashMap<String, String>> lista, String atributo,
+            Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            Integer[] valores = new Integer[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = Integer.parseInt(arreglo[i].get(atributo));
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
+    }
+    
 }

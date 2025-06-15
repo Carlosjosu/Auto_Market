@@ -15,15 +15,6 @@
         "title": "Main"
       },
       {
-<<<<<<< HEAD
-        "route": "MensajeView",
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> origin/develop
         "route": "Auto",
         "title": "Auto",
         "menu": {
@@ -35,7 +26,6 @@
         "params": {}
       },
       {
->>>>>>> Carlos-ModuloAuto
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -47,9 +37,6 @@
         "params": {}
       },
       {
-<<<<<<< HEAD
-        "route": "marca-list",
-=======
         "route": "Imagen",
         "title": "Imagen",
         "menu": {
@@ -62,42 +49,17 @@
       },
       {
         "route": "Marca",
->>>>>>> Carlos-ModuloAuto
-        "title": "Marca",
-=======
-        "route": "auto-list",
-        "title": "Auto",
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-        "menu": {
-          "icon": "vaadin:car",
-          "order": 1,
-          "title": "Auto"
-        },
-        "flowLayout": false,
-        "params": {}
-      },
-      {
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-        "route": "favorito-list",
-        "title": "Favorito",
-        "menu": {
-          "icon": "vaadin:star",
-          "order": 1,
-          "title": "Favorito"
-        },
-        "flowLayout": false,
-        "params": {}
-      },
-      {
-        "route": "marca-list",
         "title": "Marca",
         "menu": {
           "icon": "vaadin:tag",
           "order": 1,
           "title": "Marca"
         },
->>>>>>> origin/develop
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "MensajeView",
         "flowLayout": false,
         "params": {},
         "title": "Mensajes"
@@ -114,30 +76,12 @@
         "params": {}
       },
       {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "route": "valoracion-list",
         "title": "Valoracion",
         "menu": {
           "icon": "vaadin:comments",
           "order": 1,
           "title": "Valoracion"
-=======
-        "route": "usuario-list",
-        "title": "Usuario",
-=======
-        "route": "valoracion-list",
-        "title": "Valoracion",
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-        "menu": {
-          "icon": "vaadin:comments",
-          "order": 1,
-<<<<<<< HEAD
-          "title": "Usuario"
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-          "title": "Valoracion"
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
         },
         "flowLayout": false,
         "params": {}
@@ -146,15 +90,7 @@
         "route": "venta-list",
         "title": "Venta",
         "menu": {
-<<<<<<< HEAD
-<<<<<<< HEAD
           "icon": "vaadin:cart",
-=======
-          "icon": "vaadin:dollar",
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-          "icon": "vaadin:cart",
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
           "order": 1,
           "title": "Venta"
         },

@@ -1,30 +1,12 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import java.util.HashMap;
-=======
-import java.util.Date;
-
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-import com.unl.sistema.base.controller.dao.AdapterDao;
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
+import java.util.HashMap;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 public class DaoAuto extends AdapterDao<Auto> {
-=======
-
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-public class DaoAuto extends AdapterDao<Auto>{
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
     private Auto obj;
 
     public DaoAuto() {
@@ -62,8 +44,6 @@ public class DaoAuto extends AdapterDao<Auto>{
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
@@ -90,10 +70,9 @@ public class DaoAuto extends AdapterDao<Auto>{
         aux.put("descripcion", String.valueOf(auto.getDescripcion()));
         aux.put("fechaRegistro", String.valueOf(auto.getFechaRegistro()));
         aux.put("estaDisponible", String.valueOf(auto.isEstaDisponible()));
-        aux.put("idVenta", String.valueOf(auto.getIdVenta()));
         aux.put("idMarca", String.valueOf(auto.getIdMarca()));
         aux.put("tipoCombustible", String.valueOf(auto.getTipoCombustible()));
-        aux.put("categoria", String.valueOf(auto.getCategoria()));
+        aux.put("categoria", auto.getCategoria() != null ? auto.getCategoria().getValue() : null);
         return aux;
     }
 
@@ -188,21 +167,4 @@ public class DaoAuto extends AdapterDao<Auto>{
         quickSortDES(vec, inicio, elemDer - 1);
         quickSortDES(vec, elemDer + 1, fin);
     }
-
 }
-=======
- 
-}
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-    //Auto
-    //Marca
-    //Valoracion
-    //Venta??
-    //Conversacion
-    //Mensaje
-    //Favorito
-    
-
-}
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

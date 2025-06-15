@@ -32,6 +32,8 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
     const [url, setUrl] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [idAuto, setIdAuto] = useState('');
+    const [file, setFile] = useState<File | null>(null);
+    const [subiendo, setSubiendo] = useState(false);
     const exampleItem: ImagenItem = {
         url: 'https://ejemplo.com/auto.jpg',
         descripcion: 'Foto lateral del auto',
@@ -107,6 +109,33 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
         }
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        setFile(e.target.files[0]);
+      }
+    };
+
+    const handleUploadToCloudinary = async () => {
+      if (!file) return;
+      setSubiendo(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'Imagenes'); // Tu upload_preset
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/dld5pxm9z/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        setUrl(data.secure_url); // Pone la URL devuelta en el campo url
+        Notification.show('Imagen subida a Cloudinary', { duration: 3000, position: 'top-center', theme: 'success' });
+      } catch (err) {
+        Notification.show('Error al subir la imagen a Cloudinary', { duration: 5000, position: 'top-center', theme: 'error' });
+      } finally {
+        setSubiendo(false);
+      }
+    };
+
     return (
         <VerticalLayout>
             <HorizontalLayout theme="spacing">
@@ -138,6 +167,11 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
                     </>
                 }>
                 <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
+                    {/* NUEVO: Subida a Cloudinary */}
+                    <input type="file" accept="image/*" onChange={handleFileChange} />
+                    <Button onClick={handleUploadToCloudinary} disabled={!file || subiendo}>
+                      {subiendo ? 'Subiendo...' : 'Subir a Cloudinary'}
+                    </Button>
                     <TextField label="URL" value={url} placeholder="Ej: https://ejemplo.com/auto.jpg" onValueChanged={e => setUrl(e.detail.value)} />
                     <TextArea
                       label="Descripción"

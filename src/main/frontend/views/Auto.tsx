@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Button, Dialog, Notification, ComboBox, Checkbox, TextArea, TextField, VerticalLayout, HorizontalLayout } from '@vaadin/react-components';
-import { AutoService, MarcaService } from 'Frontend/generated/endpoints';
+import { AutoService, MarcaService, ImagenService } from 'Frontend/generated/endpoints';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import { useSignal } from '@vaadin/hilla-react-signals';
+import { CheckboxGroup } from '@vaadin/react-components';
 
 
 interface AutoItem {
+  id: number;
   modelo: string;
   anio: string;
   puertas: number;
@@ -33,114 +35,306 @@ export const config = {
     },
 };
 
-function AutoEntryForm({ onAutoCreated, marcas, ventas, tiposCombustible, categorias, onCancel }: {
+function AutoEntryForm({ onAutoCreated, marcas, ventas, tiposCombustible, categorias, onCancel, autoEditar, modoEdicion, onAutoEditado }: {
     onAutoCreated?: () => void,
     marcas: { id: number, nombre: string }[],
     ventas: { id: number }[],
     tiposCombustible: string[],
     categorias: string[],
-    onCancel?: () => void
+    onCancel?: () => void,
+    autoEditar?: AutoItem | null,
+    modoEdicion?: boolean,
+    onAutoEditado?: () => void
 }) {
-    const [modelo, setModelo] = useState('');
-    const [anio, setAnio] = useState('');
-    const [puertas, setPuertas] = useState(''); // string
-    const [color, setColor] = useState('');
-    const [kilometraje, setKilometraje] = useState('');
-    const [ciudad, setCiudad] = useState('');
-    const [precio, setPrecio] = useState('');
-    const [matricula, setMatricula] = useState('');
-    const [codigoVIN, setCodigoVIN] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [fechaRegistro, setFechaRegistro] = useState('');
-    const [estaDisponible, setEstaDisponible] = useState(true);
-    const [idVenta, setIdVenta] = useState(''); // string
-    const [idMarca, setIdMarca] = useState(''); // string
-    const [tipoCombustible, setTipoCombustible] = useState('');
-    const [categoria, setCategoria] = useState('');
+    const [autoForm, setAutoForm] = useState({
+        modelo: '',
+        anio: '',
+        puertas: '',
+        color: '',
+        kilometraje: '',
+        ciudad: '',
+        precio: '',
+        matricula: '',
+        codigoVIN: '',
+        descripcion: '',
+        fechaRegistro: '',
+        estaDisponible: true,
+        idVenta: '',
+        idMarca: '',
+        tipoCombustible: '',
+        categoria: ''
+    });
+    const [imagenes, setImagenes] = useState<any[]>([]);
+    const [imagenesSeleccionadas, setImagenesSeleccionadas] = useState<string[]>([]);
+
+    const handleChange = (field: string, value: any) => {
+        setAutoForm(prev => ({ ...prev, [field]: value }));
+    };
+
+    useEffect(() => {
+        ImagenService.listImagen().then((data: any) => {
+            setImagenes((data ?? []).filter(Boolean));
+        });
+    }, []);
+
+    useEffect(() => {
+        if (autoEditar && modoEdicion) {
+            setAutoForm({
+                modelo: autoEditar.modelo || '',
+                anio: autoEditar.anio || '',
+                puertas: autoEditar.puertas ? String(autoEditar.puertas) : '',
+                color: autoEditar.color || '',
+                kilometraje: autoEditar.kilometraje ? String(autoEditar.kilometraje) : '',
+                ciudad: autoEditar.ciudad || '',
+                precio: autoEditar.precio ? String(autoEditar.precio) : '',
+                matricula: autoEditar.matricula || '',
+                codigoVIN: autoEditar.codigoVIN || '',
+                descripcion: autoEditar.descripcion || '',
+                fechaRegistro: autoEditar.fechaRegistro || '',
+                estaDisponible: autoEditar.estaDisponible,
+                idVenta: autoEditar.idVenta ? String(autoEditar.idVenta) : '',
+                idMarca: autoEditar.idMarca ? String(autoEditar.idMarca) : '',
+                tipoCombustible: autoEditar.tipoCombustible || '',
+                categoria: autoEditar.categoria || ''
+            });
+            const asociadas = imagenes.filter(img => Number(img.idAuto) === Number(autoEditar.id)).map(img => String(img.id));
+            setImagenesSeleccionadas(asociadas);
+        } else if (!modoEdicion) {
+            setAutoForm({
+                modelo: '', anio: '', puertas: '', color: '', kilometraje: '', ciudad: '', precio: '', matricula: '', codigoVIN: '', descripcion: '', fechaRegistro: '', estaDisponible: true, idVenta: '', idMarca: '', tipoCombustible: '', categoria: ''
+            });
+            setImagenesSeleccionadas([]);
+        }
+    }, [autoEditar, modoEdicion, imagenes]);
+
+    useEffect(() => {
+        if (autoEditar && modoEdicion) {
+            const asociadas = imagenes.filter(img => Number(img.idAuto) === Number(autoEditar.id)).map(img => String(img.id));
+            setImagenesSeleccionadas(asociadas);
+        }
+    }, [autoEditar, modoEdicion, imagenes]);
+
+    function formatFecha(fecha: string): string | undefined {
+        if (!fecha) return undefined;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
+        const d = new Date(fecha);
+        if (!isNaN(d.getTime())) {
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+        return undefined;
+    }
 
     const createAuto = async () => {
         try {
-            if (!modelo.trim()) {
+            if (!autoForm.modelo.trim()) {
                 Notification.show('El campo Modelo es obligatorio', { duration: 5000, position: 'top-center', theme: 'error' });
                 return;
             }
             await AutoService.create(
-                modelo,
-                anio,
-                puertas ? Number(puertas) : undefined,
-                color,
-                kilometraje || undefined,
-                ciudad,
-                precio || undefined,
-                matricula,
-                codigoVIN,
-                descripcion,
-                fechaRegistro,
-                estaDisponible,
-                idVenta ? Number(idVenta) : undefined,
-                idMarca ? Number(idMarca) : undefined,
-                tipoCombustible,
-                categoria
+                autoForm.modelo,
+                autoForm.anio,
+                autoForm.puertas ? Number(autoForm.puertas) : undefined,
+                autoForm.color,
+                autoForm.kilometraje || undefined,
+                autoForm.ciudad,
+                autoForm.precio ? parseFloat(autoForm.precio) : null,
+                autoForm.matricula,
+                autoForm.codigoVIN,
+                autoForm.descripcion,
+                autoForm.fechaRegistro ? new Date(autoForm.fechaRegistro) : null,
+                autoForm.estaDisponible,
+                autoForm.idVenta ? Number(autoForm.idVenta) : undefined,
+                autoForm.idMarca ? Number(autoForm.idMarca) : undefined,
+                autoForm.tipoCombustible,
+                autoForm.categoria
             );
+            const autos = await AutoService.listAuto();
+            const autoCreado = autos && autos.length > 0 ? autos[autos.length - 1] : null;
+            const idAutoNuevo = autoCreado?.id || autoCreado?.idAuto;
+            await ImagenService.asociarImagenesAUnAuto(Number(idAutoNuevo), imagenesSeleccionadas.map(id => Number(id)));
             if (onAutoCreated) onAutoCreated();
-            setModelo('');
-            setAnio('');
-            setPuertas('');
-            setColor('');
-            setKilometraje('');
-            setCiudad('');
-            setPrecio('');
-            setMatricula('');
-            setCodigoVIN('');
-            setDescripcion('');
-            setFechaRegistro('');
-            setEstaDisponible(true);
-            setIdVenta('');
-            setIdMarca('');
-            setTipoCombustible('');
-            setCategoria('');
+            setAutoForm({
+                modelo: '', anio: '', puertas: '', color: '', kilometraje: '', ciudad: '', precio: '', matricula: '', codigoVIN: '', descripcion: '', fechaRegistro: '', estaDisponible: true, idVenta: '', idMarca: '', tipoCombustible: '', categoria: ''
+            });
+            setImagenesSeleccionadas([]);
             Notification.show('Auto creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
         } catch (error: any) {
             Notification.show(error?.message || 'Error al guardar el auto', { duration: 5000, position: 'top-center', theme: 'error' });
         }
     };
 
+    const editarAuto = async () => {
+        try {
+            if (!autoEditar) return;
+            await AutoService.updateAuto(
+                autoEditar.id,
+                autoForm.modelo,
+                autoForm.anio,
+                autoForm.puertas ? Number(autoForm.puertas) : undefined,
+                autoForm.color,
+                autoForm.kilometraje || undefined,
+                autoForm.ciudad,
+                autoForm.precio ? parseFloat(autoForm.precio) : null,
+                autoForm.matricula,
+                autoForm.codigoVIN,
+                autoForm.descripcion,
+                autoForm.fechaRegistro ? new Date(autoForm.fechaRegistro) : null,
+                autoForm.estaDisponible,
+                autoForm.idVenta ? Number(autoForm.idVenta) : undefined,
+                autoForm.idMarca ? Number(autoForm.idMarca) : undefined,
+                autoForm.tipoCombustible,
+                autoForm.categoria
+            );
+            await ImagenService.asociarImagenesAUnAuto(Number(autoEditar.id), imagenesSeleccionadas.map(id => Number(id)));
+            if (onAutoEditado) onAutoEditado();
+            Notification.show('Auto editado correctamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
+        } catch (error: any) {
+            Notification.show(error?.message || 'Error al editar el auto', { duration: 5000, position: 'top-center', theme: 'error' });
+        }
+    };
+
+    const [file, setFile] = useState<File | null>(null);
+    const [descripcionImg, setDescripcionImg] = useState('');
+    const [subiendoImg, setSubiendoImg] = useState(false);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        setFile(e.target.files[0]);
+      }
+    };
+
+    const handleDescripcionImgChange = (e: any) => {
+      setDescripcionImg(e.detail.value);
+    };
+
+    const handleUploadImagen = async () => {
+      if (!file || !descripcionImg) return;
+      setSubiendoImg(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'Imagenes');
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/dld5pxm9z/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        await ImagenService.create(data.secure_url, descripcionImg, 0);
+        setFile(null);
+        setDescripcionImg('');
+        ImagenService.listImagen().then((data: any) => {
+          setImagenes((data ?? []).filter(Boolean));
+        });
+        Notification.show('Imagen subida y guardada correctamente', { duration: 3000, position: 'top-center', theme: 'success' });
+      } catch (err) {
+        Notification.show('Error al subir o guardar la imagen', { duration: 5000, position: 'top-center', theme: 'error' });
+      } finally {
+        setSubiendoImg(false);
+      }
+    };
+
+    const ImagenesAutoGallery = ({ imagenes, imagenesSeleccionadas, setImagenesSeleccionadas }: any) => (
+      <div className="form-grid-fullwidth">
+        <label>Imagen asociada</label>
+        <div className="auto-image-gallery">
+          {imagenes.map((img: any) => (
+            <label key={img.id} className="auto-image-label">
+              <input
+                type="radio"
+                name="imagen-asociada"
+                value={String(img.id)}
+                checked={imagenesSeleccionadas[0] === String(img.id)}
+                onChange={e => {
+                  if (e.target.checked) {
+                    setImagenesSeleccionadas([String(img.id)]);
+                  }
+                }}
+              />
+              <img
+                src={img.url}
+                alt={img.descripcion}
+                className="auto-image-thumb"
+              />
+              <span className="auto-image-desc">{img.descripcion}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    );
+
+    const SubidaImagen = ({ file, setFile, descripcionImg, setDescripcionImg, subiendoImg, handleUploadImagen, handleFileChange, handleDescripcionImgChange }: any) => (
+      <div className="form-grid-fullwidth auto-upload-box">
+        <label htmlFor="auto-upload-file">Subir nueva imagen</label>
+        <input
+          id="auto-upload-file"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="auto-upload-input"
+        />
+        <Button onClick={() => document.getElementById('auto-upload-file')?.click()}>
+          Elegir imagen
+        </Button>
+        {file && (
+          <div className="file-selected-name">
+            <strong>{file.name}</strong>
+          </div>
+        )}
+        <TextArea
+          value={descripcionImg}
+          onValueChanged={handleDescripcionImgChange}
+          style={{ width: '100%', minHeight: '60px', maxHeight: '120px' }}
+          placeholder="Descripción de la imagen"
+        />
+        <button onClick={handleUploadImagen} disabled={!file || !descripcionImg || subiendoImg}>
+          {subiendoImg ? 'Subiendo...' : 'Subir imagen'}
+        </button>
+      </div>
+    );
+
     return (
         <VerticalLayout>
-            {/* Campos en dos columnas usando clase personalizada */}
-            <div className="form-grid-2col">
-                <TextField label="Modelo" value={modelo} placeholder="Ej: Corolla" onValueChanged={e => setModelo(e.detail.value)} />
-                <TextField label="Año" value={anio} placeholder="Ej: 2020" onValueChanged={e => setAnio(e.detail.value)} />
-                <TextField label="Puertas" value={puertas} placeholder="Ej: 4" onValueChanged={e => setPuertas(e.detail.value)} />
-                <TextField label="Color" value={color} placeholder="Ej: Rojo" onValueChanged={e => setColor(e.detail.value)} />
-                <TextField label="Kilometraje" value={kilometraje} placeholder="Ej: 35000" onValueChanged={e => setKilometraje(e.detail.value)} />
-                <TextField label="Ciudad" value={ciudad} placeholder="Ej: Quito" onValueChanged={e => setCiudad(e.detail.value)} />
-                <TextField label="Precio" value={precio} placeholder="Ej: 15000" onValueChanged={e => setPrecio(e.detail.value)} />
-                <TextField label="Matrícula" value={matricula} placeholder="Ej: ABC123" onValueChanged={e => setMatricula(e.detail.value)} />
-                <TextField label="VIN" value={codigoVIN} placeholder="Ej: 1HGCM82633A004352" onValueChanged={e => setCodigoVIN(e.detail.value)} />
-                <TextField label="Fecha Registro (yyyy-MM-dd)" value={fechaRegistro} placeholder="Ej: 2024-06-08" onValueChanged={e => setFechaRegistro(e.detail.value)} />
-                <ComboBox label="Venta" items={ventas.map(v => ({ label: String(v.id), value: String(v.id) }))} value={idVenta} placeholder="Seleccione una venta" onValueChanged={e => setIdVenta(e.detail.value)} />
-                {/* Select para marcas registradas */}
+            <div className="form-grid-3col">
+                <TextField label="Modelo" value={autoForm.modelo} placeholder="Ej: Corolla" onValueChanged={e => handleChange('modelo', e.detail.value)} />
+                <TextField label="Año" value={autoForm.anio} placeholder="Ej: 2020" onValueChanged={e => handleChange('anio', e.detail.value)} />
+                <TextField label="Puertas" value={autoForm.puertas} placeholder="Ej: 4" onValueChanged={e => handleChange('puertas', e.detail.value)} />
+                <TextField label="Color" value={autoForm.color} placeholder="Ej: Rojo" onValueChanged={e => handleChange('color', e.detail.value)} />
+                <TextField label="Kilometraje" value={autoForm.kilometraje} placeholder="Ej: 35000" onValueChanged={e => handleChange('kilometraje', e.detail.value)} />
+                <TextField label="Ciudad" value={autoForm.ciudad} placeholder="Ej: Quito" onValueChanged={e => handleChange('ciudad', e.detail.value)} />
+                <TextField label="Precio" value={autoForm.precio} placeholder="Ej: 15000" onValueChanged={e => handleChange('precio', e.detail.value)} />
+                <TextField label="Matrícula" value={autoForm.matricula} placeholder="Ej: ABC123" onValueChanged={e => handleChange('matricula', e.detail.value)} />
+                <TextField label="VIN" value={autoForm.codigoVIN} placeholder="Ej: 1HGCM82633A004352" onValueChanged={e => handleChange('codigoVIN', e.detail.value)} />
+                <TextField label="Fecha Registro (yyyy-MM-dd)" value={autoForm.fechaRegistro} placeholder="Ej: 2024-06-08" onValueChanged={e => handleChange('fechaRegistro', e.detail.value)} />
+                <ComboBox label="Venta" items={ventas.map(v => ({ label: String(v.id), value: String(v.id) }))} value={autoForm.idVenta} placeholder="Seleccione una venta" onValueChanged={e => handleChange('idVenta', e.detail.value)} />
                 <ComboBox
                     label="Marca"
                     items={marcas.map(m => ({ label: m.nombre, value: String(m.id) }))}
-                    value={idMarca}
+                    value={autoForm.idMarca}
                     placeholder="Seleccione una marca"
-                    onValueChanged={e => setIdMarca(e.detail.value)}
+                    onValueChanged={e => handleChange('idMarca', e.detail.value)}
                     clearButtonVisible
                 />
-                <ComboBox label="Tipo Combustible" items={tiposCombustible} value={tipoCombustible} placeholder="Ej: GASOLINA" onValueChanged={e => setTipoCombustible(e.detail.value)} />
-                <ComboBox label="Categoría" items={categorias} value={categoria} placeholder="Ej: SEDAN" onValueChanged={e => setCategoria(e.detail.value)} />
+                <ComboBox label="Tipo Combustible" items={tiposCombustible} value={autoForm.tipoCombustible} placeholder="Ej: GASOLINA" onValueChanged={e => handleChange('tipoCombustible', e.detail.value)} />
+                <ComboBox label="Categoría" items={categorias} value={autoForm.categoria} placeholder="Ej: SEDAN" onValueChanged={e => handleChange('categoria', e.detail.value)} />
                 <div className="form-grid-fullwidth">
-                    <Checkbox label="¿Disponible?" checked={estaDisponible} onCheckedChanged={e => setEstaDisponible(e.detail.value)} />
+                    <Checkbox label="¿Disponible?" checked={autoForm.estaDisponible} onCheckedChanged={e => handleChange('estaDisponible', e.detail.value)} />
                 </div>
                 <div className="form-grid-fullwidth">
-                    <TextArea label="Descripción" value={descripcion} style={{ width: '100%', minHeight: '100px', maxHeight: '150px' }} onValueChanged={e => setDescripcion(e.detail.value)} />
+                    <TextArea label="Descripción" value={autoForm.descripcion} style={{ width: '100%', minHeight: '100px', maxHeight: '150px' }} placeholder="Descripción del auto" onValueChanged={e => handleChange('descripcion', e.detail.value)} />
                 </div>
+                <ImagenesAutoGallery imagenes={imagenes} imagenesSeleccionadas={imagenesSeleccionadas} setImagenesSeleccionadas={setImagenesSeleccionadas} />
+                <SubidaImagen file={file} setFile={setFile} descripcionImg={descripcionImg} setDescripcionImg={setDescripcionImg} subiendoImg={subiendoImg} handleUploadImagen={handleUploadImagen} handleFileChange={handleFileChange} handleDescripcionImgChange={handleDescripcionImgChange} />
             </div>
             <div className="flex gap-2 mt-4 justify-center">
                 <Button onClick={onCancel}>Cancelar</Button>
-                <Button onClick={createAuto} theme="primary">Registrar</Button>
+                {modoEdicion ? (
+                    <Button onClick={editarAuto} theme="primary">Guardar cambios</Button>
+                ) : (
+                    <Button onClick={createAuto} theme="primary">Registrar</Button>
+                )}
             </div>
         </VerticalLayout>
     );
@@ -153,6 +347,9 @@ export default function AutoView() {
     const [tiposCombustible, setTiposCombustible] = useState<string[]>([]);
     const [categorias, setCategorias] = useState<string[]>([]);
     const [dialogOpened, setDialogOpened] = useState(false);
+    const [modoEdicion, setModoEdicion] = useState(false);
+    const [autoEditar, setAutoEditar] = useState<AutoItem | null>(null);
+    const [imagenes, setImagenes] = useState<any[]>([]);
 
     const callData = () => {
         AutoService.listAuto()
@@ -160,6 +357,7 @@ export default function AutoView() {
                 (data ?? [])
                     .filter(Boolean)
                     .map((item: any) => ({
+                        id: item.id,
                         modelo: item.modelo ?? '',
                         anio: item.anio ?? '',
                         puertas: Number(item.puertas) || 0,
@@ -187,7 +385,7 @@ export default function AutoView() {
             setMarcas((data ?? []).filter(Boolean).map((m: any) => ({ id: Number(m.id), nombre: m.nombre })));
         });
         AutoService.getTiposCombustible().then((data) => setTiposCombustible((data ?? []).filter(Boolean) as string[]));
-        AutoService.getCategorias().then((data) => setCategorias((data ?? []).filter(Boolean) as string[]));
+        AutoService.getCategoriasLegibles().then((data) => setCategorias((data ?? []).filter(Boolean) as string[]));
         import('Frontend/generated/endpoints').then(({ VentaService }) => {
             if (VentaService && VentaService.listVenta) {
                 VentaService.listVenta().then((data: any) => {
@@ -195,13 +393,15 @@ export default function AutoView() {
                 });
             }
         });
+        ImagenService.listImagen().then((data: any) => {
+            setImagenes((data ?? []).filter(Boolean));
+        });
     }, []);
 
-    // Renderizado de tarjetas tipo card
     return (
         <main className="w-full h-full flex flex-col gap-4 p-4">
             <div className="flex justify-end mb-4">
-                <Button theme="primary" onClick={() => setDialogOpened(true)}>Agregar auto</Button>
+                <Button theme="primary" onClick={() => { setDialogOpened(true); setModoEdicion(false); setAutoEditar(null); }}>Agregar auto</Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {items.length === 0 ? (
@@ -210,22 +410,19 @@ export default function AutoView() {
                     </div>
                 ) : items.map((auto, idx) => {
                     const marca = marcas.find(m => m.id === auto.idMarca)?.nombre || auto.idMarca;
+                    const imagenesAuto = imagenes.filter(img => Number(img.idAuto) === Number(auto.id));
                     return (
                         <div key={idx} className="card-bordered flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg bg-card h-full min-w-[300px] max-w-[400px] mx-auto relative">
-                            {/* Botón de favorito SVG en la esquina superior izquierda */}
-                            <button
-                                className="absolute top-2 left-2 z-10 bg-white/80 rounded-full p-1 shadow-md hover:bg-red-100 transition-colors text-accent leading-none"
-                                title="Marcar como favorito"
-                                // onClick={() => ... lógica para marcar favorito ...}
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-heart h-6 w-6 fill-accent">
-                                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-                                </svg>
-                            </button>
-                            <div className="card-image-container-400x300 mb-2">
-                                <div className="card-image-400x300 flex items-center justify-center bg-muted rounded-t-lg text-muted-foreground text-4xl">
-                                    <span role="img" aria-label="Sin imagen">🚗</span>
-                                </div>
+                            <div className="card-image-container-400x300 mb-2 flex flex-row gap-2 overflow-x-auto">
+                                {imagenesAuto.length > 0 ? (
+                                    imagenesAuto.map(img => (
+                                        <img key={img.id} src={img.url} alt={auto.modelo} className="card-image-400x300 object-cover rounded-t-lg" />
+                                    ))
+                                ) : (
+                                    <div className="card-image-400x300 flex items-center justify-center bg-muted rounded-t-lg text-muted-foreground text-4xl">
+                                        <span role="img" aria-label="Sin imagen">🚗</span>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col flex-grow px-3 pb-3 gap-1 items-center text-center">
                                 <div className="font-headline text-lg mb-0.5 break-words flex flex-col items-center gap-1 w-full">
@@ -244,13 +441,16 @@ export default function AutoView() {
                                 </div>
                                 <span className="inline-block bg-secondary text-secondary-foreground rounded px-2 py-0.5 text-xs font-semibold mb-2 w-max">{auto.tipoCombustible}</span>
                                 <div className="text-xs text-muted-foreground truncate w-full">Matrícula: {auto.matricula}</div>
+                                <div className="flex gap-2 mt-2 justify-center">
+                                    <Button onClick={() => { setDialogOpened(true); setModoEdicion(true); setAutoEditar(auto); }}>Editar</Button>
+                                </div>
                             </div>
                         </div>
                     );
                 })}
             </div>
             <Dialog
-                headerTitle="Registrar nuevo auto"
+                headerTitle={modoEdicion ? "Editar auto" : "Registrar nuevo auto"}
                 opened={dialogOpened}
                 onOpenedChanged={e => setDialogOpened(e.detail.value)}
                 footer={null}
@@ -262,6 +462,9 @@ export default function AutoView() {
                     tiposCombustible={tiposCombustible}
                     categorias={categorias}
                     onCancel={() => setDialogOpened(false)}
+                    autoEditar={autoEditar}
+                    modoEdicion={modoEdicion}
+                    onAutoEditado={() => { callData(); setDialogOpened(false); setModoEdicion(false); setAutoEditar(null); }}
                 />
             </Dialog>
         </main>

@@ -58,10 +58,6 @@ public class Usuario {
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 
     public Integer getIdCuenta() {
         return this.idCuenta;
@@ -70,15 +66,4 @@ public class Usuario {
     public void setIdCuenta(Integer idCuenta) {
         this.idCuenta = idCuenta;
     }
-
-<<<<<<< HEAD
 }
-=======
-    
-}
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-
-    
-}
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

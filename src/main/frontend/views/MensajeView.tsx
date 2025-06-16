@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MessageList, MessageInput, Avatar } from "@vaadin/react-components";
-import "./mensaje-view.css";
+import "../themes/default/mensaje-view.css";
 
 // Interfaces
 interface Usuario {
@@ -26,6 +26,9 @@ const CONVERSACIONES = [
   { id: 1, usuarios: [USUARIOS[0], USUARIOS[1]] }
 ];
 
+// Cambia la URL base según tu backend
+const API_URL = "http://localhost:8080/api/chat";
+
 const MensajeView: React.FC = () => {
   const [usuarioActual] = useState<Usuario>(USUARIOS[0]);
   const [conversaciones] = useState(CONVERSACIONES);
@@ -36,7 +39,6 @@ const MensajeView: React.FC = () => {
   // Simula fetch de mensajes al cambiar de usuarioDestino
   useEffect(() => {
     if (usuarioDestino) {
-      // Aquí deberías llamar a tu backend para obtener los mensajes
       setMensajes([
         {
           id: 1,
@@ -48,23 +50,44 @@ const MensajeView: React.FC = () => {
     }
   }, [usuarioDestino]);
 
+  // Cargar mensajes reales al cambiar de usuarioDestino
+  useEffect(() => {
+    const fetchMensajes = async () => {
+      if (usuarioDestino) {
+        const conversacionId = 1; // <-- Debes obtenerlo dinámicamente
+        const res = await fetch(`${API_URL}/mensajes?conversacionId=${conversacionId}`);
+        const data = await res.json();
+        setMensajes(Array.isArray(data) ? data : []);
+      }
+    };
+    fetchMensajes();
+  }, [usuarioDestino]);
+
   // Scroll automático al final
   useEffect(() => {
     mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
 
-  const enviarMensaje = (e: CustomEvent) => {
+  // Enviar mensaje al backend
+  const enviarMensaje = async (e: CustomEvent) => {
     const contenido = e.detail.value;
     if (contenido.trim() && usuarioDestino) {
-      setMensajes(prev => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          remitente: usuarioActual,
-          contenido,
-          fechaEnvio: new Date().toISOString()
-        }
-      ]);
+      const conversacionId = 1; // <-- Debes obtenerlo dinámicamente
+      const mensaje = {
+        idConversacion: conversacionId, // debe ser un número válido
+        remitente: { id: usuarioActual.id }, // solo el id, no todo el objeto
+        contenido,
+        fechaEnvio: new Date().toISOString()
+      };
+      await fetch(`${API_URL}/mensajes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mensaje)
+      });
+      // Recarga los mensajes
+      const res = await fetch(`${API_URL}/mensajes?conversacionId=${conversacionId}`);
+      const data = await res.json();
+      setMensajes(Array.isArray(data) ? data : []);
     }
   };
 
@@ -145,15 +168,14 @@ const MensajeView: React.FC = () => {
           gap: 10
         }}>
           <MessageList
-            items={mensajes.map(m => ({
+            items={Array.isArray(mensajes) ? mensajes.map(m => ({
               text: m.contenido,
               time: new Date(m.fechaEnvio).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
               userName: m.remitente.nombre,
               userAbbr: m.remitente.nombre[0],
               userImg: m.remitente.img,
-              // Alinea a la derecha si es el usuario actual
               right: m.remitente.id === usuarioActual.id
-            }))}
+            })) : []}
           />
           <div ref={mensajesEndRef} />
         </div>
@@ -161,7 +183,7 @@ const MensajeView: React.FC = () => {
         {usuarioDestino && (
           <div style={{
             padding: 16,
-            background: "#fff", // Barra de enviar mensajes blanca
+            background: "#fff",
             borderTop: "1px solid #eee"
           }}>
             <MessageInput

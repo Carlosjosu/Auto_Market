@@ -1,0 +1,14 @@
+.mensaje {
+  margin-bottom: 2px;
+  position: relative;
+  transition: background 0.2s;
+}
+.mensaje.actual {
+  background: #005c4b;
+}
+.mensaje.otro {
+  background: #202c33;
+}
+.mensaje.current-user {
+  border: 2px solid #25d366;
+}

@@ -181,6 +181,10 @@ export default function CuentaView() {
             label: 'Correo',
             value: 'correo',
         },
+        {
+            label: 'Rol',
+            value: 'idRol',
+        },
     ];
 
     const search = async () => {
@@ -242,6 +246,7 @@ export default function CuentaView() {
             <Grid items={items}>
                 <GridColumn renderer={indexIndex} header="Numero" />
                 <GridSortColumn path="correo" header="Correo" onDirectionChanged={(e) => order(e, 'nombre')} />
+                <GridSortColumn path="idRol" header="Rol" onDirectionChanged={(e) => order(e, 'idRol')} />
                 <GridColumn header="Acciones" renderer={indexLink} />
             </Grid>
         </main>

@@ -47,12 +47,13 @@ type UserMenuItem = MenuBarItem<{ action?: () => void }>;
 
 function UserMenu() {
   // TODO Replace with real user information and actions
-  const { logout } = useAuth();
+  const { state, logout } = useAuth();
+  const nickname = state.user?.name || 'Usuario ';
   const items: Array<UserMenuItem> = [
     {
       component: (
         <>
-          <Avatar theme="xsmall" name="John Smith" colorIndex={5} className="mr-s" /> John Smith
+          <Avatar theme="xsmall" name={nickname} colorIndex={5} className="mr-s" /> {nickname}
         </>
       ),
       children: [

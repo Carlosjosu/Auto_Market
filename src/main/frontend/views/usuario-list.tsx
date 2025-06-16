@@ -31,9 +31,11 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
   const cedula = useSignal('');
   const telefono = useSignal('');
   const cuenta = useSignal('');
+  const rol = useSignal('');
   const dialogOpened = useSignal(false);
 
   const cuentas = useSignal<{ value: string, label: string }[]>([]);
+  const roles = useSignal<{ value: string, label: string }[]>([]);
 
   useEffect(() => {
     UsuarioService.listaCuenta().then(data => {
@@ -44,11 +46,22 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
     });
   }, []);
 
+  useEffect(() => {
+    UsuarioService.listaRol().then(data => {
+      roles.value = (data ?? []).map((a: any) => ({
+        value: a.value,
+        label: a.label
+      }));
+    });
+  }, []);
+
   const createUsuario = async () => {
     try {
-      if (nickname.value && nombre.value && apellido.value && cedula.value && telefono.value && cuenta.value) {
+      if (nickname.value && nombre.value && apellido.value && cedula.value && telefono.value && cuenta.value && rol.value) {
         const idCuenta = parseInt(cuenta.value);
-        await UsuarioService.create(nickname.value, nombre.value, apellido.value, cedula.value, telefono.value, idCuenta);
+        const idRol = parseInt(rol.value);
+
+        await UsuarioService.create(nickname.value, nombre.value, apellido.value, cedula.value, telefono.value, idCuenta, idRol);
         if (props.onUsuarioCreated) props.onUsuarioCreated();
         nickname.value = '';
         nombre.value = '';
@@ -56,6 +69,7 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
         cedula.value = '';
         telefono.value = '';
         cuenta.value = '';
+        rol.value = '';
         dialogOpened.value = false;
         Notification.show('Usuario creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
@@ -115,6 +129,14 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
             itemValuePath="value"
             value={cuenta.value}
             onValueChanged={(evt: CustomEvent<{ value: string }>) => (cuenta.value = evt.detail.value)}
+          />
+          <ComboBox
+            label="Rol"
+            items={roles.value}
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={rol.value}
+            onValueChanged={(evt: CustomEvent<{ value: string }>) => (rol.value = evt.detail.value)}
           />
         </VerticalLayout>
       </Dialog>

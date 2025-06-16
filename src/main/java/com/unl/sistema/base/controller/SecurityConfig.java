@@ -38,7 +38,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         super.configure(http);
         setLoginView(http, "/login", "/");
         setStatelessAuthentication(http, new SecretKeySpec(Base64.getDecoder().decode(authSecret),
-                JWSAlgorithm.HS256.getName()), "sub");
+                JWSAlgorithm.HS256.getName()), "com.unl.sistema");
     }
 
     @Override
@@ -46,18 +46,5 @@ public class SecurityConfig extends VaadinWebSecurity {
         web.ignoring().requestMatchers(VaadinWebSecurity.getDefaultWebSecurityIgnoreMatcher())
                 .requestMatchers(new AntPathRequestMatcher("/imagenes/**")).requestMatchers(antMatchers("static/**"));
         super.configure(web);
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:8000") // Cambia por tu frontend
-                        .allowedMethods("*")
-                        .allowCredentials(true);
-            }
-        };
     }
 }

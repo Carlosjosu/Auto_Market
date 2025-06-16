@@ -88,15 +88,18 @@ export default function MarcaView() {
     const { state } = useAuth();
     const navigate = useNavigate();
     useEffect(() => {
-        if (!state.isLogin) {
-            navigate('/login?error=true');
-        }
-        const userRole = role();
-        if (userRole !== 'admin') {
+    if (!state.user) {
+        navigate('/login?error=true');
+        return;
+    }
+    role().then((rolResponse) => {
+        console.log('Rol del usuario:', rolResponse?.rol);
+        if (rolResponse?.rol !== 'ROLE_admin') {
             Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
             navigate('/');
         }
-    }, [state.isLogin, navigate]);
+    });
+}, [state.user, navigate]);
 
     const callData = () => {
         MarcaService.listMarca().then(function(data){

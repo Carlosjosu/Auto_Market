@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.dao_models.DaoCuenta;
+import com.unl.sistema.base.controller.dao.dao_models.DaoRol;
 import com.unl.sistema.base.controller.dao.dao_models.DaoUsuario;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Cuenta;
 import com.unl.sistema.base.models.Marca;
+import com.unl.sistema.base.models.Rol;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -32,15 +34,16 @@ public class UsuarioService {
     }
 
     public void create(@NotEmpty String nickname, @NotEmpty String nombre, @NotEmpty String apellido, 
-                        @NotEmpty String cedula, @NotEmpty String telefono, Integer idCuenta) throws Exception{
+                        @NotEmpty String cedula, @NotEmpty String telefono, Integer idCuenta, Integer idRol) throws Exception{
         if(nickname.trim().length() > 0 && nombre.trim().length() > 0 && apellido.trim().length() > 0 && cedula.trim().length() > 0 
-            && telefono.trim().length() > 0 && idCuenta > 0 ) {
+            && telefono.trim().length() > 0 && idCuenta > 0 && idRol > 0) {
             du.getObj().setNickname(nickname);
             du.getObj().setNombre(nombre);
             du.getObj().setApellido(apellido);
             du.getObj().setCedula(cedula);
             du.getObj().setTelefono(telefono);
             du.getObj().setIdCuenta(idCuenta);
+            du.getObj().setIdRol(idRol);
             if(!du.save())
                 throw new  Exception("No se pudo guardar los datos del usuario");
         }
@@ -70,6 +73,21 @@ public class UsuarioService {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString()); 
                 aux.put("label", arreglo[i].getCorreo()); 
+                lista.add(aux);  
+            }
+        }
+        return lista;
+    }
+
+    public List<HashMap> listaRol() {
+        List<HashMap> lista = new ArrayList<>();
+        DaoRol dr = new DaoRol();
+        if(!dr.listAll().isEmpty()) {
+            Rol [] arreglo = dr.listAll().toArray();
+            for(int i = 0; i < arreglo.length; i++) {
+                HashMap<String, String> aux = new HashMap<>();
+                aux.put("value", arreglo[i].getId().toString()); 
+                aux.put("label", arreglo[i].getNombre()); 
                 lista.add(aux);  
             }
         }

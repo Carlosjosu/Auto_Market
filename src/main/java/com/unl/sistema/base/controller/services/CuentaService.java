@@ -64,9 +64,9 @@ public class CuentaService {
         mapa.put("code", "201");
         DaoUsuario du = new DaoUsuario();
         LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(
-            dc.all(), "correo", "admin@correo.com",0);
+            dc.all(), "correo", "admin@gmail.com",0);
         if (resultado.isEmpty()) {
-            dc.getObj().setCorreo("admin@correo.com");
+            dc.getObj().setCorreo("admin@gmail.com");
             dc.getObj().setClave("12345");
             dc.save();
 
@@ -177,19 +177,4 @@ public class CuentaService {
         return Arrays.asList(dc.all().toArray());
     }
 
-    public static void main(String[] args) {
-        try {
-            CuentaService cuentaService = new CuentaService();
-            cuentaService.createRoles();
-            cuentaService.createUsuarios();
-            HashMap<String, Object> loginResponse = cuentaService.login("admin@correo.com","12345");
-            if (loginResponse.get("estado").equals("true")) {
-                System.out.println("Login successful: " + loginResponse.get("user"));
-            } else {
-                System.out.println("Login failed: " + loginResponse.get("message"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

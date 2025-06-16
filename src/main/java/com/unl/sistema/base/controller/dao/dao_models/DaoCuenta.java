@@ -69,7 +69,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         map.put("id", c.getId().toString());
         map.put("correo", c.getCorreo());
         map.put("usuario", du.getObj().getNickname());
-        map.put("rol", du.getObj().getIdRol().toString());
+        map.put("idRol", new DaoRol().listAll().get(du.getObj().getIdRol() - 1).getNombre());
         return map;
     }
 
@@ -120,19 +120,6 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
                 throw new Exception("No se encontro la cuenta");
         } else
             return null;
-    }
-
-    public static void main(String[] args) {
-        try {
-            DaoCuenta dc = new DaoCuenta();
-            HashMap mapa = dc.login("maria.garcia@gmail.com", "maria456");
-            if(mapa != null) {
-                System.out.println(mapa.get("usuario"));
-            }
-        } catch (Exception ex) {
-            System.out.println("Hubo un error "+ex);
-            ex.printStackTrace();
-        }
     }
 
 }

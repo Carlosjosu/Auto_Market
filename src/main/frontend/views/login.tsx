@@ -17,36 +17,36 @@ export default function LoginView() {
 
   console.log('LOGIN');
   const navigate = useNavigate();
-  const { state, login } = useAuth();
+  const { state } = useAuth();
   const [searchParams] = useSearchParams();
   const hasError = useSignal(false);
   const error = searchParams.has('error');
 
   useEffect(() => {
     if (state.user) {
+      console.log('REDIRIGI POR ESTAR AUTENTICADO:');
       navigate('/');
     }
-  }, [state.user, navigate]);
+  }, [state.user]);
 
   const i18n = {
     header: {
       title: 'AutoMarket UNL',
-      description: 'Autos para todos los gustos y presupuestos',
+      description: 'Tu espacio confiable para comprar y vender autos.',
     },
     form: {
-      title: 'Inicio de sesion',
+      title: 'Iniciar sesion',
       username: 'Correo electronico',
       password: 'Clave',
       submit: 'Ingresar',
-      forgotPassword: 'Olvidas tu clave?',
     },
     errorMessage: {
       title: 'Error',
-      message: 'Usuario o clave incorrecta.',
-      username: 'Usuario incorrecto',
-      password: 'clave incorrecta',
+      message: 'Correo o clave incorrectos.',
+      username: 'Correo no válido',
+      password: 'Clave incorrecta',
     },
-    additionalInformation: 'El lugar donde puedes comprar y vender autos a la vez.',
+    additionalInformation: 'AutoMarket UNL es tu aliado para encontrar el auto ideal o vender el tuyo facilmente.',
   };
 
   useEffect(() => {
@@ -65,37 +65,21 @@ export default function LoginView() {
       }}
       onLogin={async ({ detail: { username, password } }) => {
 
-        console.log('Login attempt with:', username, password);
+        console.log('Login intentado con:', username, password);
         const data = await CuentaService.login(username, password);
-        console.log('Login response:', data);
-
+        console.log('Login indica:', data);
+        const isLogged = await isLogin();
+        console.log('isLogin indica:', isLogged);
         if (data?.estado === 'false') {
           Notification.show(data?.message, { duration: 5000, position: 'top-center', theme: 'error' });
-          console.error('Login failed:', data);
+          console.error('Login fallo:', data);
           hasError.value = true;
-          return;
-        }
-
-        await new Promise(res => setTimeout(res, 100));
-        
-        const { error: loginError } = await login(username, password);
-        console.log('Login result:', loginError);
-
-        if (loginError) {
-          Notification.show("Error de autenticación en frontend", { duration: 5000, position: 'top-center', theme: 'error' });
-          hasError.value = true;
-          return;
-        }
-
-        const isLogged = await isLogin();
-        console.log('isLogin result:', isLogged);
-        if (isLogged) {
+          navigate('/login?error=true');
+        } else {
           Notification.show("Ingreso exitoso", { duration: 5000, position: 'top-center', theme: 'success' });
           hasError.value = false;
-          navigate('/');
-        } else {
-          Notification.show("No se pudo verificar la sesión", { duration: 5000, position: 'top-center', theme: 'error' });
-          hasError.value = true;
+          await new Promise(res => setTimeout(res, 1000));
+          window.location.href = '/';
         }
       }}
     />

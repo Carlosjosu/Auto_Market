@@ -8,6 +8,7 @@ public class Usuario {
     private String cedula;
     private String telefono;
     private Integer idCuenta;
+    private Integer idRol;
 
     public Integer getId() {
         return this.id;
@@ -65,4 +66,11 @@ public class Usuario {
         this.idCuenta = idCuenta;
     }
 
+    public Integer getIdRol() {
+        return this.idRol;
+    }
+
+    public void setIdRol(Integer idRol) {
+        this.idRol = idRol;
+    }
 }

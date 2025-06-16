@@ -68,6 +68,7 @@ public class DaoUsuario extends AdapterDao<Usuario>{
         aux.put("cedula", arreglo.getCedula());
         aux.put("telefono", arreglo.getTelefono());
         aux.put("idCuenta", new DaoCuenta().listAll().get(arreglo.getIdCuenta() - 1).getCorreo());
+        aux.put("idRol", new DaoRol().listAll().get(arreglo.getIdRol() - 1).getNombre());
         return aux;
     }
 }

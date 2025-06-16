@@ -69,6 +69,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         map.put("id", c.getId().toString());
         map.put("correo", c.getCorreo());
         map.put("usuario", du.getObj().getNickname());
+        map.put("rol", du.getObj().getIdRol().toString());
         return map;
     }
 
@@ -79,6 +80,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         map.put("id", c.getId());
         map.put("correo", c.getCorreo());
         map.put("usuario", du.getObj().getNickname());
+        map.put("rol", du.getObj().getIdRol());
         return map;
     }
 

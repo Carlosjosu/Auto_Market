@@ -6,8 +6,9 @@ import { MarcaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import { useDataProvider } from '@vaadin/hilla-react-crud';
+import { useAuth, role } from 'Frontend/security/auth';
 import type { GridItemModel } from '@vaadin/react-components';
+import { useNavigate } from 'react-router-dom';
 
 export const config: ViewConfig = {
     title: 'Marca',
@@ -84,6 +85,18 @@ function MarcaEntryForm(props: MarcaEntryFormProps) {
 }
 
 export default function MarcaView() {
+    const { state } = useAuth();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!state.isLogin) {
+            navigate('/login?error=true');
+        }
+        const userRole = role();
+        if (userRole !== 'admin') {
+            Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
+            navigate('/');
+        }
+    }, [state.isLogin, navigate]);
 
     const callData = () => {
         MarcaService.listMarca().then(function(data){

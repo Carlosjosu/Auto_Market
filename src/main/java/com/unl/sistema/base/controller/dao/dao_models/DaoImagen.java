@@ -3,7 +3,6 @@ package com.unl.sistema.base.controller.dao.dao_models;
 import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
-import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Imagen;
@@ -83,94 +82,33 @@ public class DaoImagen extends AdapterDao<Imagen> {
         return aux;
     }
 
-    public LinkedList<Imagen> ordenarString(String atributo, Integer type) {
-        LinkedList<Imagen> lista = new LinkedList<>();
-        if (!listAll().isEmpty()) {
-            Imagen arreglo[] = listAll().toArray();
-            int n = arreglo.length;
-            String[] valores = new String[n];
-            for (int i = 0; i < n; i++) {
-                try {
-                    String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                    valores[i] = String.valueOf(Imagen.class.getMethod(getter).invoke(arreglo[i]));
-                } catch (Exception e) {
-                    valores[i] = "";
-                }
-            }
-            if (type == Utiles.ASCENDENTE) {
-                quickSortASC(valores, 0, n - 1);
-            } else {
-                quickSortDES(valores, 0, n - 1);
-            }
-            for (String valor : valores) {
-                for (int i = 0; i < n; i++) {
-                    try {
-                        String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                        String val = String.valueOf(Imagen.class.getMethod(getter).invoke(arreglo[i]));
-                        if (arreglo[i] != null && val.equals(valor)) {
-                            lista.add(arreglo[i]);
-                        }
-                    } catch (Exception e) {
-                    }
-                }
-            }
-        }
-        return lista;
+    public LinkedList<HashMap<String, String>> ordenarPorAtributo(String atributo, Integer type) {
+        return ordenarAtributo(all(), atributo, type);
     }
 
-    public static <E extends Comparable<E>> void quickSortASC(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) < 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) >= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortASC(vec, inicio, elemDer - 1);
-        quickSortASC(vec, elemDer + 1, fin);
+    public LinkedList<HashMap<String, String>> ordenarPorNumero(String atributo, Integer type) {
+        return ordenarNumero(all(), atributo, type);
     }
 
-    public static <E extends Comparable<E>> void quickSortDES(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) > 0) {
-                elemIzq++;
+    public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
+        LinkedList<HashMap<String, String>> lista = all();
+        HashMap<String, Object>[] datos = new HashMap[lista.getLength()];
+        for (int i = 0; i < lista.getLength(); i++) {
+            HashMap<String, String> original = lista.get(i);
+            HashMap<String, Object> convertido = new HashMap<>();
+            for (String key : original.keySet()) {
+                convertido.put(key, original.get(key));
             }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) <= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
+            datos[i] = convertido;
         }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
+        HashMap<String, Object> resultado = buscarAtributo(datos, 0, datos.length - 1, atributo, valor);
+        if (resultado == null)
+            return null;
+        HashMap<String, String> resultString = new HashMap<>();
+        for (String key : resultado.keySet()) {
+            Object val = resultado.get(key);
+            resultString.put(key, val != null ? val.toString() : null);
         }
-        quickSortDES(vec, inicio, elemDer - 1);
-        quickSortDES(vec, elemDer + 1, fin);
+        return resultString;
     }
 }

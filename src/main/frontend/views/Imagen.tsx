@@ -141,9 +141,9 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
             <HorizontalLayout theme="spacing">
                 <ComboBox
                     label="Selecciona una imagen de ejemplo para editar"
-                    items={imagenesEjemplo.map((img, idx) => ({ label: img.descripcion, value: String(idx) }))}
+                    items={imagenesEjemplo.filter(Boolean).map((img, idx) => ({ label: img?.descripcion ?? `Imagen ${idx+1}`, value: String(idx) }))}
                     value={String(imagenesEjemplo.indexOf(imagenEjemploSeleccionada))}
-                    onValueChanged={e => setImagenEjemploSeleccionada(imagenesEjemplo[Number(e.detail.value)])}
+                    onValueChanged={e => setImagenEjemploSeleccionada(imagenesEjemplo[Number(e.detail.value)] ?? imagenesEjemplo[0])}
                     style={{ width: 200 }}
                 />
                 <Button onClick={handleEdit}>Editar Imagen</Button>
@@ -167,7 +167,6 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
                     </>
                 }>
                 <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-                    {/* NUEVO: Subida a Cloudinary */}
                     <input type="file" accept="image/*" onChange={handleFileChange} />
                     <Button onClick={handleUploadToCloudinary} disabled={!file || subiendo}>
                       {subiendo ? 'Subiendo...' : 'Subir a Cloudinary'}
@@ -181,10 +180,10 @@ function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) 
                     />
                     <ComboBox
                         label="Auto"
-                        items={autos.map(a => ({ label: `${a.modelo} (${a.matricula})`, value: String(a.id) }))}
-                        value={idAuto}
+                        items={autos.filter(Boolean).map(a => ({ label: `${a?.modelo ?? 'Desconocido'} (${a?.matricula ?? '-'})`, value: String(a?.id ?? '') }))}
+                        value={idAuto ?? ''}
                         placeholder="Seleccione un auto"
-                        onValueChanged={e => setIdAuto(e.detail.value)}
+                        onValueChanged={e => setIdAuto(e.detail.value ?? '')}
                     />
                 </VerticalLayout>
             </Dialog>
@@ -248,15 +247,16 @@ export default function ImagenView() {
                     <ImagenEntryForm onImagenCreated={callData} />
                 </Group>
             </ViewToolbar>
-            <Grid items={items}>
+            <Grid items={items.filter(Boolean)}>
                 <GridColumn renderer={indexIndex} header="Numero" />
                 <GridSortColumn path="url" header="URL" onDirectionChanged={e => order(e, 'url')} />
                 <GridSortColumn path="descripcion" header="Descripción" onDirectionChanged={e => order(e, 'descripcion')} />
                 <GridColumn
                     header="Auto"
                     renderer={({ item }) => {
+                        if (!item || typeof item.idAuto === 'undefined' || item.idAuto === null) return <span>-</span>;
                         const auto = autos.find(a => a.id === item.idAuto);
-                        return <span>{auto ? `${auto.modelo} (${auto.matricula})` : item.idAuto}</span>;
+                        return <span>{auto ? `${auto.modelo ?? 'Desconocido'} (${auto.matricula ?? '-'})` : item.idAuto}</span>;
                     }}
                 />
             </Grid>

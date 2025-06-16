@@ -26,6 +26,17 @@
         "params": {}
       },
       {
+        "route": "cuenta-list",
+        "title": "Cuenta",
+        "menu": {
+          "icon": "vaadin:wallet",
+          "order": 1,
+          "title": "Cuenta"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -46,6 +57,12 @@
         },
         "flowLayout": false,
         "params": {}
+      },
+      {
+        "route": "login",
+        "flowLayout": false,
+        "params": {},
+        "title": "Login"
       },
       {
         "route": "Marca",
@@ -71,6 +88,17 @@
           "icon": "vaadin:clipboard-check",
           "order": 1,
           "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "usuario-list",
+        "title": "Usuario",
+        "menu": {
+          "icon": "vaadin:users",
+          "order": 2,
+          "title": "Usuario"
         },
         "flowLayout": false,
         "params": {}

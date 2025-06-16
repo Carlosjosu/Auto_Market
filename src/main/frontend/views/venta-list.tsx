@@ -128,7 +128,7 @@ export default function VentaView() {
 
     const callData = () => {
         VentaService.listVenta().then(function (data) {
-            setItems(data);
+            setItems((data ?? []).filter(Boolean));
         });
     };
 
@@ -140,7 +140,7 @@ export default function VentaView() {
         const direction = event.detail.value;
         var dir = direction === 'asc' ? 1 : 2;
         VentaService.ordenar(columnId, dir).then(function (data) {
-            setItems(data);
+            setItems((data ?? []).filter(Boolean));
         });
     };
 

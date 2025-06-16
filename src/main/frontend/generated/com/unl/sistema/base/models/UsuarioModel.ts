@@ -20,5 +20,8 @@ class UsuarioModel<T extends Usuario_1 = Usuario_1> extends ObjectModel_1<T> {
     get idCuenta(): NumberModel_1 {
         return this[_getPropertyModel_1]("idCuenta", (parent, key) => new NumberModel_1(parent, key, true, { meta: { javaType: "java.lang.Integer" } }));
     }
+    get nickname(): StringModel_1 {
+        return this[_getPropertyModel_1]("nickname", (parent, key) => new StringModel_1(parent, key, true, { meta: { javaType: "java.lang.String" } }));
+    }
 }
 export default UsuarioModel;

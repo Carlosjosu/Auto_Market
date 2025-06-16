@@ -7,6 +7,7 @@ public class Usuario {
     private String cedula;
     private String telefono;
     private Integer idCuenta;
+    private String nickname;
 
     public Usuario() {
     }
@@ -65,5 +66,13 @@ public class Usuario {
 
     public void setIdCuenta(Integer idCuenta) {
         this.idCuenta = idCuenta;
+    }
+
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 }

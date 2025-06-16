@@ -7,6 +7,7 @@ import java.util.Arrays;
 import com.unl.sistema.base.controller.dao.dao_models.DaoAuto;
 import com.unl.sistema.base.models.CategoriaEnum;
 import com.unl.sistema.base.models.TipoCombustibleEnum;
+import com.unl.sistema.base.controller.Util.Utiles;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -85,6 +86,7 @@ public class AutoService {
             Integer idMarca,
             String tipoCombustible,
             String categoria) throws Exception {
+
         com.unl.sistema.base.models.Auto autoExistente = null;
         int pos = -1;
         com.unl.sistema.base.models.Auto[] autos = da.listAll().toArray();
@@ -129,29 +131,37 @@ public class AutoService {
     }
 
     public List<HashMap<String, String>> ordenar(String atributo, Integer type) {
-        return Arrays.asList(da.ordenarString(atributo, type).toArray())
-                .stream()
-                .map(obj -> da.toDict((com.unl.sistema.base.models.Auto) obj))
-                .toList();
+        return Arrays.asList(da.ordenarPorAtributo(atributo, type).toArray());
     }
 
     public List<HashMap<String, String>> listAuto() {
         List<HashMap<String, String>> result = new java.util.ArrayList<>();
         int len = da.all().getLength();
-        for (int i = 0; i < len; i++) {
-            result.add(da.all().get(i));
+        if (len > 0) {
+            HashMap<String, String>[] arr = new HashMap[len];
+            for (int i = 0; i < len; i++) {
+                arr[i] = da.all().get(i);
+            }
+            Utiles.knuthShuffle(arr);
+            for (HashMap<String, String> item : arr) {
+                result.add(item);
+            }
         }
         return result;
     }
 
     public String[] getTiposCombustible() {
-        return java.util.Arrays.stream(com.unl.sistema.base.models.TipoCombustibleEnum.values()).map(Enum::name)
+        return Arrays.stream(TipoCombustibleEnum.values()).map(Enum::name)
                 .toArray(String[]::new);
     }
 
     public String[] getCategoriasLegibles() {
-        return java.util.Arrays.stream(com.unl.sistema.base.models.CategoriaEnum.values())
-                .map(com.unl.sistema.base.models.CategoriaEnum::getValue)
+        return Arrays.stream(CategoriaEnum.values())
+                .map(CategoriaEnum::getValue)
                 .toArray(String[]::new);
+    }
+
+    public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
+        return da.buscarPorAtributo(atributo, valor);
     }
 }

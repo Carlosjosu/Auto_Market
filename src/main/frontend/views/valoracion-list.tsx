@@ -124,7 +124,7 @@ export default function ValoracionView() {
 
     const callData = () => {
         ValoracionService.listValoracion().then(function (data) {
-            setItems(data);
+            setItems((data ?? []).filter(Boolean));
         });
     };
 
@@ -136,7 +136,7 @@ export default function ValoracionView() {
         const direction = event.detail.value;
         var dir = (direction == 'asc') ? 1 : 2;
         ValoracionService.ordenar(columnId, dir).then(function (data) {
-            setItems(data);
+            setItems((data ?? []).filter(Boolean));
         });
     }
 

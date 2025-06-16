@@ -13,18 +13,7 @@ body {
   box-shadow: 0 4px 16px 0 rgba(0,0,0,0.08), 0 3px 8px 0 rgba(0,0,0,0.08);
 }
 
-/* Puedes usar la clase card-bordered en tus divs de tarjetas para un borde y sombra suave */
 
-.card-image-400x300 {
-  width: 400px;
-  height: 300px;
-  min-width: 400px;
-  min-height: 300px;
-  max-width: 400px;
-  max-height: 300px;
-  object-fit: cover;
-  display: block;
-}
 .card-image-container-400x300 {
   width: 400px;
   height: 300px;
@@ -44,14 +33,6 @@ body {
   border-radius: 0.5rem 0.5rem 0 0;
 }
 
-.form-grid-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  width: 100%;
-  max-width: 32rem;
-  margin: 0 auto;
-}
 .form-grid-3col {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -64,7 +45,6 @@ body {
   grid-column: 1 / 4;
 }
 
-/* Galería de miniaturas mejorada */
 .auto-image-gallery {
   display: flex;
   flex-wrap: wrap;
@@ -108,7 +88,6 @@ body {
   word-break: break-word;
 }
 
-/* Caja de subida de imagen mejorada */
 .auto-upload-box {
   display: flex;
   align-items: flex-end;
@@ -157,4 +136,52 @@ body {
 }
 .auto-upload-input {
   display: none;
+}
+
+.auto-toolbar-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.auto-search-group {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1.2rem;
+}
+.auto-category-combo {
+  margin-left: 0.25rem;
+  margin-right: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  min-width: 180px;
+  max-width: 220px;
+  width: 100%;
+}
+.auto-search-textfield {
+  min-width: 600px;
+  max-width: 400px;
+  width: 100%;
+}
+.auto-add-btn {
+  min-width: 150px;
+  align-self: flex-end;
+  margin-right: 1rem;
+}
+.auto-search-result {
+  margin-bottom: 16px;
+  background: #f3f3f3;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.combo-categoria {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }

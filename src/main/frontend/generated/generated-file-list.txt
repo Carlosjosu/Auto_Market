@@ -1,8 +1,10 @@
 AutoService.ts
 ChatService.ts
+CuentaService.ts
 FavoritoService.ts
 ImagenService.ts
 MarcaService.ts
+UsuarioService.ts
 ValoracionService.ts
 VentaService.ts
 TaskService.ts
@@ -10,7 +12,6 @@ com/unl/sistema/base/models/Conversacion.ts
 com/unl/sistema/base/models/Mensaje.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacion.ts
 com/unl/sistema/base/models/Favorito.ts
-com/unl/sistema/base/models/Marca.ts
 com/unl/sistema/base/models/Valoracion.ts
 com/unl/sistema/base/models/Venta.ts
 com/vaadin/hilla/mappedtypes/Pageable.ts
@@ -28,7 +29,6 @@ com/unl/sistema/base/models/ConversacionModel.ts
 com/unl/sistema/base/models/MensajeModel.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacionModel.ts
 com/unl/sistema/base/models/FavoritoModel.ts
-com/unl/sistema/base/models/MarcaModel.ts
 com/unl/sistema/base/models/ValoracionModel.ts
 com/unl/sistema/base/models/VentaModel.ts
 com/vaadin/hilla/mappedtypes/PageableModel.ts

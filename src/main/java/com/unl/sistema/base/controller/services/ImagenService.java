@@ -33,10 +33,7 @@ public class ImagenService {
     }
 
     public List<HashMap<String, String>> ordenar(String atributo, Integer type) {
-        return Arrays.asList(db.ordenarString(atributo, type).toArray())
-                .stream()
-                .map(obj -> db.toDict((com.unl.sistema.base.models.Imagen) obj))
-                .toList();
+        return Arrays.asList(db.ordenarPorAtributo(atributo, type).toArray());
     }
 
     public List<HashMap<String, String>> listImagen() {
@@ -50,5 +47,9 @@ public class ImagenService {
 
     public void asociarImagenesAUnAuto(Integer idAuto, List<Integer> idsImagenes) {
         db.asociarImagenesAUnAuto(idAuto, idsImagenes);
+    }
+
+    public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
+        return db.buscarPorAtributo(atributo, valor);
     }
 }

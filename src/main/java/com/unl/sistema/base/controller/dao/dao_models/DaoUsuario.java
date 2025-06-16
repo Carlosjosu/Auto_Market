@@ -53,4 +53,8 @@ public class DaoUsuario extends AdapterDao<Usuario> {
         }
         return null;
     }
+
+    public List<Usuario> findAll() {
+        return (List<Usuario>) listAll();
+    }
 }

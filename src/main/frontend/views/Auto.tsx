@@ -227,34 +227,41 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
       }
     };
 
-    const ImagenesAutoGallery = ({ imagenes, imagenesSeleccionadas, setImagenesSeleccionadas }: any) => (
-      <div className="form-grid-fullwidth">
-        <label>Imagen asociada</label>
-        <div className="auto-image-gallery">
-          {imagenes.map((img: any) => (
-            <label key={img.id} className="auto-image-label">
-              <input
-                type="radio"
-                name="imagen-asociada"
-                value={String(img.id)}
-                checked={imagenesSeleccionadas[0] === String(img.id)}
-                onChange={e => {
-                  if (e.target.checked) {
-                    setImagenesSeleccionadas([String(img.id)]);
-                  }
-                }}
-              />
-              <img
-                src={img.url}
-                alt={img.descripcion}
-                className="auto-image-thumb"
-              />
-              <span className="auto-image-desc">{img.descripcion}</span>
-            </label>
-          ))}
+    const marcarComoPrincipal = async (idImagen: number, idAuto: number) => {
+      await fetch(`/api/imagenes/principal?idImagen=${idImagen}&idAuto=${idAuto}`, {
+        method: 'POST'
+      });
+      const data = await ImagenService.listImagen();
+      setImagenes((data ?? []).filter(Boolean));
+    };
+
+    const ImagenesAutoGallery = ({ imagenes, autoId }: any) => {
+      const imagenesDelAuto = imagenes.filter((img: any) => Number(img.idAuto) === Number(autoId));
+      return (
+        <div className="form-grid-fullwidth">
+          <label>Imágenes subidas</label>
+          <div className="auto-image-gallery">
+            {imagenesDelAuto.length > 0 ? (
+              imagenesDelAuto.map((img: any) => (
+                <div key={img.id} className="auto-image-label">
+                  <img src={img.url} alt={img.descripcion} className="auto-image-thumb" />
+                  <span className="auto-image-desc">{img.descripcion}</span>
+                  <Button
+                    theme={img.esPrincipal === 'true' || img.esPrincipal === true ? 'primary' : 'secondary'}
+                    onClick={() => marcarComoPrincipal(img.id, img.idAuto)}
+                    disabled={img.esPrincipal === 'true' || img.esPrincipal === true}
+                  >
+                    {img.esPrincipal === 'true' || img.esPrincipal === true ? 'Principal' : 'Marcar como principal'}
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <div className="auto-image-label text-muted-foreground">No hay imágenes subidas</div>
+            )}
+          </div>
         </div>
-      </div>
-    );
+      );
+    };
 
     const SubidaImagen = ({ file, setFile, descripcionImg, setDescripcionImg, subiendoImg, handleUploadImagen, handleFileChange, handleDescripcionImgChange }: any) => (
       <div className="form-grid-fullwidth auto-upload-box">
@@ -274,10 +281,10 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
             <strong>{file.name}</strong>
           </div>
         )}
-        <TextArea
+        <TextField
+          label="Descripción de la imagen"
           value={descripcionImg}
-          onValueChanged={handleDescripcionImgChange}
-          style={{ width: '100%', minHeight: '60px', maxHeight: '120px' }}
+          onValueChanged={e => setDescripcionImg(e.detail.value)}
           placeholder="Descripción de la imagen"
         />
         <button onClick={handleUploadImagen} disabled={!file || !descripcionImg || subiendoImg}>
@@ -316,8 +323,8 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
                 <div className="form-grid-fullwidth">
                     <TextArea label="Descripción" value={autoForm.descripcion} style={{ width: '100%', minHeight: '100px', maxHeight: '150px' }} placeholder="Descripción del auto" onValueChanged={e => handleChange('descripcion', e.detail.value)} />
                 </div>
-                <ImagenesAutoGallery imagenes={imagenes} imagenesSeleccionadas={imagenesSeleccionadas} setImagenesSeleccionadas={setImagenesSeleccionadas} />
-                <SubidaImagen file={null} setFile={() => {}} descripcionImg={''} setDescripcionImg={() => {}} subiendoImg={false} handleUploadImagen={() => {}} handleFileChange={() => {}} handleDescripcionImgChange={() => {}} />
+                <ImagenesAutoGallery imagenes={imagenes} autoId={modoEdicion && autoEditar ? autoEditar.id : undefined} />
+                <SubidaImagen file={file} setFile={setFile} descripcionImg={descripcionImg} setDescripcionImg={setDescripcionImg} subiendoImg={subiendoImg} handleUploadImagen={handleUploadImagen} handleFileChange={handleFileChange} handleDescripcionImgChange={handleDescripcionImgChange} />
             </div>
             <div className="flex gap-2 mt-4 justify-center">
                 <Button onClick={onCancel}>Cancelar</Button>
@@ -443,6 +450,7 @@ export default function AutoView() {
                         autocomplete="off"
                     />
                     <Button onClick={buscarAuto} theme="primary">Buscar</Button>
+                    <Button onClick={() => { setBusqueda(''); setCategoriaBusqueda(''); setResultadoBusqueda(null); setResultadoCategoria(null); }} theme="tertiary">Limpiar</Button>
                 </div>
                 <Button theme="primary" onClick={() => { setDialogOpened(true); setModoEdicion(false); setAutoEditar(null); }} className="auto-add-btn">Agregar auto</Button>
             </div>
@@ -494,14 +502,12 @@ export default function AutoView() {
 
 function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar }: any) {
     const marca = marcas.find((m: any) => m.id === Number(auto.idMarca))?.nombre || auto.idMarca;
-    const imagenesAuto = imagenes.filter((img: any) => Number(img.idAuto) === Number(auto.id));
+    const imagenPrincipal = imagenes.find((img: any) => Number(img.idAuto) === Number(auto.id) && (img.esPrincipal === 'true' || img.esPrincipal === true));
     return (
         <div className="card-bordered flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg bg-card h-full min-w-[300px] max-w-[400px] mx-auto relative">
             <div className="card-image-container-400x300 mb-2 flex flex-row gap-2 overflow-x-auto">
-                {imagenesAuto.length > 0 ? (
-                    imagenesAuto.map((img: any) => (
-                        <img key={img.id} src={img.url} alt={auto.modelo} className="card-image-400x300 object-cover rounded-t-lg" />
-                    ))
+                {imagenPrincipal ? (
+                    <img src={imagenPrincipal.url} alt={auto.modelo} className="card-image-400x300 object-cover rounded-t-lg" />
                 ) : (
                     <div className="card-image-400x300 flex items-center justify-center bg-muted rounded-t-lg text-muted-foreground text-4xl">
                         <span role="img" aria-label="Sin imagen">🚗</span>

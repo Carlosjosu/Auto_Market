@@ -1,265 +1,100 @@
 import { useEffect, useState } from 'react';
-import { Button, Grid, GridColumn, GridSortColumn, TextField, VerticalLayout, Dialog, ComboBox } from '@vaadin/react-components';
-import { Notification } from '@vaadin/react-components/Notification';
 import { ImagenService, AutoService } from 'Frontend/generated/endpoints';
-import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import type { GridItemModel } from '@vaadin/react-components';
-import { TextArea } from '@vaadin/react-components/TextArea';
-import { useSignal } from '@vaadin/hilla-react-signals';
-import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout';
-
-interface ImagenItem {
-  url: string;
-  descripcion: string;
-  idAuto: number;
-}
+import { Grid, GridColumn, VerticalLayout, ComboBox, Button, HorizontalLayout, TextField } from '@vaadin/react-components';
+import { ViewToolbar, Group } from 'Frontend/components/ViewToolbar';
 
 export const config = {
+  title: 'Imagen',
+  menu: {
+    icon: 'vaadin:picture',
+    order: 3,
     title: 'Imagen',
-    menu: {
-        icon: 'lumo:photo',
-        order: 3,
-        title: 'Imagen',
-    },
+  },
 };
-
-function ImagenEntryForm({ onImagenCreated }: { onImagenCreated?: () => void }) {
-    const [autos, setAutos] = useState<{ id: number, modelo: string, matricula: string }[]>([]);
-    const [dialogOpened, setDialogOpened] = useState(false);
-    const [showDeleteButton, setShowDeleteButton] = useState(false);
-    const [editMode, setEditMode] = useState<'edit' | 'create'>('create');
-
-    const [url, setUrl] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [idAuto, setIdAuto] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-    const [subiendo, setSubiendo] = useState(false);
-    const exampleItem: ImagenItem = {
-        url: 'https://ejemplo.com/auto.jpg',
-        descripcion: 'Foto lateral del auto',
-        idAuto: 1
-    };
-
-
-    const imagenesEjemplo: ImagenItem[] = [
-        { url: 'https://ejemplo.com/auto1.jpg', descripcion: 'Foto lateral del auto rojo', idAuto: 1 },
-        { url: 'https://ejemplo.com/auto2.jpg', descripcion: 'Foto frontal del auto azul', idAuto: 2 }
-    ];
-    const [imagenEjemploSeleccionada, setImagenEjemploSeleccionada] = useState(imagenesEjemplo[0]);
-
-    useEffect(() => {
-        AutoService.listAuto().then((data: any) => {
-            setAutos((data ?? []).filter(Boolean).map((a: any) => ({
-                id: Number(a.id ?? a.idAuto ?? a.id_auto ?? 0),
-                modelo: a.modelo ?? '',
-                matricula: a.matricula ?? ''
-            })));
-        });
-    }, []);
-
-    const handleEdit = () => {
-        setUrl(imagenEjemploSeleccionada.url);
-        setDescripcion(imagenEjemploSeleccionada.descripcion);
-        setIdAuto(String(imagenEjemploSeleccionada.idAuto));
-        setEditMode('edit');
-        setDialogOpened(true);
-    };
-
-    const handleCreate = () => {
-        setUrl('');
-        setDescripcion('');
-        setIdAuto('');
-        setEditMode('create');
-        setDialogOpened(true);
-    };
-
-    const toggleDeleteButtonVisibility = () => {
-        setShowDeleteButton(v => !v);
-    };
-
-    const handleDeleteSuccess = () => {
-        Notification.show(`Imagen eliminada: ${JSON.stringify({ url, descripcion, idAuto })}`);
-        setDialogOpened(false);
-    };
-
-    const handleSave = async () => {
-        try {
-            if (!url.trim()) {
-                Notification.show('El campo URL es obligatorio', { duration: 5000, position: 'top-center', theme: 'error' });
-                return;
-            }
-            if (!descripcion.trim()) {
-                Notification.show('El campo Descripción es obligatorio', { duration: 5000, position: 'top-center', theme: 'error' });
-                return;
-            }
-            const idAutoNum = Number(idAuto);
-            if (!idAuto || isNaN(idAutoNum) || idAutoNum <= 0) {
-                Notification.show('El campo ID Auto es obligatorio y debe ser un número válido', { duration: 5000, position: 'top-center', theme: 'error' });
-                return;
-            }
-            await ImagenService.create(url, descripcion, idAutoNum);
-            if (onImagenCreated) onImagenCreated();
-            setUrl('');
-            setDescripcion('');
-            setIdAuto('');
-            setDialogOpened(false);
-            Notification.show('Imagen creada', { duration: 5000, position: 'bottom-end', theme: 'success' });
-        } catch (error: any) {
-            Notification.show(error?.message || 'Error al guardar la imagen', { duration: 5000, position: 'top-center', theme: 'error' });
-        }
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-        setFile(e.target.files[0]);
-      }
-    };
-
-    const handleUploadToCloudinary = async () => {
-      if (!file) return;
-      setSubiendo(true);
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'Imagenes'); // Tu upload_preset
-      try {
-        const res = await fetch('https://api.cloudinary.com/v1_1/dld5pxm9z/image/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await res.json();
-        setUrl(data.secure_url); // Pone la URL devuelta en el campo url
-        Notification.show('Imagen subida a Cloudinary', { duration: 3000, position: 'top-center', theme: 'success' });
-      } catch (err) {
-        Notification.show('Error al subir la imagen a Cloudinary', { duration: 5000, position: 'top-center', theme: 'error' });
-      } finally {
-        setSubiendo(false);
-      }
-    };
-
-    return (
-        <VerticalLayout>
-            <HorizontalLayout theme="spacing">
-                <ComboBox
-                    label="Selecciona una imagen de ejemplo para editar"
-                    items={imagenesEjemplo.filter(Boolean).map((img, idx) => ({ label: img?.descripcion ?? `Imagen ${idx+1}`, value: String(idx) }))}
-                    value={String(imagenesEjemplo.indexOf(imagenEjemploSeleccionada))}
-                    onValueChanged={e => setImagenEjemploSeleccionada(imagenesEjemplo[Number(e.detail.value)] ?? imagenesEjemplo[0])}
-                    style={{ width: 200 }}
-                />
-                <Button onClick={handleEdit}>Editar Imagen</Button>
-                <Button onClick={handleCreate}>Crear nueva</Button>
-                <Button onClick={toggleDeleteButtonVisibility}>
-                    {showDeleteButton ? 'Ocultar Eliminar' : 'Mostrar Eliminar'}
-                </Button>
-            </HorizontalLayout>
-            <Dialog
-                modeless
-                headerTitle={editMode === 'edit' ? 'Editar Imagen' : 'Nueva Imagen'}
-                opened={dialogOpened}
-                onOpenedChanged={({ detail }: { detail: { value: boolean } }) => setDialogOpened(detail.value)}
-                footer={
-                    <>
-                        <Button onClick={() => setDialogOpened(false)}>Cancelar</Button>
-                        {showDeleteButton && editMode === 'edit' && (
-                            <Button theme="error" onClick={handleDeleteSuccess}>Eliminar</Button>
-                        )}
-                        <Button onClick={handleSave} theme="primary">Registrar</Button>
-                    </>
-                }>
-                <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-                    <input type="file" accept="image/*" onChange={handleFileChange} />
-                    <Button onClick={handleUploadToCloudinary} disabled={!file || subiendo}>
-                      {subiendo ? 'Subiendo...' : 'Subir a Cloudinary'}
-                    </Button>
-                    <TextField label="URL" value={url} placeholder="Ej: https://ejemplo.com/auto.jpg" onValueChanged={e => setUrl(e.detail.value)} />
-                    <TextArea
-                      label="Descripción"
-                      value={descripcion}
-                      style={{ width: '100%', minHeight: '100px', maxHeight: '150px' }}
-                      onValueChanged={e => setDescripcion(e.detail.value)}
-                    />
-                    <ComboBox
-                        label="Auto"
-                        items={autos.filter(Boolean).map(a => ({ label: `${a?.modelo ?? 'Desconocido'} (${a?.matricula ?? '-'})`, value: String(a?.id ?? '') }))}
-                        value={idAuto ?? ''}
-                        placeholder="Seleccione un auto"
-                        onValueChanged={e => setIdAuto(e.detail.value ?? '')}
-                    />
-                </VerticalLayout>
-            </Dialog>
-        </VerticalLayout>
-    );
+function ImagenCell({ url }: { url: string }) {
+  return (
+    <img src={url} alt="Imagen" style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 4 }} />
+  );
 }
 
 export default function ImagenView() {
-    const [items, setItems] = useState<ImagenItem[]>([]);
-    const [autos, setAutos] = useState<{ id: number, modelo: string, matricula: string }[]>([]);
+  const [imagenes, setImagenes] = useState<any[]>([]);
+  const [autos, setAutos] = useState<any[]>([]);
+  const [autoSeleccionado, setAutoSeleccionado] = useState<string | null>(null);
+  const [descripcionBusqueda, setDescripcionBusqueda] = useState('');
+  const [imagenesFiltradas, setImagenesFiltradas] = useState<any[]>([]);
 
-    const callData = () => {
-        ImagenService.listImagen()
-            .then(data => setItems(
-                (data ?? [])
-                    .filter(Boolean)
-                    .map((item: any) => ({
-                        url: item.url ?? '',
-                        descripcion: item.descripcion ?? '',
-                        idAuto: Number(item.idAuto) || 0
-                    }))
-            ))
-            .catch(() => Notification.show('Error al cargar imágenes', { duration: 5000, position: 'top-center', theme: 'error' }));
-    };
+  useEffect(() => {
+    ImagenService.listImagen().then((data: any) => {
+      setImagenes((data ?? []).filter(Boolean));
+    });
+    AutoService.listAuto().then((data: any) => {
+      setAutos((data ?? []).filter(Boolean));
+    });
+  }, []);
 
-    useEffect(() => {
-        callData();
-        AutoService.listAuto().then((data: any) => {
-            setAutos((data ?? []).filter(Boolean).map((a: any) => ({
-                id: Number(a.id ?? a.idAuto ?? a.id_auto ?? 0),
-                modelo: a.modelo ?? '',
-                matricula: a.matricula ?? ''
-            })));
-        });
-    }, []);
+  const getNombreAuto = (idAuto: number) => {
+    const auto = autos.find((a: any) => a.id === idAuto);
+    return auto ? auto.modelo : idAuto;
+  };
 
-    const order = (event: any, columnId: string) => {
-        const direction = event.detail.value;
-        var dir = (direction == 'asc') ? 1 : 2;
-        ImagenService.ordenar(columnId, dir)
-            .then(data => setItems(
-                (data ?? [])
-                    .filter(Boolean)
-                    .map((item: any) => ({
-                        url: item.url ?? '',
-                        descripcion: item.descripcion ?? '',
-                        idAuto: Number(item.idAuto) || 0
-                    }))
-            ))
-            .catch(() => Notification.show('Error al ordenar', { duration: 5000, position: 'top-center', theme: 'error' }));
-    };
-
-    function indexIndex({ model }: { model: GridItemModel<any> }) {
-        return <span>{model.index + 1}</span>;
+  const filtrarImagenes = () => {
+    let filtradas = imagenes;
+    if (autoSeleccionado) {
+      filtradas = filtradas.filter((img: any) => String(img.idAuto) === autoSeleccionado);
     }
+    if (descripcionBusqueda.trim()) {
+      filtradas = filtradas.filter((img: any) => (img.descripcion || '').toLowerCase().includes(descripcionBusqueda.trim().toLowerCase()));
+    }
+    setImagenesFiltradas(filtradas);
+  };
 
-    return (
-        <main className="w-full h-full flex flex-col box-border gap-s p-m">
-            <ViewToolbar title="Lista de Imágenes">
-                <Group>
-                    <ImagenEntryForm onImagenCreated={callData} />
-                </Group>
-            </ViewToolbar>
-            <Grid items={items.filter(Boolean)}>
-                <GridColumn renderer={indexIndex} header="Numero" />
-                <GridSortColumn path="url" header="URL" onDirectionChanged={e => order(e, 'url')} />
-                <GridSortColumn path="descripcion" header="Descripción" onDirectionChanged={e => order(e, 'descripcion')} />
-                <GridColumn
-                    header="Auto"
-                    renderer={({ item }) => {
-                        if (!item || typeof item.idAuto === 'undefined' || item.idAuto === null) return <span>-</span>;
-                        const auto = autos.find(a => a.id === item.idAuto);
-                        return <span>{auto ? `${auto.modelo ?? 'Desconocido'} (${auto.matricula ?? '-'})` : item.idAuto}</span>;
-                    }}
-                />
-            </Grid>
-        </main>
-    );
+  useEffect(() => {
+    setImagenesFiltradas(imagenes);
+  }, [imagenes]);
+
+  const limpiarFiltros = () => {
+    setAutoSeleccionado(null);
+    setDescripcionBusqueda('');
+    setImagenesFiltradas(imagenes);
+  };
+
+  return (
+    <main className="w-full h-full flex flex-col box-border gap-s p-m">
+      <ViewToolbar title="Imágenes">
+        <Group />
+      </ViewToolbar>
+      <div className="auto-toolbar-row">
+        <div className="auto-search-group">
+          <ComboBox
+            label="Buscar por auto"
+            items={autos.map((a: any) => ({ label: a.modelo, value: String(a.id) }))}
+            value={autoSeleccionado ?? ''}
+            onValueChanged={e => setAutoSeleccionado(e.detail.value ?? null)}
+            placeholder="Seleccione un auto"
+            clearButtonVisible
+            className="auto-category-combo"
+          />
+          <TextField
+            label="Buscar por descripción"
+            value={descripcionBusqueda}
+            onValueChanged={e => setDescripcionBusqueda(e.detail.value)}
+            placeholder="Ej: lateral, frontal, etc."
+            className="auto-search-textfield"
+            autocomplete="off"
+          />
+          <Button onClick={filtrarImagenes} theme="primary">Buscar</Button>
+          <Button onClick={limpiarFiltros} theme="tertiary">Limpiar</Button>
+        </div>
+      </div>
+      <Grid items={imagenesFiltradas} style={{ width: '100%' }}>
+        <GridColumn path="id" header="Código" />
+        <GridColumn header="Imagen" renderer={({ item }) => <ImagenCell url={item.url} />} />
+        <GridColumn path="url" header="URL" />
+        <GridColumn path="descripcion" header="Descripción" />
+        <GridColumn header="Auto" renderer={({ item }) => getNombreAuto(item.idAuto)} />
+        <GridColumn header="¿Principal?" renderer={({ item }) => item.esPrincipal ? '✔️ Sí' : 'No'} />
+      </Grid>
+    </main>
+  );
 }

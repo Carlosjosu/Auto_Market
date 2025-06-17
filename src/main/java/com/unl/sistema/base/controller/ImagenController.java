@@ -1,6 +1,7 @@
 package com.unl.sistema.base.controller;
 
 import com.unl.sistema.base.controller.dao.dao_models.DaoImagen;
+import com.unl.sistema.base.controller.services.ImagenService;
 import com.unl.sistema.base.models.Imagen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/imagenes")
@@ -17,9 +17,11 @@ public class ImagenController {
     @Autowired
     private DaoImagen daoImagen;
 
+    @Autowired
+    private ImagenService imagenService;
+
     @GetMapping
     public List<HashMap<String, String>> getAll() {
-        // Convertir LinkedList a List manualmente
         List<HashMap<String, String>> result = new java.util.ArrayList<>();
         var linked = daoImagen.all();
         for (int i = 0; i < linked.getLength(); i++) {
@@ -52,5 +54,15 @@ public class ImagenController {
     public ResponseEntity<?> asociarImagenes(@RequestParam Integer idAuto, @RequestBody List<Integer> idsImagenes) {
         daoImagen.asociarImagenesAUnAuto(idAuto, idsImagenes);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/principal")
+    public ResponseEntity<?> marcarComoPrincipal(@RequestParam Integer idImagen, @RequestParam Integer idAuto) {
+        try {
+            imagenService.marcarComoPrincipal(idImagen, idAuto);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 }

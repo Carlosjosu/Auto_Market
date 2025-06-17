@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
 import com.unl.sistema.base.controller.dao.dao_models.DaoImagen;
+import com.unl.sistema.base.models.Imagen;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -51,5 +52,25 @@ public class ImagenService {
 
     public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
         return db.buscarPorAtributo(atributo, valor);
+    }
+
+    public void marcarComoPrincipal(Integer idImagen, Integer idAuto) throws Exception {
+        // Obtener todas las imágenes del auto
+        int len = db.all().getLength();
+        for (int i = 0; i < len; i++) {
+            HashMap<String, String> imgMap = db.all().get(i);
+            Integer imgId = Integer.valueOf(imgMap.get("id"));
+            Integer autoId = Integer.valueOf(imgMap.get("idAuto"));
+            if (autoId.equals(idAuto)) {
+                // Buscar la imagen en la base de datos
+                Imagen img = db.listAll().get(i);
+                if (imgId.equals(idImagen)) {
+                    img.setEsPrincipal(true);
+                } else {
+                    img.setEsPrincipal(false);
+                }
+                db.update(img, i);
+            }
+        }
     }
 }

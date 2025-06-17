@@ -49,9 +49,19 @@ export default function MarcaView() {
         return <span>{item.id}</span>;
     }
     function activaBadgeRenderer({ item }: { item: any }) {
-        if (!item || typeof item.estaActiva === 'undefined' || item.estaActiva === null) return null;
+        const activa = item && (item.estaActiva === true || item.estaActiva === "true");
+        if (!item || typeof item.estaActiva === 'undefined' || item.estaActiva === null) {
+            return (
+                <Icon
+                    aria-label="No definido"
+                    icon="vaadin:close-small"
+                    theme="badge contrast"
+                    title="No definido"
+                />
+            );
+        }
         let icon, title, theme;
-        if (item.estaActiva) {
+        if (activa) {
             icon = 'vaadin:check';
             title = 'Sí';
             theme = 'success';
@@ -88,7 +98,7 @@ export default function MarcaView() {
         const result = await MarcaService.buscarPorAtributo('nombre', busqueda);
         if (result) {
             setResultadoBusqueda(result);
-            setBusqueda(''); 
+            setBusqueda('');
         } else {
             setResultadoBusqueda(null);
             Notification.show('No se encontró la marca', { duration: 4000, position: 'top-center', theme: 'error' });
@@ -203,9 +213,10 @@ export default function MarcaView() {
                         onValueChanged={e => setBusqueda(e.detail.value ?? '')}
                         placeholder="Ej: Toyota"
                         clearButtonVisible
-                        className="auto-category-combo"
+                        className="auto-search-textfield"
                     />
                     <Button onClick={buscarMarca} theme="primary">Buscar</Button>
+                    <Button onClick={() => { setBusqueda(''); setResultadoBusqueda(null); }} theme="tertiary">Limpiar</Button>
                     <Button onClick={() => setDialogAddOpened(true)} theme="primary">Agregar Marca</Button>
                 </div>
             </div>

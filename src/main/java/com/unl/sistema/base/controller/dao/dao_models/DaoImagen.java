@@ -6,6 +6,7 @@ import java.util.List;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Imagen;
+import com.unl.sistema.base.controller.Util.Utiles;
 
 @Repository
 public class DaoImagen extends AdapterDao<Imagen> {
@@ -79,6 +80,7 @@ public class DaoImagen extends AdapterDao<Imagen> {
         aux.put("url", img.getUrl());
         aux.put("descripcion", img.getDescripcion());
         aux.put("idAuto", String.valueOf(img.getIdAuto()));
+        aux.put("esPrincipal", String.valueOf(img.getEsPrincipal()));
         return aux;
     }
 
@@ -101,6 +103,7 @@ public class DaoImagen extends AdapterDao<Imagen> {
             }
             datos[i] = convertido;
         }
+        Utiles.quickSortObject(datos, 0, datos.length - 1, atributo, 1);
         HashMap<String, Object> resultado = buscarAtributo(datos, 0, datos.length - 1, atributo, valor);
         if (resultado == null)
             return null;

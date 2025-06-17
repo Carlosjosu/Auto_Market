@@ -6,6 +6,7 @@ public class Imagen {
     private String url;
     private String descripcion;
     private Integer idAuto;
+    private Boolean esPrincipal;
 
     public Imagen() {
     }
@@ -46,5 +47,13 @@ public class Imagen {
 
     public void setIdAuto(Integer idAuto) {
         this.idAuto = idAuto;
+    }
+
+    public Boolean getEsPrincipal() {
+        return this.esPrincipal;
+    }
+
+    public void setEsPrincipal(Boolean esPrincipal) {
+        this.esPrincipal = esPrincipal;
     }
 }

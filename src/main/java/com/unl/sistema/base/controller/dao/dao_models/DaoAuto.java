@@ -4,8 +4,6 @@ import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 
 public class DaoAuto extends AdapterDao<Auto> {
@@ -97,7 +95,7 @@ public class DaoAuto extends AdapterDao<Auto> {
             }
             datos[i] = convertido;
         }
-        Arrays.sort(datos, Comparator.comparing(m -> m.get(atributo).toString()));
+        Utiles.quickSortObject(datos, 0, datos.length - 1, atributo, 1);
         HashMap<String, Object> resultado = buscarAtributo(datos, 0, datos.length - 1, atributo, valor);
         if (resultado == null)
             return null;

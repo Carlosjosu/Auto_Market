@@ -73,7 +73,7 @@ public class DaoMarca extends AdapterDao<Marca> {
     }
 
     public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
-        LinkedList<HashMap<String, String>> lista = ordenarAtributo(all(), atributo, 1);
+        LinkedList<HashMap<String, String>> lista = all();
         HashMap<String, Object>[] datos = new HashMap[lista.getLength()];
         for (int i = 0; i < lista.getLength(); i++) {
             HashMap<String, String> original = lista.get(i);
@@ -83,6 +83,7 @@ public class DaoMarca extends AdapterDao<Marca> {
             }
             datos[i] = convertido;
         }
+        Utiles.quickSortObject(datos, 0, datos.length - 1, atributo, 1);
         HashMap<String, Object> resultado = buscarAtributo(datos, 0, datos.length - 1, atributo, valor);
         if (resultado == null)
             return null;

@@ -47,9 +47,6 @@ function saveJson<T>(key: string, value: T[]) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-// Cambia la URL base según tu backend
-const API_URL = "http://localhost:8080/api/chat";
-
 const MensajeView: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
@@ -61,16 +58,16 @@ const MensajeView: React.FC = () => {
 
   // Inicializar datos de ejemplo si no existen
   useEffect(() => {
-<<<<<<< HEAD
     // Usuarios de ejemplo
     let usuariosEjemplo: Usuario[] = [
-      { id: 1, nombre: "Alice" },
-      { id: 2, nombre: "Bob" }
+      { id: 1, nombre: "Alice", img: "https://randomuser.me/api/portraits/women/1.jpg" },
+      { id: 2, nombre: "Bob", img: "https://randomuser.me/api/portraits/men/2.jpg" },
+      { id: 3, nombre: "Carlos", img: "https://randomuser.me/api/portraits/men/3.jpg" },
+      { id: 4, nombre: "Sofia", img: "https://randomuser.me/api/portraits/women/2.jpg" }
     ];
-    let usuariosData = loadJson<Usuario>(STORAGE_KEYS.usuarios, usuariosEjemplo);
-    setUsuarios(usuariosData);
-    setUsuarioActual(usuariosData[0]);
-    setUsuarioDestino(usuariosData[1] || null);
+    setUsuarios(usuariosEjemplo);
+    setUsuarioActual(usuariosEjemplo[0]);
+    setUsuarioDestino(usuariosEjemplo[1] || null);
 
     // Conversaciones y mensajes vacíos si no existen
     loadJson<Conversacion>(STORAGE_KEYS.conversaciones, []);
@@ -85,17 +82,6 @@ const MensajeView: React.FC = () => {
         c => c.idEmisor === usuarioActual.id || c.idReceptor === usuarioActual.id
       );
       setConversaciones(convs);
-=======
-    if (usuarioDestino) {
-      setMensajes([
-        {
-          id: 1,
-          remitente: usuarioDestino,
-          contenido: "¡Hola! ¿En qué puedo ayudarte?",
-          fechaEnvio: new Date().toISOString()
-        }
-      ]);
->>>>>>> origin/feature/Tayron_ModuloMensajes
     }
   }, [usuarioActual]);
 
@@ -138,25 +124,11 @@ const MensajeView: React.FC = () => {
     }
   }, [conversacionActual]);
 
-  // Cargar mensajes reales al cambiar de usuarioDestino
-  useEffect(() => {
-    const fetchMensajes = async () => {
-      if (usuarioDestino) {
-        const conversacionId = 1; // <-- Debes obtenerlo dinámicamente
-        const res = await fetch(`${API_URL}/mensajes?conversacionId=${conversacionId}`);
-        const data = await res.json();
-        setMensajes(Array.isArray(data) ? data : []);
-      }
-    };
-    fetchMensajes();
-  }, [usuarioDestino]);
-
   // Scroll automático al final
   useEffect(() => {
     mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
 
-<<<<<<< HEAD
   // Enviar mensaje (guardar en "Mensaje.json")
   const enviarMensaje = (e: CustomEvent) => {
     const contenido = e.detail.value;
@@ -177,28 +149,6 @@ const MensajeView: React.FC = () => {
       todos.push(nuevoMensaje);
       saveJson(STORAGE_KEYS.mensajes, todos);
       setMensajes(prev => [...prev, nuevoMensaje]);
-=======
-  // Enviar mensaje al backend
-  const enviarMensaje = async (e: CustomEvent) => {
-    const contenido = e.detail.value;
-    if (contenido.trim() && usuarioDestino) {
-      const conversacionId = 1; // <-- Debes obtenerlo dinámicamente
-      const mensaje = {
-        idConversacion: conversacionId, // debe ser un número válido
-        remitente: { id: usuarioActual.id }, // solo el id, no todo el objeto
-        contenido,
-        fechaEnvio: new Date().toISOString()
-      };
-      await fetch(`${API_URL}/mensajes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mensaje)
-      });
-      // Recarga los mensajes
-      const res = await fetch(`${API_URL}/mensajes?conversacionId=${conversacionId}`);
-      const data = await res.json();
-      setMensajes(Array.isArray(data) ? data : []);
->>>>>>> origin/feature/Tayron_ModuloMensajes
     }
   };
 
@@ -241,7 +191,7 @@ const MensajeView: React.FC = () => {
               </div>
             ))}
         </div>
-        {/* Selector de usuario actual (opcional) */}
+        {/* Selector de usuario actual */}
         <div style={{padding: 16, borderTop: "1px solid #222"}}>
           <div style={{fontWeight: 600, marginBottom: 8}}>Tú:</div>
           <select
@@ -264,6 +214,9 @@ const MensajeView: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         background: "#fff",
+        backgroundImage: 'url("https://images2.alphacoders.com/100/thumb-1920-1007648.jpg")', 
+        backgroundRepeat: "repeat",
+        backgroundSize: "cover"
       }}>
         {/* Barra superior */}
         <div style={{
@@ -294,7 +247,6 @@ const MensajeView: React.FC = () => {
           gap: 10
         }}>
           <MessageList
-<<<<<<< HEAD
             items={mensajes.map(m => {
               const remitente = usuarios.find(u => u.id === m.remitente);
               return {
@@ -306,16 +258,6 @@ const MensajeView: React.FC = () => {
                 right: remitente?.id === usuarioActual?.id
               };
             })}
-=======
-            items={Array.isArray(mensajes) ? mensajes.map(m => ({
-              text: m.contenido,
-              time: new Date(m.fechaEnvio).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-              userName: m.remitente.nombre,
-              userAbbr: m.remitente.nombre[0],
-              userImg: m.remitente.img,
-              right: m.remitente.id === usuarioActual.id
-            })) : []}
->>>>>>> origin/feature/Tayron_ModuloMensajes
           />
           <div ref={mensajesEndRef} />
         </div>
@@ -335,6 +277,6 @@ const MensajeView: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default MensajeView;

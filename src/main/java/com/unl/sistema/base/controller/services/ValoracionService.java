@@ -22,21 +22,27 @@ public class ValoracionService {
         da = new DaoValoracion();
     }
 
-    public void create(Integer puntuacion, Date fecha, String comentario, Integer idVenta) throws Exception {
-        if (puntuacion != null && fecha != null && comentario != null && idVenta != null) {
-            da.getObj().setPuntuacion(puntuacion);
-            da.getObj().setFecha(fecha);
-            da.getObj().setComentario(comentario);
-            da.getObj().setIdVenta(idVenta);
-            if (!da.save())
-                throw new Exception("No se pudo guardar los datos de la valoración");
-        } else {
-            throw new Exception("Todos los campos son obligatorios");
+    public void create(Integer puntuacion, String fecha, String comentario, Integer idVenta) throws Exception {
+        Valoracion v = new Valoracion();
+        v.setPuntuacion(puntuacion);
+        // Convierte el string a Date
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        v.setFecha(sdf.parse(fecha));
+        v.setComentario(comentario);
+        v.setIdVenta(idVenta);
+        if (!da.save(v)) {
+            throw new Exception("No se pudo guardar la valoración");
         }
     }
 
+    // Ordenar valoraciones por atributo y tipo (1: asc, 2: desc)
     public List<Valoracion> ordenar(String atributo, Integer type) {
-        return Arrays.asList(da.ordenarString(atributo, type).toArray());
+        return Arrays.asList(da.ordenarPorAtributo(atributo, type).toArray());
+    }
+
+    // Buscar valoraciones por atributo y valor
+    public List<Valoracion> buscar(String atributo, String valor) {
+        return Arrays.asList(da.buscarPorAtributo(atributo, valor).toArray());
     }
 
     public List<HashMap<String, String>> listValoracion() {

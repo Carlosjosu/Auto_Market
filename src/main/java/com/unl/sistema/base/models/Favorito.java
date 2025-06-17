@@ -8,15 +8,6 @@ public class Favorito {
     private Integer idAuto;
     private Integer idUsuario;
 
-    public Favorito() {
-    }
-
-    public Favorito(Date fechaGuardado, Integer idAuto, Integer idUsuario) {
-        this.fechaGuardado = fechaGuardado;
-        this.idAuto = idAuto;
-        this.idUsuario = idUsuario;
-    }
-
     public Integer getId() {
         return this.id;
     }
@@ -47,6 +38,16 @@ public class Favorito {
 
     public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Favorito other = (Favorito) obj;
+        return this.getId() != null && this.getId().equals(other.getId());
     }
 
 }

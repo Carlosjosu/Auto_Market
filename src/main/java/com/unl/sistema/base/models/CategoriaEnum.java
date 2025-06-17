@@ -1,5 +1,33 @@
 package com.unl.sistema.base.models;
 
 public enum CategoriaEnum {
-    CAMIONETA, CONVERTIBLE, MINIVAN, FURGONETA, DEPORTIVO, VEHICULO_COMERCIAL, TODO_TERRENO, CLASICO;
+    CAMIONETA("CAMIONETA"),
+    CONVERTIBLE("CONVERTIBLE"),
+    MINIVAN("MINIVAN"),
+    FURGONETA("FURGONETA"),
+    DEPORTIVO("DEPORTIVO"),
+    VEHICULO_COMERCIAL("VEHICULO COMERCIAL"),
+    TODO_TERRENO("TODO TERRENO"),
+    CLASICO("CLASICO"),
+    SEDAN("SEDAN"),
+    HATCHBACK("HATCHBACK"),
+    SUV("SUV"),
+    PICKUP("PICKUP"),
+    COUPE("COUPE"),
+    CROSSOVER("CROSSOVER"),
+    ROADSTER("ROADSTER"),
+    STATION_WAGON("STATION WAGON"),
+    MICRO("MICRO"),
+    OTRO("OTRO");
+
+    private String value;
+
+    CategoriaEnum(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
 }

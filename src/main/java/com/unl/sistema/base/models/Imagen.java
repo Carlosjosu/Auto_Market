@@ -47,14 +47,4 @@ public class Imagen {
     public void setIdAuto(Integer idAuto) {
         this.idAuto = idAuto;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
 }
-=======
-
-}
-
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

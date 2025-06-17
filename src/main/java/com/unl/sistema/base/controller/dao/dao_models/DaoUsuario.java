@@ -1,10 +1,9 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
 import com.unl.sistema.base.controller.dao.AdapterDao;
-import com.unl.sistema.base.models.Usuario;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import com.unl.sistema.base.models.Usuario;
+
 public class DaoUsuario extends AdapterDao<Usuario>{
     private Usuario obj;
 
@@ -45,10 +44,5 @@ public class DaoUsuario extends AdapterDao<Usuario>{
             return false;
             // TODO: handle exception
         }
-    }
-
-    public Usuario findById(Long usuario1Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
     }
 }

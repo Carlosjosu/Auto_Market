@@ -1,152 +1,174 @@
 import { useEffect, useState } from 'react';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Grid, GridColumn, VerticalLayout, Dialog, GridSortColumn, DatePicker, NumberField } from '@vaadin/react-components';
-import { Notification } from '@vaadin/react-components/Notification';
-import { FavoritoService } from 'Frontend/generated/endpoints';
-import { useSignal } from '@vaadin/hilla-react-signals';
-import handleError from 'Frontend/views/_ErrorHandler';
-import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import type { GridItemModel } from '@vaadin/react-components';
+import { Button, Notification } from '@vaadin/react-components';
+import { FavoritoService, AutoService, VentaService } from 'Frontend/generated/endpoints';
 
 export const config: ViewConfig = {
     title: 'Favorito',
     menu: {
-        icon: 'vaadin:star',
+        icon: 'vaadin:heart',
         order: 1,
         title: 'Favorito',
     },
 };
 
-type FavoritoEntryFormProps = {
-    onFavoritoCreated?: () => void;
-};
-function FavoritoEntryForm(props: FavoritoEntryFormProps) {
-    const fechaGuardado = useSignal<string>('');
-    const idAuto = useSignal<number | undefined>(undefined);
-    const idUsuario = useSignal<number | undefined>(undefined);
+interface FavoritoItem {
+    id?: number;
+    fechaGuardado: string;
+    idAuto: number;
+    idUsuario: number;
+}
 
-    const dialogOpened = useSignal(false);
+export default function FavoritoView() {
+    const [items, setItems] = useState<FavoritoItem[]>([]);
+    const [autos, setAutos] = useState<any[]>([]);
+    const [imagenes, setImagenes] = useState<any[]>([]);
+    const [ventas, setVentas] = useState<any[]>([]);
 
-    const createFavorito = async () => {
+    // Cargar favoritos, autos, imágenes y ventas
+    const cargarFavoritos = async () => {
         try {
-            if (
-                fechaGuardado.value &&
-                idAuto.value !== undefined &&
-                idUsuario.value !== undefined
-            ) {
-                await FavoritoService.create(
-                    fechaGuardado.value,
-                    idAuto.value,
-                    idUsuario.value
-                );
-                if (props.onFavoritoCreated) props.onFavoritoCreated();
-                fechaGuardado.value = '';
-                idAuto.value = undefined;
-                idUsuario.value = undefined;
-                dialogOpened.value = false;
-                Notification.show('Favorito creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
-            } else {
-                Notification.show('No se pudo crear, faltan o hay datos inválidos', {
-                    duration: 5000,
-                    position: 'top-center',
-                    theme: 'error',
-                });
-            }
-        } catch (error) {
-            handleError(error);
+            const data = await FavoritoService.listFavorito();
+            setItems(
+                Array.isArray(data)
+                    ? data
+                        .filter((item: any): item is Record<string, any> => !!item && item.idAuto)
+                        .map((item: any) => ({
+                            id: item.id ? Number(item.id) : undefined,
+                            fechaGuardado: String(item.fechaGuardado ?? ''),
+                            idAuto: Number(item.idAuto),
+                            idUsuario: Number(item.idUsuario),
+                        }))
+                    : []
+            );
+        } catch (e) {
+            setItems([]);
+        }
+    };
+
+    useEffect(() => {
+        cargarFavoritos();
+        AutoService.listAuto().then((data) => {
+            setAutos((data ?? []).filter(Boolean));
+        });
+        fetch('/api/imagenes')
+            .then(res => res.json())
+            .then(data => setImagenes(data ?? []));
+        VentaService.listVenta().then((data) => setVentas((data ?? []).filter(Boolean)));
+    }, []);
+
+    // Busca los datos del auto por idAuto
+    const getAutoData = (favorito: FavoritoItem) => {
+        return autos.find(a => String(a.id) === String(favorito.idAuto)) || {};
+    };
+
+    // Devuelve el nombre del auto (marca + modelo)
+    const getNombreAuto = (favorito: FavoritoItem) => {
+        const auto = getAutoData(favorito);
+        return `${auto.marca || "Sin marca"} ${auto.modelo || ""}`.trim();
+    };
+
+    // Devuelve la URL de la primera imagen del auto
+    const getImagenAuto = (idAuto: number) => {
+        const img = imagenes.find(img => Number(img.idAuto) === Number(idAuto));
+        return img ? img.url : null;
+    };
+
+    // Quitar de favoritos
+    const handleQuitarFavorito = async (favorito: FavoritoItem) => {
+        try {
+            await FavoritoService.delete(favorito.id!);
+            Notification.show('Eliminado de favoritos', { duration: 2000, position: 'top-center', theme: 'success' });
+            await cargarFavoritos();
+        } catch (error: any) {
+            console.error(error);
+            Notification.show('Error al quitar de favoritos', { duration: 3000, position: 'top-center', theme: 'error' });
         }
     };
 
     return (
-        <>
-            <Dialog
-                modeless
-                headerTitle="Nuevo Favorito"
-                opened={dialogOpened.value}
-                onOpenedChanged={({ detail }: { detail: { value: boolean } }) => {
-                    dialogOpened.value = detail.value;
-                }}
-                footer={
-                    <>
-                        <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
-                        <Button onClick={createFavorito} theme="primary">
-                            Registrar
-                        </Button>
-                    </>
-                }>
-                <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-                    <DatePicker
-                        label="Fecha Guardado"
-                        value={fechaGuardado.value}
-                        onValueChanged={(evt: CustomEvent<{ value: string }>) => (fechaGuardado.value = evt.detail.value)}
-                        required
-                    />
-                    <NumberField
-                        label="ID Auto"
-                        value={idAuto.value !== undefined ? String(idAuto.value) : ''}
-                        onValueChanged={(e) => {
-                            const val = e.detail.value;
-                            idAuto.value = val !== '' ? Number(val) : undefined;
-                        }}
-                        min={1}
-                        required
-                    />
-                    <NumberField
-                        label="ID Usuario"
-                        value={idUsuario.value !== undefined ? String(idUsuario.value) : ''}
-                        onValueChanged={(e) => {
-                            const val = e.detail.value;
-                            idUsuario.value = val !== '' ? Number(val) : undefined;
-                        }}
-                        min={1}
-                        required
-                    />
-                </VerticalLayout>
-            </Dialog>
-            <Button onClick={() => (dialogOpened.value = true)}>Agregar</Button>
-        </>
-    );
-}
-
-export default function FavoritoView() {
-    const [items, setItems] = useState<any[]>([]);
-
-    const callData = () => {
-        FavoritoService.listFavorito().then(function(data){
-            setItems(data);
-        });
-    };
-    
-    useEffect(() => {
-        callData();
-    }, []);
-
-    const order = (event: any, columnId: string) => {
-        const direction = event.detail.value;
-        var dir = (direction == 'asc') ? 1 : 2;
-        FavoritoService.ordenar(columnId, dir).then(function (data) {
-            setItems(data);
-        });
-    }
-
-    function indexIndex({ model }: { model: GridItemModel<any> }) {
-        return <span>{model.index + 1}</span>;
-    }
-
-    return (
-        <main className="w-full h-full flex flex-col box-border gap-s p-m">
-            <ViewToolbar title="Lista de Favoritos">
-                <Group>
-                    <FavoritoEntryForm onFavoritoCreated={callData}/>
-                </Group>
-            </ViewToolbar>
-            <Grid items={items}>
-                <GridColumn renderer={indexIndex} header="N°" />
-                <GridSortColumn path="id" header="ID" onDirectionChanged={(e) => order(e, 'id')} />
-                <GridSortColumn path="fechaGuardado" header="Fecha Guardado" onDirectionChanged={(e) => order(e, 'fechaGuardado')} />
-                <GridSortColumn path="idAuto" header="ID Auto" onDirectionChanged={(e) => order(e, 'idAuto')} />
-                <GridSortColumn path="idUsuario" header="ID Usuario" onDirectionChanged={(e) => order(e, 'idUsuario')} />
-            </Grid>
+        <main style={{ background: "#f8fafc", minHeight: "100vh", padding: "2rem" }}>
+            <h2 style={{
+                textAlign: "center",
+                color: "#3f51b5",
+                fontWeight: 700,
+                fontSize: 32,
+                marginBottom: 32
+            }}>
+                Descubre tus Favoritos
+            </h2>
+            <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+                gap: 32,
+                justifyContent: "center"
+            }}>
+                {items.length === 0 && (
+                    <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#888", padding: 40 }}>
+                        <h3 style={{ fontSize: 24, fontWeight: 600 }}>No tienes autos favoritos</h3>
+                        <p>Agrega autos a favoritos para verlos aquí.</p>
+                    </div>
+                )}
+                {items.map((fav) => (
+                    <div key={fav.id} style={{
+                        background: "#fff",
+                        borderRadius: 12,
+                        boxShadow: "0 2px 8px #0001",
+                        overflow: "hidden",
+                        display: "flex",
+                        flexDirection: "column",
+                        minWidth: 320,
+                        maxWidth: 400,
+                        margin: "0 auto"
+                    }}>
+                        {/* Nombre grande */}
+                        <div style={{
+                            background: "#e5e7eb",
+                            padding: "18px 0",
+                            textAlign: "center",
+                            fontWeight: 700,
+                            fontSize: 26,
+                            color: "#b0b0b0"
+                        }}>
+                            {getNombreAuto(fav)}
+                        </div>
+                        {/* Imagen */}
+                        <div style={{
+                            background: "#e5e7eb",
+                            height: 120,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 40,
+                            color: "#b0b0b0"
+                        }}>
+                            {getImagenAuto(fav.idAuto)
+                                ? <img src={getImagenAuto(fav.idAuto)} alt="Auto" style={{ maxHeight: 110, maxWidth: "100%", objectFit: "contain", borderRadius: 8 }} />
+                                : getNombreAuto(fav)}
+                        </div>
+                        {/* Botón quitar favorito */}
+                        <div style={{ padding: 16, borderTop: "1px solid #eee", display: "flex", justifyContent: "center" }}>
+                            <Button
+                                theme="error"
+                                style={{
+                                    background: "#e53935",
+                                    color: "#fff",
+                                    fontWeight: 600,
+                                    borderRadius: 8,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    width: "100%",
+                                    justifyContent: "center"
+                                }}
+                                onClick={() => handleQuitarFavorito(fav)}
+                            >
+                                Quitar de Favoritos
+                            </Button>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </main>
     );
 }

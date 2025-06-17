@@ -1,12 +1,9 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
-import java.util.List;
-
 import com.unl.sistema.base.controller.dao.AdapterDao;
-import com.unl.sistema.base.models.Mensaje;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import com.unl.sistema.base.models.Mensaje;
+
 public class DaoMensaje extends AdapterDao<Mensaje>{
     private Mensaje obj;
 
@@ -47,14 +44,5 @@ public class DaoMensaje extends AdapterDao<Mensaje>{
             return false;
             // TODO: handle exception
         }
-    }
-
-    public List<Mensaje> findByConversacionId(Long conversacionId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByConversacionId'");
-    }
-
-    public Mensaje save(Mensaje mensaje) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -1,9 +1,7 @@
 package com.unl.sistema.base.models;
 
 import java.util.Date;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class Mensaje {
 
     private Integer id;
@@ -11,8 +9,6 @@ public class Mensaje {
     private Date fechaEnvio;
     private Integer idRemitente;
     private Integer idConversacion;
-    // Agrega este campo si quieres almacenar el objeto Usuario (opcional)
-    private Usuario remitente;
 
     public Integer getId() {
         return this.id;
@@ -52,23 +48,6 @@ public class Mensaje {
 
     public void setIdConversacion(Integer idConversacion) {
         this.idConversacion = idConversacion;
-    }
-
-    // Getter para remitente
-    public Usuario getRemitente() {
-        return this.remitente;
-    }
-
-    // Setter para remitente
-    public void setRemitente(Usuario remitente) {
-        this.remitente = remitente;
-        if (remitente != null) {
-            this.idRemitente = remitente.getId().intValue();
-        }
-    }
-
-    public void setConversacion(Conversacion conversacion) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

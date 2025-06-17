@@ -1,8 +1,8 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
+import java.sql.Date;
 import java.util.HashMap;
 
-import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Favorito;
@@ -19,14 +19,7 @@ public class DaoFavorito extends AdapterDao<Favorito> {
             this.obj = new Favorito();
         return this.obj;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
     public void setObj(Favorito obj) {
         this.obj = obj;
     }
@@ -37,18 +30,8 @@ public class DaoFavorito extends AdapterDao<Favorito> {
             this.persist(obj);
             return true;
         } catch (Exception e) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            // Log de error
-=======
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-            // Log de error
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
             e.printStackTrace();
-            System.out.println(e);
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -57,155 +40,29 @@ public class DaoFavorito extends AdapterDao<Favorito> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            // Log de error
-=======
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
             return false;
         }
     }
-<<<<<<< HEAD
 
-    public LinkedList<HashMap<String, String>> all() {
-        LinkedList<HashMap<String, String>> lista = new LinkedList<>();
-        if (!this.listAll().isEmpty()) {
-            Favorito[] arreglo = this.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
-                lista.add(toDict(arreglo[i]));
-            }
-        }
-        return lista;
-    }
-
-    public HashMap<String, String> toDict(Favorito favorito) {
-        HashMap<String, String> aux = new HashMap<>();
-        aux.put("id", favorito.getId() != null ? favorito.getId().toString() : "");
-        aux.put("fechaGuardado", favorito.getFechaGuardado() != null ? favorito.getFechaGuardado().toString() : "");
-        aux.put("idAuto", favorito.getIdAuto() != null ? favorito.getIdAuto().toString() : "");
-        aux.put("idUsuario", favorito.getIdUsuario() != null ? favorito.getIdUsuario().toString() : "");
-        return aux;
-    }
-
-    public LinkedList<Favorito> ordenarString(String atributo, Integer type) {
-        LinkedList<Favorito> lista = new LinkedList<>();
-        if (!listAll().isEmpty()) {
-            Favorito arreglo[] = listAll().toArray();
-            int n = arreglo.length;
-            String[] valores = new String[n];
-            for (int i = 0; i < n; i++) {
-                try {
-                    String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                    valores[i] = String.valueOf(Favorito.class.getMethod(getter).invoke(arreglo[i]));
-                } catch (Exception e) {
-                    valores[i] = "";
+    public Boolean delete(Integer id) {
+        try {
+            System.out.println("Intentando eliminar favorito con id: " + id);
+            LinkedList<Favorito> lista = this.listAll();
+            for (int i = 0; i < lista.getLength(); i++) {
+                Favorito fav = lista.get(i);
+                System.out.println("Comparando con favorito id: " + fav.getId());
+                if (fav.getId() != null && fav.getId().equals(id)) {
+                    this.delete(fav); // Elimina el favorito encontrado
+                    System.out.println("Favorito eliminado");
+                    return true;
                 }
             }
-            if (type == Utiles.ASCENDENTE) {
-                quickSortASC(valores, 0, n - 1);
-            } else {
-                quickSortDES(valores, 0, n - 1);
-            }
-            for (String valor : valores) {
-                for (int i = 0; i < n; i++) {
-                    try {
-                        String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                        String val = String.valueOf(Favorito.class.getMethod(getter).invoke(arreglo[i]));
-                        if (arreglo[i] != null && val.equals(valor)) {
-                            lista.add(arreglo[i]);
-                        }
-                    } catch (Exception e) {
-                        // Ignorar
-                    }
-                }
-            }
-
-        }
-        return lista;
-    }
-
-    public static <E extends Comparable<E>> void quickSortASC(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) < 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) >= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortASC(vec, inicio, elemDer - 1);
-        quickSortASC(vec, elemDer + 1, fin);
-    }
-
-    public static <E extends Comparable<E>> void quickSortDES(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) > 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) <= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortDES(vec, inicio, elemDer - 1);
-        quickSortDES(vec, elemDer + 1, fin);
-=======
-    public Boolean delete(Integer pos) {
-        try {
-            this.delete(pos);
-            return true;
+            System.out.println("No se encontró el favorito");
+            return false;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
-    }
-    public Favorito getById(Integer id) {
-        try {
-            return this.getById(id);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    public Favorito getByPos(Integer pos) {
-        try {
-            return this.getByPos(pos);
-        } catch (Exception e) {
-            return null;
-=======
-            // Log de error
-            return false;
-            // TODO: handle exception
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-        }
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
     }
 
     public LinkedList<HashMap<String, String>> all() {
@@ -228,97 +85,45 @@ public class DaoFavorito extends AdapterDao<Favorito> {
         return aux;
     }
 
-    public LinkedList<Favorito> ordenarString(String atributo, Integer type) {
-        LinkedList<Favorito> lista = new LinkedList<>();
-        if (!listAll().isEmpty()) {
-            Favorito arreglo[] = listAll().toArray();
-            int n = arreglo.length;
-            String[] valores = new String[n];
-            for (int i = 0; i < n; i++) {
-                try {
-                    String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                    valores[i] = String.valueOf(Favorito.class.getMethod(getter).invoke(arreglo[i]));
-                } catch (Exception e) {
-                    valores[i] = "";
-                }
-            }
-            if (type == Utiles.ASCENDENTE) {
-                quickSortASC(valores, 0, n - 1);
-            } else {
-                quickSortDES(valores, 0, n - 1);
-            }
-            for (String valor : valores) {
-                for (int i = 0; i < n; i++) {
-                    try {
-                        String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                        String val = String.valueOf(Favorito.class.getMethod(getter).invoke(arreglo[i]));
-                        if (arreglo[i] != null && val.equals(valor)) {
-                            lista.add(arreglo[i]);
-                        }
-                    } catch (Exception e) {
-                        // Ignorar
-                    }
-                }
-            }
+    // Ordenar por atributo usando AdapterDao
+    public LinkedList<Favorito> ordenarPorAtributo(String atributo, Integer type) {
+        LinkedList<HashMap<String, String>> lista = all();
 
+        if (atributo.equals("id") || atributo.equals("idAuto") || atributo.equals("idUsuario")) {
+            ordenarNumero(lista, atributo, type);
+        } else {
+            ordenarAtributo(lista, atributo, type);
         }
-        return lista;
+
+        LinkedList<Favorito> resultado = new LinkedList<>();
+        for (HashMap<String, String> map : lista.toArray()) {
+            Favorito f = new Favorito();
+            f.setId(map.get("id").isEmpty() ? null : Integer.parseInt(map.get("id")));
+            f.setFechaGuardado(map.get("fechaGuardado").isEmpty() ? null : Date.valueOf(map.get("fechaGuardado")));
+            f.setIdAuto(map.get("idAuto").isEmpty() ? null : Integer.parseInt(map.get("idAuto")));
+            f.setIdUsuario(map.get("idUsuario").isEmpty() ? null : Integer.parseInt(map.get("idUsuario")));
+            resultado.add(f);
+        }
+        return resultado;
     }
 
-    public static <E extends Comparable<E>> void quickSortASC(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) < 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) >= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortASC(vec, inicio, elemDer - 1);
-        quickSortASC(vec, elemDer + 1, fin);
-    }
+    // Buscar por atributo (genérico)
+    public LinkedList<Favorito> buscarPorAtributo(String atributo, String valor) {
+        LinkedList<Favorito> resultado = new LinkedList<>();
+        LinkedList<HashMap<String, String>> lista = all();
 
-    public static <E extends Comparable<E>> void quickSortDES(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) > 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) <= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
+        for (HashMap<String, String> map : lista.toArray()) {
+            String campo = map.get(atributo);
+            if (campo != null && campo.equals(valor)) {
+                Favorito f = new Favorito();
+                f.setId(map.get("id").isEmpty() ? null : Integer.parseInt(map.get("id")));
+                f.setFechaGuardado(map.get("fechaGuardado").isEmpty() ? null : Date.valueOf(map.get("fechaGuardado")));
+                f.setIdAuto(map.get("idAuto").isEmpty() ? null : Integer.parseInt(map.get("idAuto")));
+                f.setIdUsuario(map.get("idUsuario").isEmpty() ? null : Integer.parseInt(map.get("idUsuario")));
+                resultado.add(f);
             }
         }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortDES(vec, inicio, elemDer - 1);
-        quickSortDES(vec, elemDer + 1, fin);
+        return resultado;
     }
 
 }

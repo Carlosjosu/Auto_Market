@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Grid, GridColumn, TextField, VerticalLayout, Dialog, GridSortColumn, NumberField, DatePicker } from '@vaadin/react-components';
+import { Button, Grid, GridColumn, TextField, VerticalLayout, Dialog, GridSortColumn, NumberField, DatePicker, Select } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { ValoracionService } from 'Frontend/generated/endpoints';
+import { ValoracionService, VentaService, AutoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
@@ -37,10 +37,10 @@ function ValoracionEntryForm(props: ValoracionEntryFormProps) {
                 idVenta.value !== undefined
             ) {
                 await ValoracionService.create(
-                    puntuacion.value,
-                    fecha.value,
+                    puntuacion.value!,
+                    fecha.value, 
                     comentario.value,
-                    idVenta.value
+                    idVenta.value!
                 );
                 if (props.onValoracionCreated) props.onValoracionCreated();
                 puntuacion.value = undefined;
@@ -63,102 +63,154 @@ function ValoracionEntryForm(props: ValoracionEntryFormProps) {
 
     return (
         <>
-            <Dialog
-                modeless
-                headerTitle="Nueva Valoración"
-                opened={dialogOpened.value}
-                onOpenedChanged={({ detail }: { detail: { value: boolean } }) => {
-                    dialogOpened.value = detail.value;
-                }}
-                footer={
-                    <>
-                        <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
-                        <Button onClick={createValoracion} theme="primary">
-                            Registrar
-                        </Button>
-                    </>
-                }>
-                <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-                    <NumberField
-                        label="Puntuación"
-                        value={puntuacion.value !== undefined ? String(puntuacion.value) : ''}
-                        onValueChanged={e => {
-                            const val = e.detail.value;
-                            puntuacion.value = val !== '' ? Number(val) : undefined;
-                        }}
-                        min={1}
-                        max={5}
-                        required
-                    />
-                    <DatePicker
-                        label="Fecha"
-                        value={fecha.value}
-                        onValueChanged={(evt: CustomEvent<{ value: string }>) => (fecha.value = evt.detail.value)}
-                        required
-                    />
-                    <TextField
-                        label="Comentario"
-                        value={comentario.value}
-                        onValueChanged={e => (comentario.value = e.detail.value)}
-                        required
-                    />
-                    <NumberField
-                        label="ID Venta"
-                        value={idVenta.value !== undefined ? String(idVenta.value) : ''}
-                        onValueChanged={e => {
-                            const val = e.detail.value;
-                            idVenta.value = val !== '' ? Number(val) : undefined;
-                        }}
-                        min={1}
-                        required
-                    />
-                </VerticalLayout>
-            </Dialog>
-            <Button onClick={() => (dialogOpened.value = true)}>Agregar</Button>
+            <Button>
+            </Button>
         </>
+    );
+}
+
+function ValoracionSearchForm(props: { onSearch: (atributo: string, valor: string) => void }) {
+    const [atributo, setAtributo] = useState('id');
+    const [valor, setValor] = useState('');
+
+    return (
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 0 }}>
+            <Select
+                style={{ minWidth: 180 }}
+                value={atributo}
+                onValueChanged={e => setAtributo(e.detail.value)}
+                items={[
+                    { label: 'Puntuación', value: 'puntuacion' },
+                ]}
+                placeholder="Seleccionar atributo"
+            />
+            <TextField
+                style={{ minWidth: 220 }}
+                placeholder="Ingrese valor a buscar..."
+                value={valor}
+                onValueChanged={e => setValor(e.detail.value)}
+                onKeyDown={e => {
+                    if (e.key === 'Enter') props.onSearch(atributo, valor);
+                }}
+            />
+            <Button
+                theme="primary"
+                style={{
+                    background: "#ffc107",
+                    color: "#fff",
+                    fontWeight: 600,
+                    borderRadius: 8,
+                    padding: "8px 20px"
+                }}
+                onClick={() => props.onSearch(atributo, valor)}
+            >
+                Buscar
+            </Button>
+            <Button
+                style={{
+                    background: "#fff",
+                    color: "#29ABE2",
+                    border: "1px solid #29ABE2",
+                    fontWeight: 600,
+                    borderRadius: 8,
+                    padding: "8px 20px"
+                }}
+                onClick={() => { setValor(''); props.onSearch('', ''); }}
+            >
+                Limpiar
+            </Button>
+        </div>
     );
 }
 
 export default function ValoracionView() {
     const [items, setItems] = useState<any[]>([]);
+    const [ventas, setVentas] = useState<any[]>([]);
+    const [autos, setAutos] = useState<any[]>([]);
+
+    // Cargar ventas y autos para poder mostrar marca/modelo
+    useEffect(() => {
+        VentaService.listVenta().then((data) => setVentas((data ?? []).filter(Boolean)));
+        AutoService.listAuto().then((data) => setAutos((data ?? []).filter(Boolean)));
+    }, []);
 
     const callData = () => {
-        ValoracionService.listValoracion().then(function (data) {
-            setItems(data);
-        });
+        ValoracionService.listValoracion().then((data) => setItems((data ?? []).filter(Boolean)));
     };
 
     useEffect(() => {
         callData();
     }, []);
 
+    const handleSearch = (atributo: string, valor: string) => {
+        if (!atributo || valor === '') {
+            callData();
+            return;
+        }
+        ValoracionService.buscar(atributo, valor).then((data) => setItems((data ?? []).filter(Boolean)));
+    };
+
     const order = (event: any, columnId: string) => {
         const direction = event.detail.value;
         var dir = (direction == 'asc') ? 1 : 2;
-        ValoracionService.ordenar(columnId, dir).then(function (data) {
-            setItems(data);
-        });
-    }
+        ValoracionService.ordenar(columnId, dir).then((data) => setItems((data ?? []).filter(Boolean)));
+    };
 
     function indexIndex({ model }: { model: GridItemModel<any> }) {
         return <span>{model.index + 1}</span>;
     }
 
+    // Función para obtener marca y modelo desde idVenta
+    const getMarcaModelo = (idVenta: number) => {
+        const venta = ventas.find((v: any) => Number(v.id) === Number(idVenta));
+        if (!venta) return '';
+        const auto = autos.find((a: any) => Number(a.id) === Number(venta.idAuto));
+        if (!auto) return '';
+        return `${auto.marca ?? ''} ${auto.modelo ?? ''}`.trim();
+    };
+
     return (
-        <main className="w-full h-full flex flex-col box-border gap-s p-m">
-            <ViewToolbar title="Lista de Valoraciones">
-                <Group>
+        <main style={{ background: "#f4faff", minHeight: "100vh", padding: "2rem" }}>
+            <div style={{
+                background: "#f8fbff",
+                borderRadius: 12,
+                padding: "1.5rem",
+                marginBottom: 24,
+                boxShadow: "0 2px 8px #0001",
+                border: "1px solid #e0e7ef"
+            }}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 18
+                }}>
+                    <h2 style={{ color: "#29ABE2", fontWeight: 700, fontSize: 28, margin: 0 }}>Lista de Valoraciones</h2>
                     <ValoracionEntryForm onValoracionCreated={callData} />
-                </Group>
-            </ViewToolbar>
-            <Grid items={items}>
-                <GridColumn renderer={indexIndex} header="N°" />
-                <GridSortColumn path="id" header="ID" onDirectionChanged={(e) => order(e, 'id')} />
-                <GridSortColumn path="puntuacion" header="Puntuación" onDirectionChanged={(e) => order(e, 'puntuacion')} />
-                <GridSortColumn path="fecha" header="Fecha" onDirectionChanged={(e) => order(e, 'fecha')} />
-                <GridSortColumn path="comentario" header="Comentario" onDirectionChanged={(e) => order(e, 'comentario')} />
-                <GridSortColumn path="idVenta" header="ID Venta" onDirectionChanged={(e) => order(e, 'idVenta')} />
-            </Grid>
+                </div>
+                <ValoracionSearchForm onSearch={handleSearch} />
+            </div>
+            <div style={{
+                background: "#f8fbff",
+                borderRadius: 12,
+                padding: "1.5rem",
+                boxShadow: "0 2px 8px #0001",
+                border: "1px solid #e0e7ef"
+            }}>
+                <Grid items={items}>
+                    <GridColumn renderer={indexIndex} header="N°" />
+                    <GridSortColumn path="puntuacion" header="Puntuación" onDirectionChanged={(e) => order(e, 'puntuacion')} />
+                    <GridSortColumn path="fecha" header="Fecha" onDirectionChanged={(e) => order(e, 'fecha')} />
+                    <GridColumn
+                        path="comentario"
+                        header="Comentario"
+                    />
+                    <GridColumn
+                        header="Auto valorado"
+                        renderer={({ item }) => <span>{getMarcaModelo(item.idVenta)}</span>}
+                    />
+                </Grid>
+            </div>
         </main>
     );
 }

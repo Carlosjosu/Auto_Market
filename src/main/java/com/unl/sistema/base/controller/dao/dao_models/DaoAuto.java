@@ -1,30 +1,16 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import java.util.HashMap;
-=======
-import java.util.Date;
-
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-import com.unl.sistema.base.controller.dao.AdapterDao;
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
+import com.unl.sistema.base.models.CategoriaEnum;
+import com.unl.sistema.base.models.Marca;
+import com.unl.sistema.base.models.TipoCombustibleEnum;
+import java.util.HashMap;
+import com.unl.sistema.base.controller.dao.dao_models.DaoMarca;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 public class DaoAuto extends AdapterDao<Auto> {
-=======
-
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
-public class DaoAuto extends AdapterDao<Auto>{
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
     private Auto obj;
 
     public DaoAuto() {
@@ -62,14 +48,12 @@ public class DaoAuto extends AdapterDao<Auto>{
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
-            Auto[] arreglo = this.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
-                lista.add(toDict(arreglo[i]));
+            Auto[] autos = this.listAll().toArray();
+            for (Auto auto : autos) {
+                lista.add(toDict(auto)); // <-- Esto es lo importante
             }
         }
         return lista;
@@ -90,10 +74,31 @@ public class DaoAuto extends AdapterDao<Auto>{
         aux.put("descripcion", String.valueOf(auto.getDescripcion()));
         aux.put("fechaRegistro", String.valueOf(auto.getFechaRegistro()));
         aux.put("estaDisponible", String.valueOf(auto.isEstaDisponible()));
-        aux.put("idVenta", String.valueOf(auto.getIdVenta()));
         aux.put("idMarca", String.valueOf(auto.getIdMarca()));
+        try {
+            DaoMarca daoMarca = new DaoMarca();
+            String nombreMarca = "";
+            if (auto.getIdMarca() != null) {
+                Marca marca = null;
+                LinkedList<Marca> marcas = daoMarca.listAll();
+                Marca[] marcasArray = marcas.toArray();
+                for (Marca m : marcasArray) {
+                    if (m.getId().equals(auto.getIdMarca())) {
+                        marca = m;
+                        break;
+                    }
+                }
+                if (marca != null) {
+                    nombreMarca = marca.getNombre();
+                }
+            }
+            aux.put("marca", nombreMarca);
+        } catch (Exception e) {
+            aux.put("marca", "");
+        }
         aux.put("tipoCombustible", String.valueOf(auto.getTipoCombustible()));
-        aux.put("categoria", String.valueOf(auto.getCategoria()));
+        aux.put("categoria", auto.getCategoria() != null ? auto.getCategoria().name() : null);
+        System.out.println("toDict: " + aux);
         return aux;
     }
 
@@ -189,20 +194,63 @@ public class DaoAuto extends AdapterDao<Auto>{
         quickSortDES(vec, elemDer + 1, fin);
     }
 
-}
-=======
- 
-}
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
-    //Auto
-    //Marca
-    //Valoracion
-    //Venta??
-    //Conversacion
-    //Mensaje
-    //Favorito
-    
+    public static void main(String[] args) {
+        DaoAuto da = new DaoAuto();
 
+        // Primer auto
+        da.getObj().setId(da.listAll().getLength() + 1);
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+
+
+            // Cuarto auto
+            da.getObj().setId(da.listAll().getLength() + 1);
+            da.getObj().setAnio("2015");
+            da.getObj().setModelo("Spark GT");
+            da.getObj().setPuertas(5);
+            da.getObj().setColor("Azul");
+            da.getObj().setKilometraje(60000f);
+            da.getObj().setCiudad("Ambato");
+            da.getObj().setPrecio(9000f);
+            da.getObj().setMatricula("GHI789");
+            da.getObj().setCodigoVIN("4HGCM82633A004355");
+            da.getObj().setDescripcion("Económico y compacto, ideal para ciudad");
+            da.getObj().setFechaRegistro(sdf.parse("2022-08-20"));
+            da.getObj().setEstaDisponible(true);
+            da.getObj().setIdMarca(4);
+            da.getObj().setTipoCombustible(TipoCombustibleEnum.ECOPAIS);
+            da.getObj().setCategoria(CategoriaEnum.HATCHBACK);
+            if (da.save())
+            System.out.println("GUARDADO: " + da.getObj());
+            else
+            System.out.println("Hubo un error");
+            da.setObj(null);
+
+            // Quinto auto
+            da.getObj().setId(da.listAll().getLength() + 1);
+            da.getObj().setAnio("2021");
+            da.getObj().setModelo("CX-5");
+            da.getObj().setPuertas(5);
+            da.getObj().setColor("Gris");
+            da.getObj().setKilometraje(20000f);
+            da.getObj().setCiudad("Loja");
+            da.getObj().setPrecio(28000f);
+            da.getObj().setMatricula("JKL012");
+            da.getObj().setCodigoVIN("5HGCM82633A004356");
+            da.getObj().setDescripcion("SUV familiar, poco uso");
+            da.getObj().setFechaRegistro(sdf.parse("2024-01-05"));
+            da.getObj().setEstaDisponible(true);
+            da.getObj().setIdMarca(5);
+            da.getObj().setTipoCombustible(TipoCombustibleEnum.SUPER);
+            da.getObj().setCategoria(CategoriaEnum.SUV);
+            if (da.save())
+            System.out.println("GUARDADO: " + da.getObj());
+            else
+            System.out.println("Hubo un error");
+            da.setObj(null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

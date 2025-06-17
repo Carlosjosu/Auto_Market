@@ -23,6 +23,14 @@ public class DaoMarca extends AdapterDao<Marca> {
     public void setObj(Marca obj) {
         this.obj = obj;
     }
+    public Marca findById(Integer id) {
+        for (Marca marca : this.listAll().toArray()) {
+            if (marca.getId() != null && marca.getId().equals(id)) {
+                return marca;
+            }
+        }
+        return null;
+    }
 
     public Boolean save() {
         try {
@@ -49,11 +57,11 @@ public class DaoMarca extends AdapterDao<Marca> {
         }
     }
 
-    public LinkedList<HashMap<String, String>> all() {
+    public LinkedList<HashMap<String, String>> all(){
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
-        if (!this.listAll().isEmpty()) {
+        if(!this.listAll().isEmpty()){
             Marca[] arreglo = this.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
+            for(int i = 0 ; i < arreglo.length ; i++){
                 lista.add(toDict(arreglo[i]));
             }
         }

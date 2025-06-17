@@ -5,5 +5,6 @@ interface Usuario {
     cedula?: string;
     telefono?: string;
     idCuenta?: number;
+    nickname?: string;
 }
 export default Usuario;

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { MessageInput } from "@vaadin/react-components/MessageInput";
 import { Avatar } from "@vaadin/react-components/Avatar";
 import { Notification } from "@vaadin/react-components/Notification";
-import "./mensaje-view.css";
+import "../themes/default/mensaje-view.css";
 
 // Interfaces
 interface Usuario {

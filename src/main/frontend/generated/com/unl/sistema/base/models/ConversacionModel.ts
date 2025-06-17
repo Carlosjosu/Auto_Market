@@ -21,11 +21,11 @@ class ConversacionModel<T extends Conversacion_1 = Conversacion_1> extends Objec
     get estaActiva(): BooleanModel_1 {
         return this[_getPropertyModel_1]("estaActiva", (parent, key) => new BooleanModel_1(parent, key, false, { meta: { javaType: "boolean" } }));
     }
-    get usuario2(): UsuarioModel_1 {
-        return this[_getPropertyModel_1]("usuario2", (parent, key) => new UsuarioModel_1(parent, key, true));
-    }
     get usuario1(): UsuarioModel_1 {
         return this[_getPropertyModel_1]("usuario1", (parent, key) => new UsuarioModel_1(parent, key, true));
+    }
+    get usuario2(): UsuarioModel_1 {
+        return this[_getPropertyModel_1]("usuario2", (parent, key) => new UsuarioModel_1(parent, key, true));
     }
 }
 export default ConversacionModel;

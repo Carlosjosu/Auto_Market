@@ -13,18 +13,7 @@ body {
   box-shadow: 0 4px 16px 0 rgba(0,0,0,0.08), 0 3px 8px 0 rgba(0,0,0,0.08);
 }
 
-/* Puedes usar la clase card-bordered en tus divs de tarjetas para un borde y sombra suave */
 
-.card-image-400x300 {
-  width: 400px;
-  height: 300px;
-  min-width: 400px;
-  min-height: 300px;
-  max-width: 400px;
-  max-height: 300px;
-  object-fit: cover;
-  display: block;
-}
 .card-image-container-400x300 {
   width: 400px;
   height: 300px;
@@ -36,15 +25,163 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
+.card-image-container-400x300 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
 
-.form-grid-2col {
+.form-grid-3col {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
   width: 100%;
-  max-width: 32rem;
+  max-width: 48rem;
   margin: 0 auto;
 }
 .form-grid-fullwidth {
-  grid-column: 1 / 3;
+  grid-column: 1 / 4;
+}
+
+.auto-image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 1.2rem;
+  align-items: flex-start;
+}
+.auto-image-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px 8px 8px 8px;
+  border: 1.5px solid #e0e0e0;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  min-width: 110px;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+.auto-image-label:hover {
+  box-shadow: 0 4px 16px 0 rgba(0,0,0,0.10);
+  border-color: #bdbdbd;
+}
+.auto-image-thumb {
+  width: 90px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1.5px solid #ccc;
+  margin-top: 4px;
+  background: #fff;
+}
+.auto-image-desc {
+  font-size: 13px;
+  margin-top: 6px;
+  text-align: center;
+  color: #333;
+  max-width: 100px;
+  word-break: break-word;
+}
+
+.auto-upload-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 0.7rem;
+  background: #f6f8fa;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1.5px solid #e0e0e0;
+}
+.auto-upload-box label {
+  font-weight: 500;
+  margin-bottom: 0;
+}
+.auto-upload-box input[type="file"] {
+  border: none;
+  background: none;
+  font-size: 14px;
+  padding: 4px 0;
+}
+.auto-upload-box input[type="text"] {
+  min-width: 180px;
+  height: 32px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1.2px solid #ccc;
+  font-size: 14px;
+}
+.auto-upload-box button {
+  min-width: 110px;
+  height: 34px;
+  border-radius: 5px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  font-weight: 500;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.auto-upload-box button:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+.auto-upload-box button:not(:disabled):hover {
+  background: #125ea2;
+}
+.auto-upload-input {
+  display: none;
+}
+
+.auto-toolbar-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.auto-search-group {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1.2rem;
+}
+.auto-category-combo {
+  margin-left: 0.25rem;
+  margin-right: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  min-width: 180px;
+  max-width: 220px;
+  width: 100%;
+}
+.auto-search-textfield {
+  min-width: 600px;
+  max-width: 400px;
+  width: 100%;
+}
+.auto-add-btn {
+  min-width: 150px;
+  align-self: flex-end;
+  margin-right: 1rem;
+}
+.auto-search-result {
+  margin-bottom: 16px;
+  background: #f3f3f3;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.combo-categoria {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }

@@ -1,10 +1,10 @@
 package com.unl.sistema.base.controller.services;
 
-<<<<<<< HEAD
 import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
 import com.unl.sistema.base.controller.dao.dao_models.DaoImagen;
+import com.unl.sistema.base.models.Imagen;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -34,10 +34,7 @@ public class ImagenService {
     }
 
     public List<HashMap<String, String>> ordenar(String atributo, Integer type) {
-        return Arrays.asList(db.ordenarString(atributo, type).toArray())
-                .stream()
-                .map(obj -> db.toDict((com.unl.sistema.base.models.Imagen) obj))
-                .toList();
+        return Arrays.asList(db.ordenarPorAtributo(atributo, type).toArray());
     }
 
     public List<HashMap<String, String>> listImagen() {
@@ -48,72 +45,32 @@ public class ImagenService {
         }
         return result;
     }
-}
-=======
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
-import com.unl.sistema.base.controller.dao.dao_models.DaoImagen;
-import com.unl.sistema.base.controller.dao.dao_models.DaoAuto;
-import com.unl.sistema.base.models.Auto;
-import com.unl.sistema.base.models.Imagen;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
-
-import jakarta.validation.constraints.NotEmpty;
-
-@BrowserCallable
-@AnonymousAllowed
-
-public class ImagenService {
-    private DaoImagen di;
-
-    public ImagenService() {
-        di = new DaoImagen();
+    public void asociarImagenesAUnAuto(Integer idAuto, List<Integer> idsImagenes) {
+        db.asociarImagenesAUnAuto(idAuto, idsImagenes);
     }
 
-    public void create(@NotEmpty String url, @NotEmpty String descripcion, Integer idAuto) throws Exception {
-        if (url.trim().length() > 0 && descripcion.trim().length() > 0 && idAuto > 0) {
-            di.getObj().setUrl(url);
-            di.getObj().setDescripcion(descripcion);;
-            di.getObj().setIdAuto(idAuto);; 
-            if (!di.save())
-                throw new Exception("No se pudo guardar los datos de la banda");
-        }
+    public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
+        return db.buscarPorAtributo(atributo, valor);
     }
 
-    public List<HashMap> listaAuto() {
-        List<HashMap> lista = new ArrayList<>();
-        DaoAuto da = new DaoAuto();
-        if (!da.listAll().isEmpty()) {
-            Auto[] arreglo = da.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getMatricula());
-                lista.add(aux);
+    public void marcarComoPrincipal(Integer idImagen, Integer idAuto) throws Exception {
+        // Obtener todas las imágenes del auto
+        int len = db.all().getLength();
+        for (int i = 0; i < len; i++) {
+            HashMap<String, String> imgMap = db.all().get(i);
+            Integer imgId = Integer.valueOf(imgMap.get("id"));
+            Integer autoId = Integer.valueOf(imgMap.get("idAuto"));
+            if (autoId.equals(idAuto)) {
+                // Buscar la imagen en la base de datos
+                Imagen img = db.listAll().get(i);
+                if (imgId.equals(idImagen)) {
+                    img.setEsPrincipal(true);
+                } else {
+                    img.setEsPrincipal(false);
+                }
+                db.update(img, i);
             }
         }
-        return lista;
-    }
-
-    public List<HashMap> listImagen() {
-        List<HashMap> lista = new ArrayList<>();
-        if (!di.listAll().isEmpty()) {
-            Imagen[] arreglo = di.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString(i));
-                aux.put("url", arreglo[i].getUrl());
-                aux.put("descripcion", arreglo[i].getDescripcion());
-                aux.put("auto", new DaoAuto().listAll().get(arreglo[i].getIdAuto() - 1).getMatricula());
-                lista.add(aux);
-            }
-        }
-        return lista;
     }
 }
-
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)

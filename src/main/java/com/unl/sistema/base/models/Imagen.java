@@ -6,6 +6,7 @@ public class Imagen {
     private String url;
     private String descripcion;
     private Integer idAuto;
+    private Boolean esPrincipal;
 
     public Imagen() {
     }
@@ -47,14 +48,12 @@ public class Imagen {
     public void setIdAuto(Integer idAuto) {
         this.idAuto = idAuto;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-}
-=======
 
-}
+    public Boolean getEsPrincipal() {
+        return this.esPrincipal;
+    }
 
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
+    public void setEsPrincipal(Boolean esPrincipal) {
+        this.esPrincipal = esPrincipal;
+    }
+}

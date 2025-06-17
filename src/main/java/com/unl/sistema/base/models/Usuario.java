@@ -7,6 +7,7 @@ public class Usuario {
     private String cedula;
     private String telefono;
     private Integer idCuenta;
+    private String nickname;
 
     public Usuario() {
     }
@@ -58,10 +59,6 @@ public class Usuario {
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)
 
     public Integer getIdCuenta() {
         return this.idCuenta;
@@ -71,14 +68,11 @@ public class Usuario {
         this.idCuenta = idCuenta;
     }
 
-<<<<<<< HEAD
-}
-=======
-    
-}
->>>>>>> 4388000 (Carga de modulo valoración con método de ordenación)
-=======
+    public String getNickname() {
+        return this.nickname;
+    }
 
-    
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
->>>>>>> a6689ee (Corrección métodos de ordenación Quicksort)

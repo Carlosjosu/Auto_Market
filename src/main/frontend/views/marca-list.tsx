@@ -6,9 +6,9 @@ import { MarcaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import { useAuth, role } from 'Frontend/security/auth';
 import type { GridItemModel } from '@vaadin/react-components';
-import { useNavigate } from 'react-router-dom';
+import { useAuth, role } from 'Frontend/security/auth';
+import { useNavigate } from 'react-router';
 
 export const config: ViewConfig = {
     title: 'Marca',
@@ -85,28 +85,29 @@ function MarcaEntryForm(props: MarcaEntryFormProps) {
 }
 
 export default function MarcaView() {
+
     const { state } = useAuth();
     const navigate = useNavigate();
+
     useEffect(() => {
-    if (!state.user) {
-        navigate('/login?error=true');
-        return;
-    }
-    role().then((rolResponse) => {
-        console.log('Rol del usuario:', rolResponse?.rol);
-        if (rolResponse?.rol !== 'ROLE_admin') {
-            Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
-            navigate('/');
+        if (!state.user) {
+            navigate('/login?error=true');
+            return;
         }
-    });
-}, [state.user, navigate]);
+        role().then((rolResponse) => {
+            if (rolResponse?.rol !== 'ROLE_admin') {
+                Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
+                navigate('/');
+            }
+        });
+    }, [state.user, navigate]);
 
     const callData = () => {
-        MarcaService.listMarca().then(function(data){
+        MarcaService.listMarca().then(function (data) {
             setItems(data);
         });
     };
-    
+
     const [items, setItems] = useState([]);
     useEffect(() => {
         callData();
@@ -128,7 +129,7 @@ export default function MarcaView() {
         <main className="w-full h-full flex flex-col box-border gap-s p-m">
             <ViewToolbar title="Lista de Marcas">
                 <Group>
-                    <MarcaEntryForm onMarcaCreated={callData}/>
+                    <MarcaEntryForm onMarcaCreated={callData} />
                 </Group>
             </ViewToolbar>
             <Grid items={items}>

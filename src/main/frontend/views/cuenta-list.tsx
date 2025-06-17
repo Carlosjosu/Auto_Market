@@ -7,6 +7,8 @@ import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import type { GridItemModel } from '@vaadin/react-components';
+import { useAuth, role } from 'Frontend/security/auth';
+import { useNavigate } from 'react-router';
 
 export const config: ViewConfig = {
     title: 'Cuenta',
@@ -131,7 +133,7 @@ function CuentaEntryFormUpdate(props: CuentaEntryFormUpdateProps) {
                     </>
                 }>
                 <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-                   <EmailField
+                    <EmailField
                         label="Correo"
                         value={correo.value}
                         readonly
@@ -144,16 +146,33 @@ function CuentaEntryFormUpdate(props: CuentaEntryFormUpdateProps) {
                     />
                 </VerticalLayout>
             </Dialog>
-            <Button onClick={() => (dialogOpened.value = true)} theme="tertiary-inline" style={{ 
-            backgroundColor: '#FFA500', color: 'white',
-            width: '32px', height: '32px', minWidth: '32px', 
-            minHeight: '32px', padding: 0, display: 'flex', 
-            alignItems: 'center', justifyContent: 'center' }}><Icon icon="vaadin:edit" /></Button>
+            <Button onClick={() => (dialogOpened.value = true)} theme="tertiary-inline" style={{
+                backgroundColor: '#FFA500', color: 'white',
+                width: '32px', height: '32px', minWidth: '32px',
+                minHeight: '32px', padding: 0, display: 'flex',
+                alignItems: 'center', justifyContent: 'center'
+            }}><Icon icon="vaadin:edit" /></Button>
         </>
     );
 }
 
 export default function CuentaView() {
+
+    const { state } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!state.user) {
+            navigate('/login?error=true');
+            return;
+        }
+        role().then((rolResponse) => {
+            if (rolResponse?.rol !== 'ROLE_admin') {
+                Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
+                navigate('/');
+            }
+        });
+    }, [state.user, navigate]);
 
     const callData = () => {
         CuentaService.listCuenta().then(function (data) {
@@ -208,7 +227,7 @@ export default function CuentaView() {
     function indexLink({ item }: { item: Cuenta }) {
         return (
             <span>
-                <CuentaEntryFormUpdate arguments={item}  onCuentaUpdated={callData}>
+                <CuentaEntryFormUpdate arguments={item} onCuentaUpdated={callData}>
                 </CuentaEntryFormUpdate>
             </span>
         );

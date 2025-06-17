@@ -309,7 +309,7 @@ export default function UsuarioView() {
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <ViewToolbar title="Lista de Usuarioes">
+      <ViewToolbar title="Lista de Usuarios">
         <Group>
           <UsuarioEntryForm onUsuarioCreated={callData} />
         </Group>

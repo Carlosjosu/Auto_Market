@@ -37,18 +37,13 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     }
 
     private void saveFile(String data) throws Exception {
-        File file = new File(base_path + clazz.getSimpleName() + ".json");
-        // file.getParentFile().m
-        if (!file.exists()) {
-            file.createNewFile();
+        if (data == null || data.trim().equals("null")) {
+            data = "[]";
         }
-        // if(!file.exists()) {
-        FileWriter fw = new FileWriter(file);
-        fw.write(data);
-        fw.flush();
-        fw.close();
-        // file.close();
-        // }
+        File file = new File(base_path + clazz.getSimpleName() + ".json");
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(data);
+        }
     }
 
     @Override
@@ -101,6 +96,22 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             return null;
     }
 
+<<<<<<< HEAD
+=======
+    public void delete(T obj) throws Exception {
+        LinkedList<T> list = listAll();
+        // Elimina el objeto de la lista
+        for (int i = 0; i < list.getLength(); i++) {
+            if (list.get(i).equals(obj)) {
+                list.delete(i);
+                break;
+            }
+        }
+        // Persiste la lista actualizada
+        saveFile(g.toJson(list.toArray()));
+    }
+
+>>>>>>> origin/feature/Sebas-ModuloValoracion
     public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {
         if (inicio > fin) {
             return null;

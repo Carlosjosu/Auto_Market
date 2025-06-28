@@ -1,6 +1,10 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
@@ -24,17 +28,15 @@ public class DaoValoracion extends AdapterDao<Valoracion> {
         this.obj = obj;
     }
 
-    public Boolean save() {
+    public Boolean save(Valoracion v) {
         try {
-            obj.setId(listAll().getLength() + 1);
-            this.persist(obj);
+            v.setId(listAll().getLength() + 1);
+            this.persist(v);
             return true;
         } catch (Exception e) {
-            // Log de error
             e.printStackTrace();
             System.out.println(e);
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -43,9 +45,7 @@ public class DaoValoracion extends AdapterDao<Valoracion> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
-            // Log de error
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -64,103 +64,65 @@ public class DaoValoracion extends AdapterDao<Valoracion> {
         HashMap<String, String> aux = new HashMap<>();
         aux.put("id", valoracion.getId() != null ? valoracion.getId().toString() : "");
         aux.put("puntuacion", valoracion.getPuntuacion() != null ? valoracion.getPuntuacion().toString() : "");
-        aux.put("fecha", valoracion.getFecha() != null ? valoracion.getFecha().toString() : "");
+        aux.put("fecha", valoracion.getFecha() != null ? DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").format(
+                valoracion.getFecha().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) : "");
         aux.put("comentario", valoracion.getComentario() != null ? valoracion.getComentario() : "");
         aux.put("idVenta", valoracion.getIdVenta() != null ? valoracion.getIdVenta().toString() : "");
         return aux;
     }
 
-    public LinkedList<Valoracion> ordenarString(String atributo, Integer type) {
-        LinkedList<Valoracion> lista = new LinkedList<>();
-        if (!listAll().isEmpty()) {
-            Valoracion arreglo[] = listAll().toArray();
-            int n = arreglo.length;
-            String[] valores = new String[n];
-            for (int i = 0; i < n; i++) {
-                try {
-                    String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                    valores[i] = String.valueOf(Valoracion.class.getMethod(getter).invoke(arreglo[i]));
-                } catch (Exception e) {
-                    valores[i] = "";
-                }
-            }
-            if (type == Utiles.ASCENDENTE) {
-                quickSortASC(valores, 0, n - 1);
+    // Ordenar por atributo usando AdapterDao
+    public LinkedList<Valoracion> ordenarPorAtributo(String atributo, Integer type) {
+        LinkedList<HashMap<String, String>> lista = all();
+
+        if (atributo.equals("id") || atributo.equals("puntuacion") || atributo.equals("idVenta")) {
+            ordenarNumero(lista, atributo, type);
+        } else {
+            ordenarAtributo(lista, atributo, type);
+        }
+
+        LinkedList<Valoracion> resultado = new LinkedList<>();
+        for (HashMap<String, String> map : lista.toArray()) {
+            Valoracion v = new Valoracion();
+            v.setId(map.get("id").isEmpty() ? null : Integer.parseInt(map.get("id")));
+            v.setPuntuacion(map.get("puntuacion").isEmpty() ? null : Integer.parseInt(map.get("puntuacion")));
+            if (map.get("fecha").isEmpty()) {
+                v.setFecha(null);
             } else {
-                quickSortDES(valores, 0, n - 1);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                LocalDateTime localDateTime = LocalDateTime.parse(map.get("fecha"), formatter);
+                v.setFecha(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
             }
-            for (String valor : valores) {
-                for (int i = 0; i < n; i++) {
-                    try {
-                        String getter = "get" + atributo.substring(0, 1).toUpperCase() + atributo.substring(1);
-                        String val = String.valueOf(Valoracion.class.getMethod(getter).invoke(arreglo[i]));
-                        if (arreglo[i] != null && val.equals(valor)) {
-                            lista.add(arreglo[i]);
-                        }
-                    } catch (Exception e) {
-                        // Ignorar
-                    }
+            v.setComentario(map.get("comentario"));
+            v.setIdVenta(map.get("idVenta").isEmpty() ? null : Integer.parseInt(map.get("idVenta")));
+            resultado.add(v);
+        }
+        return resultado;
+    }
+
+    // Buscar por atributo (igual que en DaoVenta)
+    public LinkedList<Valoracion> buscarPorAtributo(String atributo, String valor) {
+        LinkedList<Valoracion> resultado = new LinkedList<>();
+        LinkedList<HashMap<String, String>> lista = all();
+
+        for (HashMap<String, String> map : lista.toArray()) {
+            String campo = map.get(atributo);
+            if (campo != null && campo.equals(valor)) {
+                Valoracion v = new Valoracion();
+                v.setId(map.get("id").isEmpty() ? null : Integer.parseInt(map.get("id")));
+                v.setPuntuacion(map.get("puntuacion").isEmpty() ? null : Integer.parseInt(map.get("puntuacion")));
+                if (map.get("fecha").isEmpty()) {
+                    v.setFecha(null);
+                } else {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                    LocalDateTime localDateTime = LocalDateTime.parse(map.get("fecha"), formatter);
+                    v.setFecha(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
                 }
+                v.setComentario(map.get("comentario"));
+                v.setIdVenta(map.get("idVenta").isEmpty() ? null : Integer.parseInt(map.get("idVenta")));
+                resultado.add(v);
             }
-
         }
-        return lista;
+        return resultado;
     }
-
-    public static <E extends Comparable<E>> void quickSortASC(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) < 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) >= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortASC(vec, inicio, elemDer - 1);
-        quickSortASC(vec, elemDer + 1, fin);
-    }
-
-    public static <E extends Comparable<E>> void quickSortDES(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) > 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) <= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortDES(vec, inicio, elemDer - 1);
-        quickSortDES(vec, elemDer + 1, fin);
-    }
-
 }

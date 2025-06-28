@@ -1,9 +1,8 @@
 import { injectGlobalWebcomponentCss } from 'Frontend/generated/jar-resources/theme-util.js';
 
-import '@vaadin/polymer-legacy-adapter/style-modules.js';
-import '@vaadin/vertical-layout/theme/lumo/vaadin-vertical-layout.js';
 import '@vaadin/field-highlighter/theme/lumo/vaadin-field-highlighter.js';
 import '@vaadin/common-frontend/ConnectionIndicator.js';
+import '@vaadin/polymer-legacy-adapter/style-modules.js';
 import '@vaadin/accordion/theme/lumo/vaadin-accordion.js';
 import '@vaadin/details/theme/lumo/vaadin-details.js';
 import '@vaadin/accordion/theme/lumo/vaadin-accordion-panel.js';
@@ -67,6 +66,7 @@ import '@vaadin/message-list/theme/lumo/vaadin-message-list.js';
 import '@vaadin/notification/theme/lumo/vaadin-notification.js';
 import '@vaadin/horizontal-layout/theme/lumo/vaadin-horizontal-layout.js';
 import '@vaadin/scroller/theme/lumo/vaadin-scroller.js';
+import '@vaadin/vertical-layout/theme/lumo/vaadin-vertical-layout.js';
 import '@vaadin/popover/theme/lumo/vaadin-popover.js';
 import 'Frontend/generated/jar-resources/vaadin-popover/popover.ts';
 import '@vaadin/progress-bar/theme/lumo/vaadin-progress-bar.js';

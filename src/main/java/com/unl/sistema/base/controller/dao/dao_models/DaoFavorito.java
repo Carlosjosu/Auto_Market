@@ -45,11 +45,14 @@ public class DaoFavorito extends AdapterDao<Favorito> {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     public Boolean delete(Integer pos) {
         try {
             this.delete(pos);
             return true;
 =======
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
     public Boolean delete(Integer id) {
         try {
             System.out.println("Intentando eliminar favorito con id: " + id);
@@ -65,12 +68,16 @@ public class DaoFavorito extends AdapterDao<Favorito> {
             }
             System.out.println("No se encontró el favorito");
             return false;
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     public Favorito getById(Integer id) {
@@ -88,6 +95,8 @@ public class DaoFavorito extends AdapterDao<Favorito> {
             return null;
         }
     }
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
 =======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
 

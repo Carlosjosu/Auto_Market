@@ -97,7 +97,10 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
     public void delete(T obj) throws Exception {
         LinkedList<T> list = listAll();
         // Elimina el objeto de la lista
@@ -111,6 +114,9 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         saveFile(g.toJson(list.toArray()));
     }
 
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
     public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {
         if (inicio > fin) {

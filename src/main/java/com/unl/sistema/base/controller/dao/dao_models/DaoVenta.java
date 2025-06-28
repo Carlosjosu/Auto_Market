@@ -1,14 +1,20 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.HashMap;
 import com.unl.sistema.base.controller.Util.Utiles;
 =======
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
 import java.util.Date;
 import java.util.HashMap;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
@@ -113,6 +119,7 @@ public class DaoVenta extends AdapterDao<Venta> {
                 aux.put("modelo", "");
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
         }
         return lista;
     }
@@ -172,6 +179,8 @@ public class DaoVenta extends AdapterDao<Venta> {
         quickSortDES(vec, inicio, elemDer - 1);
         quickSortDES(vec, elemDer + 1, fin);
 =======
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
         } else {
             aux.put("marca", "");
             aux.put("modelo", "");
@@ -185,6 +194,9 @@ public class DaoVenta extends AdapterDao<Venta> {
         LinkedList<HashMap<String, String>> lista = all(); // all() ya usa toDict y agrega marca/modelo
         // Puedes usar Utiles.INICIO, Utiles.FIN o 0 para búsqueda general (contains)
         return Utiles.busquedaLineal(lista, atributo, texto, 0);
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
     }
 }

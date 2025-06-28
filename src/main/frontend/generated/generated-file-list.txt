@@ -1,6 +1,9 @@
 AutoService.ts
 <<<<<<< HEAD
+<<<<<<< HEAD
 ChatService.ts
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
 =======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
 CuentaService.ts
@@ -12,6 +15,7 @@ ValoracionService.ts
 VentaService.ts
 TaskService.ts
 <<<<<<< HEAD
+<<<<<<< HEAD
 com/unl/sistema/base/models/Conversacion.ts
 com/unl/sistema/base/models/Mensaje.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacion.ts
@@ -19,10 +23,15 @@ com/unl/sistema/base/models/Favorito.ts
 com/unl/sistema/base/models/Valoracion.ts
 com/unl/sistema/base/models/Venta.ts
 =======
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
 org/springframework/security/core/Authentication.ts
 com/unl/sistema/base/controller/services/CuentaService/UserInfo.ts
 com/unl/sistema/base/models/Favorito.ts
 com/unl/sistema/base/models/Valoracion.ts
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
 com/vaadin/hilla/mappedtypes/Pageable.ts
 com/unl/sistema/taskmanagement/domain/Task.ts
@@ -35,12 +44,19 @@ org/springframework/data/domain/Sort/NullHandling.ts
 connect-client.default.ts
 endpoints.ts
 <<<<<<< HEAD
+<<<<<<< HEAD
 com/unl/sistema/base/models/ConversacionModel.ts
 com/unl/sistema/base/models/MensajeModel.ts
 com/unl/sistema/base/controller/dao/dao_models/DaoConversacionModel.ts
 com/unl/sistema/base/models/FavoritoModel.ts
 com/unl/sistema/base/models/ValoracionModel.ts
 com/unl/sistema/base/models/VentaModel.ts
+=======
+org/springframework/security/core/AuthenticationModel.ts
+com/unl/sistema/base/controller/services/CuentaService/UserInfoModel.ts
+com/unl/sistema/base/models/FavoritoModel.ts
+com/unl/sistema/base/models/ValoracionModel.ts
+>>>>>>> origin/feature/Sebas-ModuloValoracion
 =======
 org/springframework/security/core/AuthenticationModel.ts
 com/unl/sistema/base/controller/services/CuentaService/UserInfoModel.ts

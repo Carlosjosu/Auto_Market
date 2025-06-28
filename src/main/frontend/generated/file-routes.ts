@@ -18,6 +18,9 @@ import * as Page_7 from "../views/MensajeView.js";
 import * as Page_8 from "../views/task-list.js";
 import * as Page_9 from "../views/valoracion-list.js";
 import * as Page_10 from "../views/venta-list.js";
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
 const routes: readonly AgnosticRoute_1[] = [
     createRoute_1("", Layout_1, [
@@ -38,6 +41,9 @@ const routes: readonly AgnosticRoute_1[] = [
         createRoute_1("task-list", Page_8),
         createRoute_1("valoracion-list", Page_9),
         createRoute_1("venta-list", Page_10)
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
     ])
 ];

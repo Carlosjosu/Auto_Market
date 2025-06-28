@@ -27,7 +27,10 @@
       },
       {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/feature/Sebas-ModuloValoracion
         "route": "favorito-list",
         "title": "Favorito",
         "menu": {
@@ -39,6 +42,9 @@
         "params": {}
       },
       {
+<<<<<<< HEAD
+>>>>>>> origin/feature/Sebas-ModuloValoracion
+=======
 >>>>>>> origin/feature/Sebas-ModuloValoracion
         "route": "Imagen",
         "title": "Imagen",

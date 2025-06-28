@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// ...existing code...
-=======
 import { useEffect, useState } from 'react';
 import { Button, Dialog, Notification, NumberField, DatePicker, ComboBox, VerticalLayout, Select, TextField } from '@vaadin/react-components';
 import { VentaService, AutoService, FavoritoService, ValoracionService } from 'Frontend/generated/endpoints';
@@ -473,4 +470,3 @@ export default function VentaView() {
         </main>
     );
 }
->>>>>>> origin/feature/Sebas-ModuloValoracion

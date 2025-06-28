@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// ...existing code...
-=======
 import { useEffect, useState } from 'react';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, Grid, GridColumn, TextField, VerticalLayout, Dialog, GridSortColumn, NumberField, DatePicker, Select } from '@vaadin/react-components';
@@ -217,4 +214,3 @@ export default function ValoracionView() {
         </main>
     );
 }
->>>>>>> origin/feature/Sebas-ModuloValoracion

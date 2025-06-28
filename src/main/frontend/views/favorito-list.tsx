@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// ...existing code...
-=======
 import { useEffect, useState } from 'react';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, Notification } from '@vaadin/react-components';
@@ -175,4 +172,3 @@ export default function FavoritoView() {
         </main>
     );
 }
->>>>>>> origin/feature/Sebas-ModuloValoracion

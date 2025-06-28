@@ -4,14 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-<<<<<<< HEAD
-<<<<<<< HEAD
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import com.unl.sistema.base.controller.dao.dao_models.DaoVenta;
-=======
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
 import java.util.ArrayList;
 
 import org.springframework.transaction.annotation.Propagation;
@@ -19,10 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.unl.sistema.base.controller.dao.dao_models.DaoVenta;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
-<<<<<<< HEAD
->>>>>>> origin/feature/Sebas-ModuloValoracion
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
 import com.unl.sistema.base.models.Venta;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -50,13 +38,6 @@ public class VentaService {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    public List<Venta> ordenar(String atributo, Integer type) {
-        return Arrays.asList(da.ordenarString(atributo, type).toArray());
-=======
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
     public void update(Integer id, Float precioFinal, Date fecha, Integer idAuto) throws Exception {
         if (id != null && precioFinal != null && fecha != null && idAuto != null) {
             // Buscar la posición de la venta a editar
@@ -98,13 +79,10 @@ public class VentaService {
         Utiles.quickSortHashMap(arreglo, 0, arreglo.length - 1, atributo, tipo);
         // Devuelve la lista ordenada
         return Arrays.asList(arreglo);
-<<<<<<< HEAD
->>>>>>> origin/feature/Sebas-ModuloValoracion
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
     }
 
     public List<HashMap<String, String>> listVenta() {
         return Arrays.asList(da.all().toArray());
     }
 }
+

@@ -1,21 +1,10 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import java.util.HashMap;
-import com.unl.sistema.base.controller.Util.Utiles;
-=======
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
 import java.util.Date;
 import java.util.HashMap;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-<<<<<<< HEAD
->>>>>>> origin/feature/Sebas-ModuloValoracion
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
@@ -118,69 +107,6 @@ public class DaoVenta extends AdapterDao<Venta> {
                 aux.put("marca", "");
                 aux.put("modelo", "");
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
-        }
-        return lista;
-    }
-
-    public static <E extends Comparable<E>> void quickSortASC(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) < 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) >= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortASC(vec, inicio, elemDer - 1);
-        quickSortASC(vec, elemDer + 1, fin);
-    }
-
-    public static <E extends Comparable<E>> void quickSortDES(E vec[], int inicio, int fin) {
-        if (inicio >= fin)
-            return;
-        E pivote = vec[inicio];
-        int elemIzq = inicio + 1;
-        int elemDer = fin;
-        while (elemIzq <= elemDer) {
-            while (elemIzq <= fin && vec[elemIzq].compareTo(pivote) > 0) {
-                elemIzq++;
-            }
-            while (elemDer > inicio && vec[elemDer].compareTo(pivote) <= 0) {
-                elemDer--;
-            }
-            if (elemIzq < elemDer) {
-                E temp = vec[elemIzq];
-                vec[elemIzq] = vec[elemDer];
-                vec[elemDer] = temp;
-            }
-        }
-        if (elemDer > inicio) {
-            E temp = vec[inicio];
-            vec[inicio] = vec[elemDer];
-            vec[elemDer] = temp;
-        }
-        quickSortDES(vec, inicio, elemDer - 1);
-        quickSortDES(vec, elemDer + 1, fin);
-=======
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
         } else {
             aux.put("marca", "");
             aux.put("modelo", "");
@@ -194,9 +120,6 @@ public class DaoVenta extends AdapterDao<Venta> {
         LinkedList<HashMap<String, String>> lista = all(); // all() ya usa toDict y agrega marca/modelo
         // Puedes usar Utiles.INICIO, Utiles.FIN o 0 para búsqueda general (contains)
         return Utiles.busquedaLineal(lista, atributo, texto, 0);
-<<<<<<< HEAD
->>>>>>> origin/feature/Sebas-ModuloValoracion
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
     }
 }
+

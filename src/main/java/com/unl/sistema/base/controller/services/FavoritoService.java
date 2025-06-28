@@ -4,21 +4,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-<<<<<<< HEAD
-<<<<<<< HEAD
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-=======
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-<<<<<<< HEAD
->>>>>>> origin/feature/Sebas-ModuloValoracion
-=======
->>>>>>> origin/feature/Sebas-ModuloValoracion
 import com.unl.sistema.base.controller.dao.dao_models.DaoFavorito;
 import com.unl.sistema.base.models.Favorito;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -43,7 +32,6 @@ public class FavoritoService {
                 throw new Exception("No se pudo guardar los datos del favorito");
         } else {
             throw new Exception("Todos los campos son obligatorios");
-<<<<<<< HEAD
         }
     }
 
@@ -53,17 +41,6 @@ public class FavoritoService {
         }
     }
 
-=======
-        }
-    }
-
-    public void delete(Integer favorito) throws Exception {
-        if (!da.delete(favorito)) {
-            throw new Exception("No se pudo eliminar el favorito");
-        }
-    }
-
->>>>>>> origin/feature/Sebas-ModuloValoracion
     // Ordenar favoritos por atributo y tipo (1: asc, 2: desc)
     public List<Favorito> ordenar(String atributo, Integer type) {
         return Arrays.asList(da.ordenarPorAtributo(atributo, type).toArray());
@@ -78,3 +55,4 @@ public class FavoritoService {
         return Arrays.asList(da.all().toArray());
     }
 }
+

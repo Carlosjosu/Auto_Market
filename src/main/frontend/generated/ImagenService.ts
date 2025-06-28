@@ -1,9 +1,0 @@
-import { EndpointRequestInit as EndpointRequestInit_1 } from "@vaadin/hilla-frontend";
-import client_1 from "./connect-client.default.js";
-async function asociarImagenesAUnAuto_1(idAuto: number | undefined, idsImagenes: Array<number | undefined> | undefined, init?: EndpointRequestInit_1): Promise<void> { return client_1.call("ImagenService", "asociarImagenesAUnAuto", { idAuto, idsImagenes }, init); }
-async function buscarPorAtributo_1(atributo: string | undefined, valor: string | undefined, init?: EndpointRequestInit_1): Promise<Record<string, string | undefined> | undefined> { return client_1.call("ImagenService", "buscarPorAtributo", { atributo, valor }, init); }
-async function create_1(url: string | undefined, descripcion: string | undefined, idAuto: number | undefined, init?: EndpointRequestInit_1): Promise<void> { return client_1.call("ImagenService", "create", { url, descripcion, idAuto }, init); }
-async function listImagen_1(init?: EndpointRequestInit_1): Promise<Array<Record<string, string | undefined> | undefined> | undefined> { return client_1.call("ImagenService", "listImagen", {}, init); }
-async function marcarComoPrincipal_1(idImagen: number | undefined, idAuto: number | undefined, init?: EndpointRequestInit_1): Promise<void> { return client_1.call("ImagenService", "marcarComoPrincipal", { idImagen, idAuto }, init); }
-async function ordenar_1(atributo: string | undefined, type: number | undefined, init?: EndpointRequestInit_1): Promise<Array<Record<string, string | undefined> | undefined> | undefined> { return client_1.call("ImagenService", "ordenar", { atributo, type }, init); }
-export { asociarImagenesAUnAuto_1 as asociarImagenesAUnAuto, buscarPorAtributo_1 as buscarPorAtributo, create_1 as create, listImagen_1 as listImagen, marcarComoPrincipal_1 as marcarComoPrincipal, ordenar_1 as ordenar };

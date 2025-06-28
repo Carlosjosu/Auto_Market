@@ -1,0 +1,40 @@
+package com.unl.sistema.base.controller.datastruct.queue;
+
+public class Queue<E> {
+    private QueueImplementation<E> queue;
+
+    public Queue(Integer top) {
+        queue = new QueueImplementation<>(top);
+    }
+
+    public Boolean push(E data) {
+        try {
+            queue.queue(data);
+            return true;
+        } catch (Exception e) {
+            // TODO: handle exception
+            return false;
+        }
+    }
+
+    public E pop() {
+        try {
+            return queue.dequeue();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return null;
+        }
+    }
+
+    public Boolean isFullQueue() {
+        return queue.isFullQueue();
+    }
+
+    public Integer top() {
+        return queue.getTop();
+    }
+
+    public Integer size() {
+        return queue.getLength();
+    }
+}

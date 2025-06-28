@@ -16,7 +16,7 @@ public class Auto {
     private String descripcion;
     private Date fechaRegistro;
     private boolean estaDisponible = true;
-    private Integer idVenta;
+    private Integer idVendedor;
     private Integer idMarca;
     private TipoCombustibleEnum tipoCombustible;
     private CategoriaEnum categoria;
@@ -126,11 +126,11 @@ public class Auto {
     }
 
     public Integer getIdVendedor() {
-        return this.idVenta;
+        return this.idVendedor;
     }
 
-    public void setIdVenta(Integer idVenta) {
-        this.idVenta = idVenta;
+    public void setIdVendedor(Integer idVendedor) {
+        this.idVendedor = idVendedor;
     }
 
     public Integer getIdMarca() {

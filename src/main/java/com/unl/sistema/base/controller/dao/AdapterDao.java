@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.Comparator;
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
@@ -37,18 +36,13 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     }
 
     private void saveFile(String data) throws Exception {
-        File file = new File(base_path + clazz.getSimpleName() + ".json");
-        // file.getParentFile().m
-        if (!file.exists()) {
-            file.createNewFile();
+        if (data == null || data.trim().equals("null")) {
+            data = "[]";
         }
-        // if(!file.exists()) {
-        FileWriter fw = new FileWriter(file);
-        fw.write(data);
-        fw.flush();
-        fw.close();
-        // file.close();
-        // }
+        File file = new File(base_path + clazz.getSimpleName() + ".json");
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(data);
+        }
     }
 
     @Override
@@ -99,6 +93,19 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             return busquedaBinaria(listAll().toArray(), 0, listAll().getLength() - 1, id);
         } else
             return null;
+    }
+
+    public void delete(T obj) throws Exception {
+        LinkedList<T> list = listAll();
+        // Elimina el objeto de la lista
+        for (int i = 0; i < list.getLength(); i++) {
+            if (list.get(i).equals(obj)) {
+                list.delete(i);
+                break;
+            }
+        }
+        // Persiste la lista actualizada
+        saveFile(g.toJson(list.toArray()));
     }
 
     public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {

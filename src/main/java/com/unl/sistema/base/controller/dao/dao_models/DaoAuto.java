@@ -70,6 +70,7 @@ public class DaoAuto extends AdapterDao<Auto> {
         aux.put("descripcion", String.valueOf(auto.getDescripcion()));
         aux.put("fechaRegistro", String.valueOf(auto.getFechaRegistro()));
         aux.put("estaDisponible", String.valueOf(auto.isEstaDisponible()));
+        aux.put("idVendedor", String.valueOf(auto.getIdVendedor()));
         aux.put("idMarca", String.valueOf(auto.getIdMarca()));
         aux.put("tipoCombustible", String.valueOf(auto.getTipoCombustible()));
         aux.put("categoria", auto.getCategoria() != null ? auto.getCategoria().getValue() : null);

@@ -33,7 +33,7 @@ public class AutoService {
             String descripcion,
             Date fechaRegistro,
             Boolean estaDisponible,
-            Integer idVenta,
+            Integer idVendedor,
             Integer idMarca,
             String tipoCombustible,
             String categoria) throws Exception {
@@ -58,7 +58,7 @@ public class AutoService {
             da.getObj().setFechaRegistro(fechaRegistro);
         }
         da.getObj().setEstaDisponible(estaDisponible != null ? estaDisponible : true);
-        da.getObj().setIdVenta(idVenta);
+        da.getObj().setIdVendedor(idVendedor);
         da.getObj().setIdMarca(idMarca);
         if (tipoCombustible != null && !tipoCombustible.isEmpty())
             da.getObj().setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
@@ -82,7 +82,7 @@ public class AutoService {
             String descripcion,
             Date fechaRegistro,
             Boolean estaDisponible,
-            Integer idVenta,
+            Integer idVendedor,
             Integer idMarca,
             String tipoCombustible,
             String categoria) throws Exception {
@@ -119,7 +119,7 @@ public class AutoService {
             autoExistente.setFechaRegistro(fechaRegistro);
         }
         autoExistente.setEstaDisponible(estaDisponible != null ? estaDisponible : true);
-        autoExistente.setIdVenta(idVenta);
+        autoExistente.setIdVendedor(idVendedor);
         autoExistente.setIdMarca(idMarca);
         if (tipoCombustible != null && !tipoCombustible.isEmpty())
             autoExistente.setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));

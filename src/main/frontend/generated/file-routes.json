@@ -26,6 +26,17 @@
         "params": {}
       },
       {
+        "route": "favorito-list",
+        "title": "Favorito",
+        "menu": {
+          "icon": "vaadin:heart",
+          "order": 1,
+          "title": "Favorito"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
         "route": "Imagen",
         "title": "Imagen",
         "menu": {
@@ -66,6 +77,28 @@
           "icon": "vaadin:clipboard-check",
           "order": 1,
           "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "valoracion-list",
+        "title": "Valoracion",
+        "menu": {
+          "icon": "vaadin:comments",
+          "order": 1,
+          "title": "Valoracion"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "venta-list",
+        "title": "Venta",
+        "menu": {
+          "icon": "vaadin:cart",
+          "order": 1,
+          "title": "Venta"
         },
         "flowLayout": false,
         "params": {}

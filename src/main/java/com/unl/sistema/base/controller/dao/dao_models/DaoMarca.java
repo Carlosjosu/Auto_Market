@@ -45,6 +45,15 @@ public class DaoMarca extends AdapterDao<Marca> {
         }
     }
 
+    public Marca findById(Integer id) {
+        for (Marca marca : this.listAll().toArray()) {
+            if (marca.getId() != null && marca.getId().equals(id)) {
+                return marca;
+            }
+        }
+        return null;
+    }
+
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {

@@ -122,4 +122,7 @@ public class DaoVenta extends AdapterDao<Venta> {
         return Utiles.busquedaLineal(lista, atributo, texto, 0);
     }
 }
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/develop

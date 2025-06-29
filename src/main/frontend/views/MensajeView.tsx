@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MessageList, MessageInput, Avatar } from "@vaadin/react-components";
+import { MessageInput } from "@vaadin/react-components/MessageInput";
+import { Avatar } from "@vaadin/react-components/Avatar";
+import { Notification } from "@vaadin/react-components/Notification";
 import "../themes/default/mensaje-view.css";
 
 // Interfaces
 interface Usuario {
   id: number;
   nombre: string;
-  img?: string;
-}
-interface Mensaje {
-  id: number;
-  idConversacion: number;
-  remitente: number;
-  contenido: string;
-  fechaEnvio: string;
+  nickname?: string;
+  apellido?: string;
+  telefono?: string;
 }
 interface Conversacion {
   id: number;
@@ -22,203 +19,177 @@ interface Conversacion {
   fechaInicio: string;
   estaActiva: boolean;
 }
+interface Mensaje {
+  id: number;
+  idConversacion: number;
+  idRemitente: number;
+  contenido: string;
+  fechaEnvio: string;
+}
 
-// Utilidades para simular archivos JSON usando localStorage
-const STORAGE_KEYS = {
-  usuarios: "Usuario.json",
-  conversaciones: "Conversacion.json",
-  mensajes: "Mensaje.json"
+const API_URL = "http://localhost:4000/api";
+
+// Fetch usuarios reales
+const fetchUsuarios = async (): Promise<Usuario[]> => {
+  const res = await fetch(`${API_URL}/usuarios`);
+  if (!res.ok) return [];
+  return await res.json();
 };
 
-function loadJson<T>(key: string, defaultValue: T[]): T[] {
-  const data = localStorage.getItem(key);
-  if (data) {
-    try {
-      return JSON.parse(data);
-    } catch {
-      return defaultValue;
-    }
-  }
-  localStorage.setItem(key, JSON.stringify(defaultValue));
-  return defaultValue;
-}
+// Buscar o crear conversación
+const fetchConversacion = async (idEmisor: number, idReceptor: number): Promise<Conversacion | null> => {
+  const res = await fetch(`${API_URL}/conversaciones`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idEmisor, idReceptor }),
+  });
+  if (!res.ok) return null;
+  return await res.json();
+};
 
-function saveJson<T>(key: string, value: T[]) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+// Obtener mensajes de una conversación
+const fetchMensajes = async (idConversacion: number): Promise<Mensaje[]> => {
+  const res = await fetch(`${API_URL}/mensajes?conversacionId=${idConversacion}`);
+  if (!res.ok) return [];
+  return await res.json();
+};
 
-const MensajeView: React.FC = () => {
+// Enviar mensaje
+const enviarMensajeApi = async (
+  idConversacion: number,
+  idRemitente: number,
+  contenido: string
+): Promise<void> => {
+  await fetch(`${API_URL}/mensajes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idConversacion, idRemitente, contenido }),
+  });
+};
+
+const MensajesView: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
-  const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
   const [usuarioDestino, setUsuarioDestino] = useState<Usuario | null>(null);
-  const [conversacionActual, setConversacionActual] = useState<Conversacion | null>(null);
+  const [conversacion, setConversacion] = useState<Conversacion | null>(null);
+  const [mensajes, setMensajes] = useState<Mensaje[]>([]);
+  const [notificacion, setNotificacion] = useState<string | null>(null);
   const mensajesEndRef = useRef<HTMLDivElement>(null);
 
-  // Inicializar datos de ejemplo si no existen
+  // Cargar usuarios al inicio
   useEffect(() => {
-    // Usuarios de ejemplo
-    let usuariosEjemplo: Usuario[] = [
-      { id: 1, nombre: "Alice", img: "https://randomuser.me/api/portraits/women/1.jpg" },
-      { id: 2, nombre: "Bob", img: "https://randomuser.me/api/portraits/men/2.jpg" },
-      { id: 3, nombre: "Carlos", img: "https://randomuser.me/api/portraits/men/3.jpg" },
-      { id: 4, nombre: "Sofia", img: "https://randomuser.me/api/portraits/women/2.jpg" }
-    ];
-    setUsuarios(usuariosEjemplo);
-    setUsuarioActual(usuariosEjemplo[0]);
-    setUsuarioDestino(usuariosEjemplo[1] || null);
-
-    // Conversaciones y mensajes vacíos si no existen
-    loadJson<Conversacion>(STORAGE_KEYS.conversaciones, []);
-    loadJson<Mensaje>(STORAGE_KEYS.mensajes, []);
+    fetchUsuarios().then(us => {
+      setUsuarios(us);
+      setUsuarioActual(us[0] || null);
+    });
   }, []);
 
-  // Cargar conversaciones del usuario actual
-  useEffect(() => {
-    if (usuarioActual) {
-      const todas = loadJson<Conversacion>(STORAGE_KEYS.conversaciones, []);
-      const convs = todas.filter(
-        c => c.idEmisor === usuarioActual.id || c.idReceptor === usuarioActual.id
-      );
-      setConversaciones(convs);
-    }
-  }, [usuarioActual]);
-
-  // Buscar o crear conversación entre usuarioActual y usuarioDestino
+  // Cambia de usuario o conversación
   useEffect(() => {
     if (usuarioActual && usuarioDestino) {
-      let todas = loadJson<Conversacion>(STORAGE_KEYS.conversaciones, []);
-      let conv = todas.find(
-        c =>
-          (c.idEmisor === usuarioActual.id && c.idReceptor === usuarioDestino.id) ||
-          (c.idEmisor === usuarioDestino.id && c.idReceptor === usuarioActual.id)
-      );
-      if (conv) {
-        setConversacionActual(conv);
-      } else {
-        // Crear nueva conversación
-        const nuevaConv: Conversacion = {
-          id: todas.length > 0 ? Math.max(...todas.map(c => c.id)) + 1 : 1,
-          idEmisor: usuarioActual.id,
-          idReceptor: usuarioDestino.id,
-          fechaInicio: new Date().toISOString(),
-          estaActiva: true
-        };
-        todas.push(nuevaConv);
-        saveJson(STORAGE_KEYS.conversaciones, todas);
-        setConversacionActual(nuevaConv);
-        setConversaciones(prev => [...prev, nuevaConv]);
-      }
-    }
-  }, [usuarioActual, usuarioDestino]);
-
-  // Cargar mensajes de la conversación actual
-  useEffect(() => {
-    if (conversacionActual) {
-      const todos = loadJson<Mensaje>(STORAGE_KEYS.mensajes, []);
-      const ms = todos.filter(m => m.idConversacion === conversacionActual.id);
-      setMensajes(ms);
+      fetchConversacion(usuarioActual.id, usuarioDestino.id).then(conv => {
+        setConversacion(conv);
+        if (conv) fetchMensajes(conv.id).then(setMensajes);
+        else setMensajes([]);
+      });
     } else {
+      setConversacion(null);
       setMensajes([]);
     }
-  }, [conversacionActual]);
+  }, [usuarioDestino, usuarioActual]);
+
+  // Polling para mensajes en tiempo real (cada 1.5 segundos)
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (conversacion) {
+      fetchMensajes(conversacion.id).then(setMensajes);
+      interval = setInterval(() => {
+        fetchMensajes(conversacion.id).then(setMensajes);
+      }, 1500);
+    }
+    return () => clearInterval(interval);
+  }, [conversacion]);
 
   // Scroll automático al final
   useEffect(() => {
     mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
 
-  // Enviar mensaje (guardar en "Mensaje.json")
-  const enviarMensaje = (e: CustomEvent) => {
+  const enviarMensaje = async (e: CustomEvent) => {
     const contenido = e.detail.value;
-    if (
-      contenido.trim() &&
-      usuarioActual &&
-      usuarioDestino &&
-      conversacionActual
-    ) {
-      let todos = loadJson<Mensaje>(STORAGE_KEYS.mensajes, []);
-      const nuevoMensaje: Mensaje = {
-        id: todos.length > 0 ? Math.max(...todos.map(m => m.id)) + 1 : 1,
-        idConversacion: conversacionActual.id,
-        remitente: usuarioActual.id,
-        contenido,
-        fechaEnvio: new Date().toISOString()
-      };
-      todos.push(nuevoMensaje);
-      saveJson(STORAGE_KEYS.mensajes, todos);
-      setMensajes(prev => [...prev, nuevoMensaje]);
+    if (conversacion && usuarioActual && contenido.trim()) {
+      await enviarMensajeApi(conversacion.id, usuarioActual.id, contenido);
+      setNotificacion("Mensaje enviado");
+      // El polling traerá el mensaje nuevo automáticamente
     }
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#111b21" }}>
-      {/* Columna de usuarios */}
+    <div style={{
+      display: "flex",
+      height: "100vh",
+      background: "#111b21"
+    }}>
+      {/* Sidebar de usuarios */}
       <div style={{
-        width: 300,
+        width: 320,
         background: "#202c33",
         color: "#fff",
         display: "flex",
         flexDirection: "column",
         borderRight: "1px solid #222"
       }}>
-        <div style={{padding: 16, borderBottom: "1px solid #222", fontWeight: 600}}>
-          Conversaciones
-        </div>
-        <div style={{flex: 1, overflowY: "auto"}}>
-          {usuarios
-            .filter(u => usuarioActual && u.id !== usuarioActual.id)
-            .map(otro => (
-              <div
-                key={otro.id}
-                onClick={() => setUsuarioDestino(otro)}
-                style={{
-                  cursor: "pointer",
-                  padding: "12px 16px",
-                  background: usuarioDestino?.id === otro.id ? "#2a3942" : "transparent",
-                  borderBottom: "1px solid #222",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10
-                }}
-              >
-                <Avatar name={otro.nombre} img={otro.img} />
-                <div>
-                  <div style={{fontWeight: 600}}>{otro.nombre}</div>
-                  <div style={{fontSize: 12, color: "#aebac1"}}>Haz clic para chatear</div>
-                </div>
-              </div>
-            ))}
-        </div>
-        {/* Selector de usuario actual */}
-        <div style={{padding: 16, borderTop: "1px solid #222"}}>
-          <div style={{fontWeight: 600, marginBottom: 8}}>Tú:</div>
+        <div style={{padding: 16, borderBottom: "1px solid #222", display: "flex", alignItems: "center", gap: 8}}>
+          <Avatar name={usuarioActual?.nombre || ""} />
           <select
             value={usuarioActual?.id || ""}
             onChange={e => {
               const nuevo = usuarios.find(u => u.id === Number(e.target.value));
-              if (nuevo) setUsuarioActual(nuevo);
+              setUsuarioActual(nuevo || null);
+              setUsuarioDestino(null); // Reinicia el chat al cambiar de usuario
             }}
-            style={{width: "100%", padding: 8, borderRadius: 4}}
+            style={{background: "#222", color: "#fff", border: "none", borderRadius: 4, padding: 4}}
           >
             {usuarios.map(u => (
               <option key={u.id} value={u.id}>{u.nombre}</option>
             ))}
           </select>
         </div>
+        <div style={{padding: 8, borderBottom: "1px solid #222", fontWeight: 600}}>
+          Chats
+        </div>
+        <div style={{flex: 1, overflowY: "auto"}}>
+          {usuarios.filter(u => u.id !== usuarioActual?.id).map(u => (
+            <div
+              key={u.id}
+              onClick={() => setUsuarioDestino(u)}
+              style={{
+                cursor: "pointer",
+                padding: "12px 16px",
+                background: usuarioDestino?.id === u.id ? "#2a3942" : "transparent",
+                borderBottom: "1px solid #222",
+                display: "flex",
+                alignItems: "center",
+                gap: 10
+              }}
+            >
+              <Avatar name={u.nombre} />
+              <div>
+                <div style={{fontWeight: 600}}>{u.nombre}</div>
+                <div style={{fontSize: 12, color: "#aebac1"}}>Haz clic para chatear</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      {/* Columna de chat */}
+      {/* Área de mensajes */}
       <div style={{
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        background: "#fff",
-        backgroundImage: 'url("https://images2.alphacoders.com/100/thumb-1920-1007648.jpg")', 
-        backgroundRepeat: "repeat",
-        backgroundSize: "cover"
+        background: "#222e35"
       }}>
-        {/* Barra superior */}
+        {/* Header de la conversación */}
         <div style={{
           height: 60,
           background: "#202c33",
@@ -228,16 +199,18 @@ const MensajeView: React.FC = () => {
           padding: "0 24px",
           borderBottom: "1px solid #222"
         }}>
-          {usuarioDestino && (
+          {conversacion && usuarioDestino ? (
             <>
-              <Avatar name={usuarioDestino.nombre} img={usuarioDestino.img} />
+              <Avatar name={usuarioDestino.nombre} />
               <span style={{marginLeft: 12, fontWeight: 600, fontSize: 18}}>
                 {usuarioDestino.nombre}
               </span>
             </>
+          ) : (
+            <span style={{fontSize: 18}}>Selecciona un chat</span>
           )}
         </div>
-        {/* Lista de mensajes */}
+        {/* Mensajes tipo MessageList */}
         <div style={{
           flex: 1,
           overflowY: "auto",
@@ -246,37 +219,63 @@ const MensajeView: React.FC = () => {
           flexDirection: "column",
           gap: 10
         }}>
-          <MessageList
-            items={mensajes.map(m => {
-              const remitente = usuarios.find(u => u.id === m.remitente);
-              return {
-                text: m.contenido,
-                time: new Date(m.fechaEnvio).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                userName: remitente?.nombre || "Desconocido",
-                userAbbr: remitente?.nombre[0] || "?",
-                userImg: remitente?.img,
-                right: remitente?.id === usuarioActual?.id
-              };
-            })}
-          />
+          {conversacion && mensajes.map((m, i) => {
+            const remitente = usuarios.find(u => u.id === m.idRemitente);
+            const esActual = m.idRemitente === usuarioActual?.id;
+            const userColorIndex = (m.idRemitente % 5) + 1;
+            return (
+              <div
+                key={m.id}
+                style={{
+                  display: "flex",
+                  flexDirection: esActual ? "row-reverse" : "row",
+                  alignItems: "flex-end",
+                  gap: 8
+                }}
+              >
+                <Avatar
+                  name={remitente?.nombre || ""}
+                  style={{
+                    border: `2px solid var(--user-color-${userColorIndex}, #25d366)`
+                  }}
+                />
+                <div
+                  className={`mensaje ${esActual ? "actual current-user" : "otro"}`}
+                >
+                  <div>{m.contenido}</div>
+                  <div style={{fontSize: 11, textAlign: "right", opacity: 0.7, marginTop: 4}}>
+                    {new Date(m.fechaEnvio).toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
           <div ref={mensajesEndRef} />
         </div>
-        {/* Input fijo abajo */}
-        {usuarioDestino && conversacionActual && usuarioDestino.id !== usuarioActual?.id && (
+        {/* Input */}
+        {conversacion && (
           <div style={{
             padding: 16,
-            background: "#fff",
-            borderTop: "1px solid #eee"
+            background: "#202c33",
+            borderTop: "1px solid #222"
           }}>
             <MessageInput
+              label=" "
               onSubmit={enviarMensaje}
               style={{ width: "100%" }}
             />
           </div>
         )}
       </div>
+      <Notification
+        opened={!!notificacion}
+        duration={2000}
+        onOpenedChanged={e => !e.detail.value && setNotificacion(null)}
+      >
+        {notificacion}
+      </Notification>
     </div>
   );
-}
+};
 
-export default MensajeView;
+export default MensajesView;

@@ -5,7 +5,6 @@ public class Cuenta {
     private String correo;
     private String clave;
 
-    
     public Integer getId() {
         return id;
     }

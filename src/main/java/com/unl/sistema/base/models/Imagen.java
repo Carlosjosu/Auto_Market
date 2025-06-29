@@ -6,6 +6,16 @@ public class Imagen {
     private String url;
     private String descripcion;
     private Integer idAuto;
+    private Boolean esPrincipal;
+
+    public Imagen() {
+    }
+
+    public Imagen(String url, String descripcion, Integer idAuto) {
+        this.url = url;
+        this.descripcion = descripcion;
+        this.idAuto = idAuto;
+    }
 
     public Integer getId() {
         return this.id;
@@ -39,5 +49,11 @@ public class Imagen {
         this.idAuto = idAuto;
     }
 
-}
+    public Boolean getEsPrincipal() {
+        return this.esPrincipal;
+    }
 
+    public void setEsPrincipal(Boolean esPrincipal) {
+        this.esPrincipal = esPrincipal;
+    }
+}

@@ -3,15 +3,19 @@ package com.unl.sistema.base.controller.dao;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.function.Predicate;
 
-import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.google.gson.Gson;
+import com.unl.sistema.base.controller.Util.Utiles;
+import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 
 public class AdapterDao<T> implements InterfaceDao<T> {
-    private final Class<T> clazz;
-    private final Gson g;
+    private Class<T> clazz;
+    private Gson g;
     protected static String base_path = "data" + File.separatorChar;
 
     public AdapterDao(Class<T> clazz) {
@@ -34,40 +38,40 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     }
 
     private void saveFile(String data) throws Exception {
-        File file = new File(base_path + clazz.getSimpleName() + ".json");
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            file.createNewFile();
+        if (data == null || data.trim().equals("null")) {
+            data = "[]";
         }
+        File file = new File(base_path + clazz.getSimpleName() + ".json");
         try (FileWriter fw = new FileWriter(file)) {
             fw.write(data);
-            fw.flush();
         }
     }
 
     @Override
     public LinkedList<T> listAll() {
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'listAll'");
         LinkedList<T> lista = new LinkedList<>();
         try {
             String data = readFile();
             T[] m = (T[]) g.fromJson(data, java.lang.reflect.Array.newInstance(clazz, 0).getClass());
             lista.toList(m);
+
         } catch (Exception e) {
-            System.out.println("Error lista: " + e.toString());
+            System.out.println("Error lista" + e.toString());
+            // TODO: handle exception
         }
         return lista;
     }
 
-    // Agrega un solo objeto y guarda
-    public void add(T obj) throws Exception {
-        LinkedList<T> list = listAll();
-        list.add(obj);
-        saveFile(g.toJson(list.toArray()));
-    }
-
     @Override
     public void persist(T obj) throws Exception {
-        add(obj);
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'persist'");
+        LinkedList<T> list = listAll();
+
+        list.add(obj);
+        saveFile(g.toJson(list.toArray()));
     }
 
     @Override
@@ -75,47 +79,130 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         LinkedList<T> list = listAll();
         list.update(obj, pos);
         saveFile(g.toJson(list.toArray()));
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public void update_by_id(T obj, Integer id) throws Exception {
+        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update_by_id'");
     }
 
     @Override
     public T get(Integer id) throws Exception {
-        LinkedList<T> list = listAll();
-        for (int i = 0; i < list.getLength(); i++) {
-            T item = list.get(i);
-            try {
-                Integer itemId = (Integer) item.getClass().getMethod("getId").invoke(item);
-                if (itemId != null && itemId.equals(id)) {
-                    return item;
-                }
-            } catch (ReflectiveOperationException | ClassCastException e) {
-                // Si el modelo no tiene getId, ignora
-            }
-        }
-        return null;
+        if (!listAll().isEmpty()) {
+            return busquedaBinaria(listAll().toArray(), 0, listAll().getLength() - 1, id);
+        } else
+            return null;
     }
 
-    // Método para filtrar por cualquier campo (por ejemplo, idConversacion)
-    public LinkedList<T> findAllByField(String fieldName, Object value) {
-        LinkedList<T> result = new LinkedList<>();
-        LinkedList<T> all = listAll();
-        for (int i = 0; i < all.getLength(); i++) {
-            T item = all.get(i);
-            try {
-                Field field = item.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Object fieldValue = field.get(item);
-                if (fieldValue != null && fieldValue.equals(value)) {
-                    result.add(item);
-                }
-            } catch (NoSuchFieldException | IllegalAccessException | SecurityException e) {
-                // Si el campo no existe, ignora
+    public void delete(T obj) throws Exception {
+        LinkedList<T> list = listAll();
+        // Elimina el objeto de la lista
+        for (int i = 0; i < list.getLength(); i++) {
+            if (list.get(i).equals(obj)) {
+                list.delete(i);
+                break;
             }
         }
+        // Persiste la lista actualizada
+        saveFile(g.toJson(list.toArray()));
+    }
+
+    public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {
+        if (inicio > fin) {
+            return null;
+        }
+
+        int mitad = (inicio + fin) / 2;
+
+        if (((Integer) getMethod("Id", datos[mitad])) == num) {
+            return datos[mitad];
+        } else if (((Integer) getMethod("Id", datos[mitad])) > num) {
+            return busquedaBinaria(datos, inicio, mitad - 1, num);
+        } else {
+            return busquedaBinaria(datos, mitad + 1, fin, num);
+        }
+    }
+
+    private Object getMethod(String attribute, T obj) throws Exception {
+        return obj.getClass().getMethod("get" + attribute).invoke(obj);
+    }
+
+    public HashMap<String, Object> buscarAtributo(HashMap<String, Object> datos[], int inicio, int fin, String atributo,
+            String valor) throws Exception {
+        if (inicio > fin) {
+            return null;
+        }
+
+        int mitad = (inicio + fin) / 2;
+
+        if (datos[mitad].get(atributo).toString().equals(valor)) {
+            return datos[mitad];
+        } else if (datos[mitad].get(atributo).toString().compareTo(valor) > 0) {
+            return buscarAtributo(datos, inicio, mitad - 1, atributo, valor);
+        } else {
+            return buscarAtributo(datos, mitad + 1, fin, atributo, valor);
+        }
+    }
+
+    public LinkedList<HashMap<String, String>> ordenarAtributo(LinkedList<HashMap<String, String>> lista,
+            String atributo, Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            String[] valores = new String[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = arreglo[i].get(atributo).toString();
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
+    }
+
+    public LinkedList<HashMap<String, String>> ordenarNumero(LinkedList<HashMap<String, String>> lista, String atributo,
+            Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            Integer[] valores = new Integer[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = Integer.parseInt(arreglo[i].get(atributo));
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
+    }
+
+    // Agrega un elemento (FIFO)
+    public void addFIFO(T obj) throws Exception {
+        LinkedList<T> list = listAll();
+        list.add(obj);
+        saveFile(g.toJson(list.toArray()));
+    }
+
+    // Obtiene todos los elementos como lista Java
+    public List<T> getAllAsList() {
+        LinkedList<T> list = listAll();
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < list.getLength(); i++) {
+            result.add(list.get(i));
+        }
         return result;
+    }
+
+    // Filtra por predicado (ej: por idConversacion)
+    public List<T> filter(Predicate<T> predicate) {
+        List<T> all = getAllAsList();
+        List<T> filtered = new ArrayList<>();
+        for (T t : all) {
+            if (predicate.test(t)) {
+                filtered.add(t);
+            }
+        }
+        return filtered;
     }
 }

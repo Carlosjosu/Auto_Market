@@ -40,4 +40,14 @@ public class Favorito {
         this.idUsuario = idUsuario;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Favorito other = (Favorito) obj;
+        return this.getId() != null && this.getId().equals(other.getId());
+    }
+
 }

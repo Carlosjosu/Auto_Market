@@ -3,15 +3,16 @@ package com.unl.sistema.base.controller.dao;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 
-import com.google.gson.Gson;
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
+import com.google.gson.Gson;
 
 public class AdapterDao<T> implements InterfaceDao<T> {
     private Class<T> clazz;
@@ -99,14 +100,12 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     public void delete(T obj) throws Exception {
         LinkedList<T> list = listAll();
-        // Elimina el objeto de la lista
         for (int i = 0; i < list.getLength(); i++) {
             if (list.get(i).equals(obj)) {
                 list.delete(i);
                 break;
             }
         }
-        // Persiste la lista actualizada
         saveFile(g.toJson(list.toArray()));
     }
 
@@ -205,4 +204,139 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         }
         return filtered;
     }
+
+    // FUNCIONALIDADES PARA MENSAJES/CONVERSACIONES
+
+    // Cola para mensajes (FIFO)
+    private LinkedList<T> colaMensajes = new LinkedList<>();
+
+    // Pila para conversaciones (LIFO)
+    private LinkedList<T> pilaConversaciones = new LinkedList<>();
+
+    // Grafo de relaciones usuario-conversación
+    private HashMap<Integer, LinkedList<Integer>> grafoConversaciones = new HashMap<>();
+
+    // Agrega mensaje a la cola (FIFO)
+    public void agregarACola(T mensaje) throws Exception {
+        colaMensajes.add(mensaje);
+        // También persiste en JSON
+        persist(mensaje);
+    }
+
+    // Obtiene mensaje de la cola (FIFO)
+    public T obtenerDeCola() throws Exception {
+        if (!colaMensajes.isEmpty()) {
+            return colaMensajes.delete(0);
+        }
+        return null;
+    }
+
+    // Agrega conversación a la pila (LIFO)
+    public void agregarAPila(T conversacion) throws Exception {
+        pilaConversaciones.add(conversacion);
+        persist(conversacion);
+    }
+
+    // Obtiene conversación de la pila (LIFO)
+    public T obtenerDePila() throws Exception {
+        if (!pilaConversaciones.isEmpty()) {
+            return pilaConversaciones.delete(pilaConversaciones.getLength() - 1);
+        }
+        return null;
+    }
+
+    // Agregar relación en el grafo (usuario -> conversación)
+    public void agregarRelacionGrafo(Integer usuarioId, Integer conversacionId) {
+        if (!grafoConversaciones.containsKey(usuarioId)) {
+            grafoConversaciones.put(usuarioId, new LinkedList<>());
+        }
+        grafoConversaciones.get(usuarioId).add(conversacionId);
+    }
+
+    // Obtener conversaciones de un usuario desde el grafo
+    public LinkedList<Integer> obtenerConversacionesUsuario(Integer usuarioId) {
+        return grafoConversaciones.getOrDefault(usuarioId, new LinkedList<>());
+    }
+
+    // Buscar ruta entre dos usuarios en el grafo (BFS)
+    public LinkedList<Integer> buscarRutaEntreUsuarios(Integer usuario1, Integer usuario2) throws Exception {
+        LinkedList<Integer> visitados = new LinkedList<>();
+        LinkedList<Integer> cola = new LinkedList<>();
+        HashMap<Integer, Integer> padre = new HashMap<>();
+
+        cola.add(usuario1);
+        visitados.add(usuario1);
+        padre.put(usuario1, -1);
+
+        while (!cola.isEmpty()) {
+            Integer actual = cola.delete(0);
+
+            if (actual.equals(usuario2)) {
+                // Reconstruir ruta
+                LinkedList<Integer> ruta = new LinkedList<>();
+                Integer temp = usuario2;
+                while (temp != -1) {
+                    ruta.add(temp);
+                    temp = padre.get(temp);
+                }
+                return ruta;
+            }
+
+            LinkedList<Integer> adyacentes = grafoConversaciones.get(actual);
+            if (adyacentes != null) {
+                for (int i = 0; i < adyacentes.getLength(); i++) {
+                    Integer vecino = adyacentes.get(i);
+                    if (!visitados.contains(vecino)) {
+                        visitados.add(vecino);
+                        cola.add(vecino);
+                        padre.put(vecino, actual);
+                    }
+                }
+            }
+        }
+        return new LinkedList<>(); // No hay ruta
+    }
+
+    // Filtrar con múltiples predicados
+    public List<T> filtrarConMultiplesCondiciones(Predicate<T>... predicados) {
+        List<T> resultado = getAllAsList();
+        for (Predicate<T> predicado : predicados) {
+            resultado = resultado.stream().filter(predicado).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        }
+        return resultado;
+    }
+
+    // Ordenar por fecha (para mensajes)
+    public LinkedList<T> ordenarPorFecha(String atributoFecha, boolean ascendente) throws Exception {
+        LinkedList<T> lista = listAll();
+        if (lista.isEmpty())
+            return lista;
+
+        T[] array = lista.toArray();
+
+        // Ordenamiento burbuja simple por fecha
+        for (int i = 0; i < array.length - 1; i++) {
+            for (int j = 0; j < array.length - 1 - i; j++) {
+                Object fecha1 = getMethod(atributoFecha, array[j]);
+                Object fecha2 = getMethod(atributoFecha, array[j + 1]);
+
+                if (fecha1 instanceof java.util.Date && fecha2 instanceof java.util.Date) {
+                    java.util.Date d1 = (java.util.Date) fecha1;
+                    java.util.Date d2 = (java.util.Date) fecha2;
+
+                    boolean intercambiar = ascendente ? d1.after(d2) : d1.before(d2);
+
+                    if (intercambiar) {
+                        T temp = array[j];
+                        array[j] = array[j + 1];
+                        array[j + 1] = temp;
+                    }
+                }
+            }
+        }
+
+        lista.toList(array);
+        return lista;
+    }
+
 }

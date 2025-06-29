@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -123,38 +124,83 @@ public class CuentaService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        return new UserInfo(auth.getName(), authorities);
+        Integer userId = Integer.parseInt(auth.getCredentials().toString());
+        return new UserInfo(auth.getName(), authorities, userId);
     }
 
     public record UserInfo(
             @NonNull String name,
-            @NonNull Collection<String> authorities) {
+            @NonNull Collection<String> authorities,
+            @NonNull Integer id) {
     }
 
-    public HashMap<String, Object> login(String email, String password) throws Exception {
-        HashMap<String, Object> mapa = new HashMap<>();
+    public ResponseEntity<Map<String, String>> login(String correo, String clave) {
+        Map<String, String> out = new HashMap<>();
         try {
-            HashMap<String, Object> aux = dc.login(email, password);
-            if (aux != null) {
-                context.setAuthentication(new UsernamePasswordAuthenticationToken(
-                        aux.get("usuario").toString(), aux.get("id").toString(), getAuthorities(aux)));
+            // Debug - agregar logs
+            System.out.println("=== LOGIN DEBUG ===");
+            System.out.println("Correo recibido: " + correo);
+            System.out.println("Clave recibida: " + clave);
+
+            // Verificar que los parámetros no sean null
+            if (correo == null || clave == null) {
+                out.put("message", "Correo y clave son requeridos");
+                out.put("estado", "false");
+                return ResponseEntity.ok(out);
             }
-            Authentication auth = context.getAuthentication();
-            final List<String> authorities = auth.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .toList();
-            mapa.put("name", auth.getName());
-            mapa.put("authorities", authorities);
-            mapa.put("message", "OK");
-            mapa.put("estado", "true");
+
+            // Cargar datos y verificar
+            dc.setObj(new Cuenta());
+            List<Cuenta> cuentas = dc.listAll().toList();
+            System.out.println("Total cuentas en DB: " + cuentas.size());
+
+            // Buscar cuenta
+            Cuenta cuentaEncontrada = null;
+            for (Cuenta cuenta : cuentas) {
+                System.out.println("Comparando con cuenta ID: " + cuenta.getId() +
+                        ", Correo: " + cuenta.getCorreo() +
+                        ", Clave: " + cuenta.getClave());
+
+                if (cuenta.getCorreo() != null && cuenta.getCorreo().equals(correo) &&
+                        cuenta.getClave() != null && cuenta.getClave().equals(clave)) {
+                    cuentaEncontrada = cuenta;
+                    break;
+                }
+            }
+
+            if (cuentaEncontrada != null) {
+                // Login exitoso
+                System.out.println("Login exitoso para cuenta ID: " + cuentaEncontrada.getId());
+
+                // Crear authorities
+                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+                // Crear Authentication
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(correo,
+                        null, authorities);
+
+                // Establecer en SecurityContext
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                out.put("message", "Inicio de sesión exitoso");
+                out.put("estado", "true");
+                out.put("correo", cuentaEncontrada.getCorreo());
+                out.put("id", cuentaEncontrada.getId().toString());
+            } else {
+                System.out.println("Credenciales incorrectas");
+                out.put("message", "Su clave o usuario son incorrectos");
+                out.put("estado", "false");
+            }
+
         } catch (Exception e) {
-            mapa.put("user", new HashMap<>());
-            mapa.put("message", "Credenciales incorrectas");
-            mapa.put("estado", "false");
-            context.setAuthentication(null);
-            System.out.println(e);
+            System.err.println("Error en login: " + e.getMessage());
+            e.printStackTrace();
+            out.put("message", "Error interno del servidor");
+            out.put("estado", "false");
         }
-        return mapa;
+
+        return ResponseEntity.ok(out);
     }
 
     public HashMap<String, String> logout() {
@@ -200,41 +246,41 @@ public class CuentaService {
     }
 
     public static void main(String[] args) {
-    try {
-        CuentaService cuentaService = new CuentaService();
-        cuentaService.createRoles();
-        cuentaService.createUsuarios();
-        HashMap<String, Object> loginResponse = cuentaService.login("admin@gmail.com", "12345");
-        if (loginResponse.get("estado").equals("true")) {
-            System.out.println("Login successful: " + loginResponse);
+        try {
+            CuentaService cuentaService = new CuentaService();
+            cuentaService.createRoles();
+            cuentaService.createUsuarios();
+            HashMap<String, Object> loginResponse = cuentaService.login("admin@gmail.com", "12345");
+            if (loginResponse.get("estado").equals("true")) {
+                System.out.println("Login successful: " + loginResponse);
 
-            // Prueba getUserInfo
-            UserInfo userInfo = cuentaService.getUserInfo();
-            System.out.println("getUserInfo() devuelve:");
-            System.out.println("  name: " + userInfo.name());
-            System.out.println("  authorities: " + userInfo.authorities());
+                // Prueba getUserInfo
+                UserInfo userInfo = cuentaService.getUserInfo();
+                System.out.println("getUserInfo() devuelve:");
+                System.out.println("  name: " + userInfo.name());
+                System.out.println("  authorities: " + userInfo.authorities());
 
-            // Prueba el mapa de login
-            System.out.println("login() devuelve:");
-            System.out.println("  name: " + loginResponse.get("name"));
-            System.out.println("  authorities: " + loginResponse.get("authorities"));
+                // Prueba el mapa de login
+                System.out.println("login() devuelve:");
+                System.out.println("  name: " + loginResponse.get("name"));
+                System.out.println("  authorities: " + loginResponse.get("authorities"));
 
-            // Prueba getAuthentication
-            Authentication auth = cuentaService.getAuthentication();
-            if (auth != null) {
-                System.out.println("getAuthentication() devuelve: " + auth.getName());
-                System.out.println("Authorities (roles) del usuario:");
-                auth.getAuthorities().forEach(a -> System.out.println(" - " + a.getAuthority()));
+                // Prueba getAuthentication
+                Authentication auth = cuentaService.getAuthentication();
+                if (auth != null) {
+                    System.out.println("getAuthentication() devuelve: " + auth.getName());
+                    System.out.println("Authorities (roles) del usuario:");
+                    auth.getAuthorities().forEach(a -> System.out.println(" - " + a.getAuthority()));
+                } else {
+                    System.out.println("getAuthentication() devuelve null");
+                }
+
             } else {
-                System.out.println("getAuthentication() devuelve null");
+                System.out.println("Login failed: " + loginResponse.get("message"));
             }
-
-        } else {
-            System.out.println("Login failed: " + loginResponse.get("message"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
     }
-}
 
 }

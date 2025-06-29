@@ -1,0 +1,12 @@
+import { EndpointRequestInit as EndpointRequestInit_1 } from "@vaadin/hilla-frontend";
+import type Mensaje_1 from "./com/unl/sistema/base/models/Mensaje.js";
+import client_1 from "./connect-client.default.js";
+async function agregarMensaje_1(mensaje: Mensaje_1 | undefined, init?: EndpointRequestInit_1): Promise<void> { return client_1.call("MensajeService", "agregarMensaje", { mensaje }, init); }
+async function buscarMensajes_1(texto: string | undefined, init?: EndpointRequestInit_1): Promise<Array<Record<string, string | undefined> | undefined> | undefined> { return client_1.call("MensajeService", "buscarMensajes", { texto }, init); }
+async function listMensajes_1(init?: EndpointRequestInit_1): Promise<Array<Record<string, string | undefined> | undefined> | undefined> { return client_1.call("MensajeService", "listMensajes", {}, init); }
+async function marcarComoLeido_1(mensajeId: number | undefined, init?: EndpointRequestInit_1): Promise<void> { return client_1.call("MensajeService", "marcarComoLeido", { mensajeId }, init); }
+async function obtenerEstadisticas_1(usuarioId: number | undefined, init?: EndpointRequestInit_1): Promise<Record<string, unknown> | undefined> { return client_1.call("MensajeService", "obtenerEstadisticas", { usuarioId }, init); }
+async function obtenerMensajesOrdenados_1(idConversacion: number | undefined, ascendente: boolean | undefined, init?: EndpointRequestInit_1): Promise<Array<Record<string, string | undefined> | undefined> | undefined> { return client_1.call("MensajeService", "obtenerMensajesOrdenados", { idConversacion, ascendente }, init); }
+async function obtenerMensajesPorConversacion_1(idConversacion: number | undefined, init?: EndpointRequestInit_1): Promise<Array<Mensaje_1 | undefined> | undefined> { return client_1.call("MensajeService", "obtenerMensajesPorConversacion", { idConversacion }, init); }
+async function obtenerSiguienteMensajeNoLeido_1(init?: EndpointRequestInit_1): Promise<Record<string, string | undefined> | undefined> { return client_1.call("MensajeService", "obtenerSiguienteMensajeNoLeido", {}, init); }
+export { agregarMensaje_1 as agregarMensaje, buscarMensajes_1 as buscarMensajes, listMensajes_1 as listMensajes, marcarComoLeido_1 as marcarComoLeido, obtenerEstadisticas_1 as obtenerEstadisticas, obtenerMensajesOrdenados_1 as obtenerMensajesOrdenados, obtenerMensajesPorConversacion_1 as obtenerMensajesPorConversacion, obtenerSiguienteMensajeNoLeido_1 as obtenerSiguienteMensajeNoLeido };

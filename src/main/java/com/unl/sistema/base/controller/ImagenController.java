@@ -6,12 +6,14 @@ import com.unl.sistema.base.models.Imagen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/imagenes")
+@AnonymousAllowed
 public class ImagenController {
 
     @Autowired

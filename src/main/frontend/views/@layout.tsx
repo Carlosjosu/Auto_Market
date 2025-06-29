@@ -1,4 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router';
+import { useAuth } from 'Frontend/security/auth';
 import {
   AppLayout,
   Avatar,
@@ -13,6 +14,8 @@ import {
 } from '@vaadin/react-components';
 import { Suspense } from 'react';
 import { createMenuItems } from '@vaadin/hilla-file-router/runtime.js';
+import { CuentaService } from 'Frontend/generated/endpoints';
+import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 
 function Header() {
   // TODO Replace with real application logo and name
@@ -44,17 +47,29 @@ type UserMenuItem = MenuBarItem<{ action?: () => void }>;
 
 function UserMenu() {
   // TODO Replace with real user information and actions
+  const { state, logout } = useAuth();
+  // Cambiar de 'name' a 'username' o 'correo'
+  const nickname = state.user?.username || state.user?.correo || 'ERROR';
   const items: Array<UserMenuItem> = [
     {
       component: (
         <>
-          <Avatar theme="xsmall" name="John Smith" colorIndex={5} className="mr-s" /> John Smith
+          <Avatar theme="xsmall" name={nickname} colorIndex={5} className="mr-s" /> {nickname}
         </>
       ),
       children: [
-        { text: 'View Profile', disabled: true, action: () => console.log('View Profile') },
-        { text: 'Manage Settings', disabled: true, action: () => console.log('Manage Settings') },
-        { text: 'Logout', disabled: true, action: () => console.log('Logout') },
+        { text: 'View Profile', action: () => console.log('View Profile') },
+        { text: 'Manage Settings', action: () => console.log('Manage Settings') },
+        { text: 'Cerrar Sesion', action: () => 
+          (async () => {
+            try {
+              await CuentaService.logout();
+              await logout();
+            } catch (error) {
+              console.error('Error logout:', error);
+              await logout(); // Forzar logout local
+            }
+          })() },
       ],
     },
   ];
@@ -64,6 +79,10 @@ function UserMenu() {
   return (
     <MenuBar theme="tertiary-inline" items={items} onItemSelected={onItemSelected} className="m-m" slot="drawer" />
   );
+}
+
+export const config: ViewConfig = {
+  loginRequired: true
 }
 
 export default function MainLayout() {

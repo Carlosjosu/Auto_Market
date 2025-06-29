@@ -85,3 +85,7 @@ public class VentaService {
         return Arrays.asList(da.all().toArray());
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/develop

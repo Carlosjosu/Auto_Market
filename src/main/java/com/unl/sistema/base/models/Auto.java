@@ -10,7 +10,7 @@ public class Auto {
     private String color;
     private Float kilometraje;
     private String ciudad;
-    private Double precio;
+    private Float precio;
     private String matricula;
     private String codigoVIN;
     private String descripcion;
@@ -19,7 +19,7 @@ public class Auto {
     private Integer idVendedor;
     private Integer idMarca;
     private TipoCombustibleEnum tipoCombustible;
-    private CategoriaEnum Categoria;
+    private CategoriaEnum categoria;
 
     public Integer getId() {
         return this.id;
@@ -77,11 +77,11 @@ public class Auto {
         this.ciudad = ciudad;
     }
 
-    public Double getPrecio() {
+    public Float getPrecio() {
         return this.precio;
     }
 
-    public void setPrecio(Double precio) {
+    public void setPrecio(Float precio) {
         this.precio = precio;
     }
 
@@ -150,12 +150,25 @@ public class Auto {
     }
 
     public CategoriaEnum getCategoria() {
-        return this.Categoria;
+        return this.categoria;
     }
 
-    public void setCategoria(CategoriaEnum Categoria) {
-        this.Categoria = Categoria;
+    public void setCategoria(CategoriaEnum categoria) {
+        this.categoria = categoria;
     }
-    
-    
+
+    public void setCategoriaFromString(String categoriaStr) {
+        if (categoriaStr == null) {
+            this.categoria = null;
+            return;
+        }
+        for (CategoriaEnum cat : CategoriaEnum.values()) {
+            if (cat.getValue().equalsIgnoreCase(categoriaStr)) {
+                this.categoria = cat;
+                return;
+            }
+        }
+
+        this.categoria = null;
+    }
 }

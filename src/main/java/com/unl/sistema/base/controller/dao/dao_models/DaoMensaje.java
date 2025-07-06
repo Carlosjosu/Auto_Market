@@ -1,48 +1,39 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
+import java.util.Date;
+import java.util.List;
+
 import com.unl.sistema.base.controller.dao.AdapterDao;
-
 import com.unl.sistema.base.models.Mensaje;
+import org.springframework.stereotype.Component;
 
-public class DaoMensaje extends AdapterDao<Mensaje>{
+@Component
+public class DaoMensaje extends AdapterDao<Mensaje> {
     private Mensaje obj;
 
-    public DaoMensaje(){
+    public DaoMensaje() {
         super(Mensaje.class);
     }
-    
+
     public Mensaje getObj() {
         if (obj == null)
             this.obj = new Mensaje();
         return this.obj;
     }
-    
+
     public void setObj(Mensaje obj) {
         this.obj = obj;
     }
 
-    public Boolean save() {
-        try {
-            obj.setId(listAll().getLength()+1);
-            this.persist(obj);
-            return true;
-        } catch (Exception e) {
-            //Log de error
-            e.printStackTrace();
-            System.out.println(e);
-            return false;
-            // TODO: handle exception
-        }
+    // Agrega mensaje (FIFO)
+    public void addMensaje(Mensaje mensaje) throws Exception {
+        mensaje.setId(getAllAsList().size() + 1);
+        mensaje.setFechaEnvio(new Date());
+        addFIFO(mensaje);
     }
 
-    public Boolean update(Integer pos) {
-        try {
-            this.update(obj,pos);
-            return true;
-        } catch (Exception e) {
-            //Log de error
-            return false;
-            // TODO: handle exception
-        }
+    // Obtiene mensajes por idConversacion (FIFO)
+    public List<Mensaje> getMensajesPorConversacion(Integer idConversacion) {
+        return filter(m -> m.getIdConversacion().equals(idConversacion));
     }
 }

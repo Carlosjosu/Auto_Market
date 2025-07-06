@@ -122,4 +122,8 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
             return null;
     }
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/develop

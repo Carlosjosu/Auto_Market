@@ -52,7 +52,7 @@ client.middlewares = [...client.middlewares, copilotMiddleware];
 
 import './vaadin-featureflags.js';
 
-import './index';
+import '../index';
 
 import './vaadin-react.js';
 import 'Frontend/generated/jar-resources/vaadin-dev-tools/vaadin-dev-tools.js';
@@ -60,9 +60,3 @@ import 'Frontend/generated/jar-resources/vaadin-dev-tools/vaadin-dev-tools.js';
 import './theme-default.global.generated.js';
 import { applyTheme } from './theme.js';
 applyTheme(document);
-
-import { Outlet } from 'react-router';
-(window as any).Vaadin ??= {};
-(window as any).Vaadin.copilot ??= {};
-(window as any).Vaadin.copilot._ref ??= {};
-(window as any).Vaadin.copilot._ref.Outlet = Outlet;

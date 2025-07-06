@@ -44,15 +44,6 @@ public class DaoAuto extends AdapterDao<Auto> {
         }
     }
 
-<<<<<<< HEAD
-    //Auto
-    //Marca
-    //Valoracion
-    //Venta??
-    //Favorito
-    
-
-=======
     public LinkedList<HashMap<String, String>> all() {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
@@ -116,5 +107,4 @@ public class DaoAuto extends AdapterDao<Auto> {
         }
         return resultString;
     }
->>>>>>> origin/develop
 }

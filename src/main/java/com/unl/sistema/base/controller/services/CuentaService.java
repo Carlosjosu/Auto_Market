@@ -2,15 +2,9 @@ package com.unl.sistema.base.controller.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-<<<<<<< HEAD
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-=======
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
->>>>>>> origin/develop
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,14 +20,6 @@ import com.unl.sistema.base.controller.dao.dao_models.DaoCuenta;
 import com.unl.sistema.base.controller.dao.dao_models.DaoRol;
 import com.unl.sistema.base.controller.dao.dao_models.DaoUsuario;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
-<<<<<<< HEAD
-import com.unl.sistema.base.models.Marca;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
-
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
-=======
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -41,7 +27,6 @@ import io.micrometer.common.lang.NonNull;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.constraints.NotEmpty;
->>>>>>> origin/develop
 
 @BrowserCallable
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -80,11 +65,7 @@ public class CuentaService {
         mapa.put("code", "201");
         DaoUsuario du = new DaoUsuario();
         LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(
-<<<<<<< HEAD
-            dc.all(), "correo", "admin@gmail.com",0);
-=======
                 dc.all(), "correo", "admin@gmail.com", 0);
->>>>>>> origin/develop
         if (resultado.isEmpty()) {
             dc.getObj().setCorreo("admin@gmail.com");
             dc.getObj().setClave("12345");
@@ -107,11 +88,7 @@ public class CuentaService {
 
     public HashMap<String, String> view_rol() {
         HashMap<String, String> mapa = new HashMap<>();
-<<<<<<< HEAD
-        if(context.getAuthentication() != null) {
-=======
         if (context.getAuthentication() != null) {
->>>>>>> origin/develop
             Object obj[] = context.getAuthentication().getAuthorities().toArray();
             mapa.put("rol", obj[0].toString());
         }
@@ -138,8 +115,6 @@ public class CuentaService {
         return list;
     }
 
-<<<<<<< HEAD
-=======
     @PermitAll
     @Nonnull
     public UserInfo getUserInfo() {
@@ -156,7 +131,6 @@ public class CuentaService {
             @NonNull Collection<String> authorities) {
     }
 
->>>>>>> origin/develop
     public HashMap<String, Object> login(String email, String password) throws Exception {
         HashMap<String, Object> mapa = new HashMap<>();
         try {
@@ -165,16 +139,12 @@ public class CuentaService {
                 context.setAuthentication(new UsernamePasswordAuthenticationToken(
                         aux.get("usuario").toString(), aux.get("id").toString(), getAuthorities(aux)));
             }
-<<<<<<< HEAD
-            mapa.put("user", context.getAuthentication());
-=======
             Authentication auth = context.getAuthentication();
             final List<String> authorities = auth.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .toList();
             mapa.put("name", auth.getName());
             mapa.put("authorities", authorities);
->>>>>>> origin/develop
             mapa.put("message", "OK");
             mapa.put("estado", "true");
         } catch (Exception e) {
@@ -229,8 +199,6 @@ public class CuentaService {
         return Arrays.asList(dc.all().toArray());
     }
 
-<<<<<<< HEAD
-=======
     public static void main(String[] args) {
     try {
         CuentaService cuentaService = new CuentaService();
@@ -269,5 +237,4 @@ public class CuentaService {
     }
 }
 
->>>>>>> origin/develop
 }

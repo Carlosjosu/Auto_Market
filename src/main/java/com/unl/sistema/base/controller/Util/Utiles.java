@@ -161,17 +161,4 @@ public class Utiles {
         }
         return resp;
     }
-<<<<<<< HEAD
-=======
-
-    public static void knuthShuffle(HashMap<String, String>[] array) {
-        java.util.Random rnd = new java.util.Random();
-        for (int i = array.length - 1; i > 0; i--) {
-            int j = rnd.nextInt(i + 1);
-            HashMap<String, String> temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
-    }
->>>>>>> origin/develop
 }

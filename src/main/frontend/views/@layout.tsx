@@ -48,7 +48,7 @@ type UserMenuItem = MenuBarItem<{ action?: () => void }>;
 function UserMenu() {
   // TODO Replace with real user information and actions
   const { state, logout } = useAuth();
-  const nickname = state.user?.name || 'Usuario ';
+  const nickname = state.user?.name || 'ERROR';
   const items: Array<UserMenuItem> = [
     {
       component: (

@@ -3,13 +3,23 @@ package com.unl.sistema.base.controller.dao;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+<<<<<<< HEAD
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
+import java.util.function.Predicate;
+=======
 import java.util.HashMap;
 import java.util.Scanner;
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
+>>>>>>> origin/develop
 
 import com.google.gson.Gson;
+import com.unl.sistema.base.controller.Util.Utiles;
+import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 
 public class AdapterDao<T> implements InterfaceDao<T> {
     private Class<T> clazz;
@@ -93,6 +103,89 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             return busquedaBinaria(listAll().toArray(), 0, listAll().getLength() - 1, id);
         } else
             return null;
+<<<<<<< HEAD
+=======
+    }
+
+    public void delete(T obj) throws Exception {
+        LinkedList<T> list = listAll();
+        // Elimina el objeto de la lista
+        for (int i = 0; i < list.getLength(); i++) {
+            if (list.get(i).equals(obj)) {
+                list.delete(i);
+                break;
+            }
+        }
+        // Persiste la lista actualizada
+        saveFile(g.toJson(list.toArray()));
+    }
+
+    public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {
+        if (inicio > fin) {
+            return null;
+        }
+
+        int mitad = (inicio + fin) / 2;
+
+        if (((Integer) getMethod("Id", datos[mitad])) == num) {
+            return datos[mitad];
+        } else if (((Integer) getMethod("Id", datos[mitad])) > num) {
+            return busquedaBinaria(datos, inicio, mitad - 1, num);
+        } else {
+            return busquedaBinaria(datos, mitad + 1, fin, num);
+        }
+    }
+
+    private Object getMethod(String attribute, T obj) throws Exception {
+        return obj.getClass().getMethod("get" + attribute).invoke(obj);
+    }
+
+    public HashMap<String, Object> buscarAtributo(HashMap<String, Object> datos[], int inicio, int fin, String atributo,
+            String valor) throws Exception {
+        if (inicio > fin) {
+            return null;
+        }
+
+        int mitad = (inicio + fin) / 2;
+
+        if (datos[mitad].get(atributo).toString().equals(valor)) {
+            return datos[mitad];
+        } else if (datos[mitad].get(atributo).toString().compareTo(valor) > 0) {
+            return buscarAtributo(datos, inicio, mitad - 1, atributo, valor);
+        } else {
+            return buscarAtributo(datos, mitad + 1, fin, atributo, valor);
+        }
+    }
+
+    public LinkedList<HashMap<String, String>> ordenarAtributo(LinkedList<HashMap<String, String>> lista,
+            String atributo, Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            String[] valores = new String[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = arreglo[i].get(atributo).toString();
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
+    }
+
+    public LinkedList<HashMap<String, String>> ordenarNumero(LinkedList<HashMap<String, String>> lista, String atributo,
+            Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            Integer[] valores = new Integer[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = Integer.parseInt(arreglo[i].get(atributo));
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
+>>>>>>> origin/develop
     }
 
     public void delete(T obj) throws Exception {
@@ -175,4 +268,32 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         return lista;
     }
 
+    // Agrega un elemento (FIFO)
+    public void addFIFO(T obj) throws Exception {
+        LinkedList<T> list = listAll();
+        list.add(obj);
+        saveFile(g.toJson(list.toArray()));
+    }
+
+    // Obtiene todos los elementos como lista Java
+    public List<T> getAllAsList() {
+        LinkedList<T> list = listAll();
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < list.getLength(); i++) {
+            result.add(list.get(i));
+        }
+        return result;
+    }
+
+    // Filtra por predicado (ej: por idConversacion)
+    public List<T> filter(Predicate<T> predicate) {
+        List<T> all = getAllAsList();
+        List<T> filtered = new ArrayList<>();
+        for (T t : all) {
+            if (predicate.test(t)) {
+                filtered.add(t);
+            }
+        }
+        return filtered;
+    }
 }

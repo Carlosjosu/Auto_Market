@@ -55,7 +55,3 @@ public class FavoritoService {
         return Arrays.asList(da.all().toArray());
     }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/develop

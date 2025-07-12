@@ -5,7 +5,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.function.Predicate;
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
@@ -97,14 +100,12 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     public void delete(T obj) throws Exception {
         LinkedList<T> list = listAll();
-        // Elimina el objeto de la lista
         for (int i = 0; i < list.getLength(); i++) {
             if (list.get(i).equals(obj)) {
                 list.delete(i);
                 break;
             }
         }
-        // Persiste la lista actualizada
         saveFile(g.toJson(list.toArray()));
     }
 
@@ -174,7 +175,7 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         return lista;
     }
 
-    // Agrega un elemento (FIFO)
+     // Agrega un elemento (FIFO)
     public void addFIFO(T obj) throws Exception {
         LinkedList<T> list = listAll();
         list.add(obj);
@@ -202,4 +203,5 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         }
         return filtered;
     }
+
 }

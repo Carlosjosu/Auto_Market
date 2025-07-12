@@ -1,6 +1,7 @@
 package com.unl.sistema.base.controller.Util;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 
@@ -160,5 +161,15 @@ public class Utiles {
             }
         }
         return resp;
+    }
+
+    public static void knuthShuffle(HashMap<String, String>[] array) {
+        Random rnd = new Random();
+        for (int i = array.length - 1; i > 0; i--) {
+            int j = rnd.nextInt(i + 1);
+            HashMap<String, String> temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 }

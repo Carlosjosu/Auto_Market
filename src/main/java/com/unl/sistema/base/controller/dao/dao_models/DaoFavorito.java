@@ -111,7 +111,6 @@ public class DaoFavorito extends AdapterDao<Favorito> {
     public LinkedList<Favorito> buscarPorAtributo(String atributo, String valor) {
         LinkedList<Favorito> resultado = new LinkedList<>();
         LinkedList<HashMap<String, String>> lista = all();
-<<<<<<< HEAD
 
         for (HashMap<String, String> map : lista.toArray()) {
             String campo = map.get(atributo);
@@ -128,21 +127,3 @@ public class DaoFavorito extends AdapterDao<Favorito> {
     }
 
 }
-=======
-
-        for (HashMap<String, String> map : lista.toArray()) {
-            String campo = map.get(atributo);
-            if (campo != null && campo.equals(valor)) {
-                Favorito f = new Favorito();
-                f.setId(map.get("id").isEmpty() ? null : Integer.parseInt(map.get("id")));
-                f.setFechaGuardado(map.get("fechaGuardado").isEmpty() ? null : Date.valueOf(map.get("fechaGuardado")));
-                f.setIdAuto(map.get("idAuto").isEmpty() ? null : Integer.parseInt(map.get("idAuto")));
-                f.setIdUsuario(map.get("idUsuario").isEmpty() ? null : Integer.parseInt(map.get("idUsuario")));
-                resultado.add(f);
-            }
-        }
-        return resultado;
-    }
-
-}
->>>>>>> origin/develop

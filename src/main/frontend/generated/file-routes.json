@@ -1,6 +1,7 @@
 [
   {
     "route": "",
+    "loginRequired": true,
     "flowLayout": false,
     "params": {},
     "title": "Main Layout",
@@ -21,6 +22,17 @@
           "icon": "vaadin:car",
           "order": 2,
           "title": "Auto"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "cuenta-list",
+        "title": "Cuenta",
+        "menu": {
+          "icon": "vaadin:wallet",
+          "order": 1,
+          "title": "Cuenta"
         },
         "flowLayout": false,
         "params": {}
@@ -49,6 +61,10 @@
       },
       {
         "route": "login",
+        "skipLayouts": true,
+        "menu": {
+          "exclude": true
+        },
         "flowLayout": false,
         "params": {},
         "title": "Login"
@@ -59,6 +75,17 @@
         "menu": {
           "icon": "vaadin:tag",
           "order": 1,
+          "title": "Marca"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "marca-list",
+        "title": "Marca",
+        "menu": {
+          "icon": "vaadin:tag",
+          "order": 3,
           "title": "Marca"
         },
         "flowLayout": false,
@@ -77,6 +104,17 @@
           "icon": "vaadin:clipboard-check",
           "order": 1,
           "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "usuario-list",
+        "title": "Usuario",
+        "menu": {
+          "icon": "vaadin:users",
+          "order": 2,
+          "title": "Usuario"
         },
         "flowLayout": false,
         "params": {}

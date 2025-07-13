@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Dialog, Notification, Checkbox, TextArea, TextField, VerticalLayout, HorizontalLayout, ComboBox } from '@vaadin/react-components';
-import { AutoService, MarcaService, ImagenService } from 'Frontend/generated/endpoints';
+import { Button, Dialog, Notification, Checkbox, TextArea, TextField, VerticalLayout, HorizontalLayout, ComboBox, RadioGroup, RadioButton } from '@vaadin/react-components';
+import { AutoService, MarcaService, ImagenService, FavoritoService, CuentaService } from 'Frontend/generated/endpoints';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import { CheckboxGroup } from '@vaadin/react-components/CheckboxGroup';
+import { useAuth } from 'Frontend/security/auth';
+import { useNavigate } from 'react-router-dom';
 
 
 interface AutoItem {
@@ -22,6 +24,7 @@ interface AutoItem {
   estaDisponible: boolean;
   idVenta: number;
   idMarca: number;
+  idVendedor: number;
   tipoCombustible: string;
   categoria: string;
 }
@@ -35,7 +38,7 @@ export const config = {
     },
 };
 
-function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombustible, categorias, onCancel, autoEditar, modoEdicion, onAutoEditado }: {
+function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombustible, categorias, onCancel, autoEditar, modoEdicion, onAutoEditado, onDataRefresh, usuarioActual, isAdmin }: {
     onAutoCreated?: () => void,
     marcas: { id: number, nombre: string }[],
     setMarcas: React.Dispatch<React.SetStateAction<{ id: number, nombre: string }[]>>,
@@ -45,7 +48,10 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
     onCancel?: () => void,
     autoEditar?: any | null,
     modoEdicion?: boolean,
-    onAutoEditado?: () => void
+    onAutoEditado?: () => void,
+    onDataRefresh?: () => void,
+    usuarioActual?: any,
+    isAdmin?: boolean
 }) {
     const [autoForm, setAutoForm] = useState({
         modelo: '', anio: '', puertas: '', color: '', kilometraje: '', ciudad: '', precio: '', matricula: '', codigoVIN: '', descripcion: '', fechaRegistro: '', estaDisponible: true, idVenta: '', idMarca: '', tipoCombustible: '', categoria: ''
@@ -132,7 +138,7 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
                 autoForm.descripcion,
                 autoForm.fechaRegistro ? formatFecha(autoForm.fechaRegistro) : undefined,
                 autoForm.estaDisponible,
-                autoForm.idVenta ? Number(autoForm.idVenta) : undefined,
+                usuarioActual?.id || 1, // Usar ID del usuario actual como vendedor
                 idMarcaSeleccionada,
                 autoForm.tipoCombustible,
                 autoForm.categoria
@@ -156,6 +162,13 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
     const editarAuto = async () => {
         try {
             if (!autoEditar) return;
+            
+            // Validaciones de permisos
+            if (!isAdmin && Number(autoEditar.idVendedor) !== Number(usuarioActual?.id)) {
+                Notification.show('No tienes permisos para editar este auto', { duration: 5000, position: 'top-center', theme: 'error' });
+                return;
+            }
+            
             if (!idMarcaSeleccionada) {
                 Notification.show('Debe seleccionar una marca', { duration: 5000, position: 'top-center', theme: 'error' });
                 return;
@@ -228,33 +241,77 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
     };
 
     const marcarComoPrincipal = async (idImagen: number, idAuto: number) => {
-      await fetch(`/api/imagenes/principal?idImagen=${idImagen}&idAuto=${idAuto}`, {
-        method: 'POST'
-      });
-      const data = await ImagenService.listImagen();
-      setImagenes((data ?? []).filter(Boolean));
+      try {
+        const response = await fetch(`/api/imagenes/principal?idImagen=${idImagen}&idAuto=${idAuto}`, {
+          method: 'POST'
+        });
+        
+        if (response.ok) {
+          // Usar setTimeout para asegurar que el backend procesó completamente la actualización
+          setTimeout(async () => {
+            // Recargar las imágenes del formulario para ver los cambios inmediatos
+            const data = await ImagenService.listImagen();
+            const imagenesData = (data ?? []).filter(Boolean);
+            setImagenes(imagenesData);
+            
+            // Ejecutar callback para actualizar tarjetas si está disponible
+            if (onDataRefresh) {
+              onDataRefresh();
+            }
+          }, 100);
+          
+          Notification.show('Imagen principal actualizada', { 
+            duration: 3000, 
+            position: 'top-center', 
+            theme: 'success' 
+          });
+        } else {
+          throw new Error('Error al actualizar la imagen principal');
+        }
+      } catch (error) {
+        console.error('Error al marcar como principal:', error);
+        Notification.show('Error al marcar como imagen principal', { 
+          duration: 5000, 
+          position: 'top-center', 
+          theme: 'error' 
+        });
+      }
     };
 
     const ImagenesAutoGallery = ({ imagenes, autoId }: any) => {
       const imagenesDelAuto = imagenes.filter((img: any) => Number(img.idAuto) === Number(autoId));
+      
+      const handleMarcarPrincipal = async (idImagen: number) => {
+        await marcarComoPrincipal(idImagen, Number(autoId));
+      };
+      
       return (
         <div className="form-grid-fullwidth">
           <label>Imágenes subidas</label>
           <div className="auto-image-gallery">
             {imagenesDelAuto.length > 0 ? (
-              imagenesDelAuto.map((img: any) => (
-                <div key={img.id} className="auto-image-label">
-                  <img src={img.url} alt={img.descripcion} className="auto-image-thumb" />
-                  <span className="auto-image-desc">{img.descripcion}</span>
-                  <Button
-                    theme={img.esPrincipal === 'true' || img.esPrincipal === true ? 'primary' : 'secondary'}
-                    onClick={() => marcarComoPrincipal(img.id, img.idAuto)}
-                    disabled={img.esPrincipal === 'true' || img.esPrincipal === true}
-                  >
-                    {img.esPrincipal === 'true' || img.esPrincipal === true ? 'Principal' : 'Marcar como principal'}
-                  </Button>
-                </div>
-              ))
+              imagenesDelAuto.map((img: any) => {
+                const esPrincipal = img.esPrincipal === 'true' || img.esPrincipal === true || img.esPrincipal === 1;
+                return (
+                  <div key={img.id} className="auto-image-label">
+                    <img src={img.url} alt={img.descripcion} className="auto-image-thumb" />
+                    <span className="auto-image-desc">{img.descripcion}</span>
+                    {esPrincipal && (
+                      <span className="auto-principal-badge">
+                        ⭐ PRINCIPAL
+                      </span>
+                    )}
+                    <Button
+                      theme={esPrincipal ? 'primary' : 'secondary'}
+                      onClick={() => handleMarcarPrincipal(img.id)}
+                      disabled={esPrincipal}
+                      className="auto-principal-button"
+                    >
+                      {esPrincipal ? 'Es Principal' : 'Marcar Principal'}
+                    </Button>
+                  </div>
+                );
+              })
             ) : (
               <div className="auto-image-label text-muted-foreground">No hay imágenes subidas</div>
             )}
@@ -321,7 +378,7 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
                     <Checkbox label="¿Disponible?" checked={autoForm.estaDisponible} onCheckedChanged={e => handleChange('estaDisponible', e.detail.value)} />
                 </div>
                 <div className="form-grid-fullwidth">
-                    <TextArea label="Descripción" value={autoForm.descripcion} style={{ width: '100%', minHeight: '100px', maxHeight: '150px' }} placeholder="Descripción del auto" onValueChanged={e => handleChange('descripcion', e.detail.value)} />
+                    <TextArea label="Descripción" value={autoForm.descripcion} className="auto-description-textarea" placeholder="Descripción del auto" onValueChanged={e => handleChange('descripcion', e.detail.value)} />
                 </div>
                 <ImagenesAutoGallery imagenes={imagenes} autoId={modoEdicion && autoEditar ? autoEditar.id : undefined} />
                 <SubidaImagen file={file} setFile={setFile} descripcionImg={descripcionImg} setDescripcionImg={setDescripcionImg} subiendoImg={subiendoImg} handleUploadImagen={handleUploadImagen} handleFileChange={handleFileChange} handleDescripcionImgChange={handleDescripcionImgChange} />
@@ -339,6 +396,8 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
 }
 
 export default function AutoView() {
+    const { state } = useAuth();
+    const navigate = useNavigate();
     const [items, setItems] = useState<AutoItem[]>([]);
     const [marcas, setMarcas] = useState<{ id: number, nombre: string }[]>([]);
     const [ventas, setVentas] = useState<{ id: number }[]>([]);
@@ -352,11 +411,44 @@ export default function AutoView() {
     const [resultadoBusqueda, setResultadoBusqueda] = useState<any | null>(null);
     const [categoriaBusqueda, setCategoriaBusqueda] = useState('');
     const [resultadoCategoria, setResultadoCategoria] = useState<any[] | null>(null);
+    const [renderKey, setRenderKey] = useState(0);
+    
+    // Estados para el modal de detalles
+    const [detalleDialogOpened, setDetalleDialogOpened] = useState(false);
+    const [autoSeleccionado, setAutoSeleccionado] = useState<AutoItem | null>(null);
+    
+    // Estados para manejo de roles y modos
+    const [modoUsuario, setModoUsuario] = useState<'vendedor' | 'comprador'>('comprador');
+    const [usuarioActual, setUsuarioActual] = useState<any>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const callData = () => {
-        AutoService.listAuto()
-            .then(data => setItems(
-                (data ?? [])
+        // Incrementar la key para forzar re-renderizado
+        setRenderKey(prev => prev + 1);
+        
+        // Cargar información del usuario actual
+        CuentaService.getCurrentUserInfo().then(userInfo => {
+            setUsuarioActual(userInfo);
+            setIsAdmin(userInfo?.rol === 'admin');
+            
+            // Actualizar autos según el modo y rol
+            let autoPromise;
+            if (userInfo?.rol === 'admin') {
+                // Admin ve todos los autos
+                autoPromise = AutoService.listAuto();
+            } else if (modoUsuario === 'vendedor' && userInfo?.id) {
+                // Vendedor ve solo sus autos
+                autoPromise = AutoService.listAutosByVendedor(Number(userInfo.id));
+            } else if (modoUsuario === 'comprador' && userInfo?.id) {
+                // Comprador ve autos de otros (disponibles)
+                autoPromise = AutoService.listAutosForComprador(Number(userInfo.id));
+            } else {
+                // Por defecto, mostrar todos disponibles
+                autoPromise = AutoService.listAuto();
+            }
+            
+            autoPromise.then(data => {
+                const autosData = (data ?? [])
                     .filter(Boolean)
                     .map((item: any) => ({
                         id: item.id,
@@ -371,14 +463,27 @@ export default function AutoView() {
                         codigoVIN: item.codigoVIN ?? '',
                         descripcion: item.descripcion ?? '',
                         fechaRegistro: item.fechaRegistro ?? '',
-                        estaDisponible: Boolean(item.estaDisponible),
+                        estaDisponible: item.estaDisponible === 'true',
                         idVenta: Number(item.idVenta) || 0,
                         idMarca: Number(item.idMarca) || 0,
+                        idVendedor: Number(item.idVendedor) || 0,
                         tipoCombustible: item.tipoCombustible ?? '',
                         categoria: item.categoria ?? ''
-                    }))
-            ))
-            .catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
+                    }));
+                setItems(autosData);
+            }).catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
+        });
+        
+        // Actualizar otros datos - estas líneas se ejecutan en useEffect por separado
+        // MarcaService, tiposCombustible y categorias se cargan en useEffect
+        
+        // También actualizar las imágenes cuando se actualicen los autos
+        ImagenService.listImagen().then((data: any) => {
+            const imagenesData = (data ?? []).filter(Boolean);
+            setImagenes(imagenesData);
+        }).catch(() => {
+            console.error('Error al cargar imágenes en callData');
+        });
     };
 
     const buscarAuto = async () => {
@@ -406,6 +511,11 @@ export default function AutoView() {
         setResultadoCategoria(filtrados);
     };
 
+    const abrirDetalleAuto = (auto: AutoItem) => {
+        setAutoSeleccionado(auto);
+        setDetalleDialogOpened(true);
+    };
+
     useEffect(() => {
         callData();
         MarcaService.listMarca().then((data: any) => {
@@ -421,15 +531,38 @@ export default function AutoView() {
             }
         });
         ImagenService.listImagen().then((data: any) => {
-            setImagenes((data ?? []).filter(Boolean));
+            const imagenesData = (data ?? []).filter(Boolean);
+            setImagenes(imagenesData);
         });
     }, []);
 
+    // useEffect para responder a cambios de modo
+    useEffect(() => {
+        callData(); // Recargar datos cuando cambie el modo
+    }, [modoUsuario]);
+
     return (
-        <main className="w-full h-full flex flex-col gap-4 p-4">
+        <main className="auto-main-background w-full h-full flex flex-col gap-2 md:gap-4 p-4 md:p-6 lg:p-8">
             <ViewToolbar title="Lista de Autos">
-            <Group />
-        </ViewToolbar>
+                <Group>
+                    {!isAdmin && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium"></span>
+                            <RadioGroup
+                                value={modoUsuario}
+                                onValueChanged={(e) => setModoUsuario(e.detail.value as 'vendedor' | 'comprador')}
+                                theme="horizontal"
+                            >
+                                <RadioButton value="comprador" label="Comprar" />
+                                <RadioButton value="vendedor" label="Vender" />
+                            </RadioGroup>
+                        </div>
+                    )}
+                    {isAdmin && (
+                        <span className="text-sm text-gray-600">👑 Modo Administrador</span>
+                    )}
+                </Group>
+            </ViewToolbar>
             <div className="auto-toolbar-row">
                 <div className="auto-search-group">
                     <ComboBox
@@ -449,31 +582,69 @@ export default function AutoView() {
                         className="auto-search-textfield"
                         autocomplete="off"
                     />
-                    <Button onClick={buscarAuto} theme="primary">Buscar</Button>
-                    <Button onClick={() => { setBusqueda(''); setCategoriaBusqueda(''); setResultadoBusqueda(null); setResultadoCategoria(null); }} theme="tertiary">Limpiar</Button>
+                    <Button onClick={buscarAuto} className="auto-btn-primary">Buscar</Button>
+                    <Button onClick={() => { setBusqueda(''); setCategoriaBusqueda(''); setResultadoBusqueda(null); setResultadoCategoria(null); }} className="auto-clear-btn">Limpiar</Button>
+                    {(isAdmin || modoUsuario === 'vendedor') && (
+                        <Button onClick={() => { setDialogOpened(true); setModoEdicion(false); setAutoEditar(null); }} className="auto-btn-success auto-add-btn">Agregar auto</Button>
+                    )}
                 </div>
-                <Button theme="primary" onClick={() => { setDialogOpened(true); setModoEdicion(false); setAutoEditar(null); }} className="auto-add-btn">Agregar auto</Button>
             </div>
             {resultadoBusqueda ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    <AutoCard auto={resultadoBusqueda} marcas={marcas} imagenes={imagenes} setDialogOpened={setDialogOpened} setModoEdicion={setModoEdicion} setAutoEditar={setAutoEditar} />
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10 px-6 md:px-8 lg:px-10 py-6">
+                    <AutoCard 
+                        key={`single-${renderKey}`} 
+                        auto={resultadoBusqueda} 
+                        marcas={marcas} 
+                        imagenes={imagenes} 
+                        setDialogOpened={setDialogOpened} 
+                        setModoEdicion={setModoEdicion} 
+                        setAutoEditar={setAutoEditar} 
+                        abrirDetalleAuto={abrirDetalleAuto}
+                        modoUsuario={modoUsuario}
+                        usuarioActual={usuarioActual}
+                        isAdmin={isAdmin}
+                    />
                 </div>
             ) : resultadoCategoria ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10 px-6 md:px-8 lg:px-10 py-6">
                     {resultadoCategoria.length === 0 ? (
                         <div className="col-span-full text-center text-muted-foreground py-10">No hay autos para esta categoría.</div>
                     ) : resultadoCategoria.map((auto, idx) => (
-                        <AutoCard key={idx} auto={auto} marcas={marcas} imagenes={imagenes} setDialogOpened={setDialogOpened} setModoEdicion={setModoEdicion} setAutoEditar={setAutoEditar} />
+                        <AutoCard 
+                            key={`cat-${renderKey}-${idx}`} 
+                            auto={auto} 
+                            marcas={marcas} 
+                            imagenes={imagenes} 
+                            setDialogOpened={setDialogOpened} 
+                            setModoEdicion={setModoEdicion} 
+                            setAutoEditar={setAutoEditar} 
+                            abrirDetalleAuto={abrirDetalleAuto}
+                            modoUsuario={modoUsuario}
+                            usuarioActual={usuarioActual}
+                            isAdmin={isAdmin}
+                        />
                     ))}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10 px-6 md:px-8 lg:px-10 py-6">
                     {items.length === 0 ? (
                         <div className="col-span-full text-center text-muted-foreground py-10">
                             No hay autos para mostrar.
                         </div>
                     ) : items.map((auto, idx) => (
-                        <AutoCard key={idx} auto={auto} marcas={marcas} imagenes={imagenes} setDialogOpened={setDialogOpened} setModoEdicion={setModoEdicion} setAutoEditar={setAutoEditar} />
+                        <AutoCard 
+                            key={`main-${renderKey}-${idx}`} 
+                            auto={auto} 
+                            marcas={marcas} 
+                            imagenes={imagenes} 
+                            setDialogOpened={setDialogOpened} 
+                            setModoEdicion={setModoEdicion} 
+                            setAutoEditar={setAutoEditar} 
+                            abrirDetalleAuto={abrirDetalleAuto}
+                            modoUsuario={modoUsuario}
+                            usuarioActual={usuarioActual}
+                            isAdmin={isAdmin}
+                        />
                     ))}
                 </div>
             )}
@@ -494,33 +665,306 @@ export default function AutoView() {
                     autoEditar={autoEditar}
                     modoEdicion={modoEdicion}
                     onAutoEditado={() => { callData(); setDialogOpened(false); setModoEdicion(false); setAutoEditar(null); }}
+                    onDataRefresh={callData}
+                    usuarioActual={usuarioActual}
+                    isAdmin={isAdmin}
                 />
+            </Dialog>
+            
+            {/* Dialog de detalles del auto */}
+            <Dialog
+                headerTitle={autoSeleccionado ? `${autoSeleccionado.modelo} - ${marcas.find(m => m.id === autoSeleccionado.idMarca)?.nombre || 'N/A'}` : "Detalles del Auto"}
+                opened={detalleDialogOpened}
+                onOpenedChanged={e => setDetalleDialogOpened(e.detail.value)}
+                footer={
+                    <div className="flex gap-2 justify-end">
+                        <Button onClick={() => setDetalleDialogOpened(false)}>Cerrar</Button>
+                    </div>
+                }
+            >
+                {autoSeleccionado && <AutoDetailModal auto={autoSeleccionado} marcas={marcas} imagenes={imagenes} navigate={navigate} />}
             </Dialog>
         </main>
     );
 }
 
-function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar }: any) {
-    const marca = marcas.find((m: any) => m.id === Number(auto.idMarca))?.nombre || auto.idMarca;
-    const imagenPrincipal = imagenes.find((img: any) => Number(img.idAuto) === Number(auto.id) && (img.esPrincipal === 'true' || img.esPrincipal === true));
+// Componente para el modal de detalles con galería moderna
+function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem, marcas: any[], imagenes: any[], navigate: any }) {
+    const [imagenSeleccionada, setImagenSeleccionada] = useState<any>(null);
+    const imagenesAuto = imagenes.filter(img => Number(img.idAuto) === Number(auto.id));
+    
+    useEffect(() => {
+        // Seleccionar la imagen principal por defecto, o la primera si no hay principal
+        const principal = imagenesAuto.find(img => img.esPrincipal === 'true' || img.esPrincipal === true);
+        setImagenSeleccionada(principal || imagenesAuto[0] || null);
+    }, [auto.id]);
+
+    const marca = marcas.find(m => m.id === auto.idMarca)?.nombre || 'N/A';
+
+    const handlePreguntar = () => {
+        // Navegar al chat con información del auto
+        navigate('/mensaje', { 
+            state: { 
+                autoInfo: {
+                    modelo: auto.modelo,
+                    marca: marca,
+                    anio: auto.anio,
+                    precio: auto.precio,
+                    id: auto.id
+                }
+            }
+        });
+    };
+
+    const handleVenta = () => {
+        // Navegar a la vista de ventas con el auto preseleccionado
+        navigate('/venta-list', { 
+            state: { 
+                autoSeleccionado: auto
+            }
+        });
+    };
+
     return (
-        <div className="card-bordered flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg bg-card h-full min-w-[300px] max-w-[400px] mx-auto relative">
-            <div className="card-image-container-400x300 mb-2 flex flex-row gap-2 overflow-x-auto">
-                {imagenPrincipal ? (
-                    <img src={imagenPrincipal.url} alt={auto.modelo} className="card-image-400x300 object-cover rounded-t-lg" />
+        <div className="auto-modal-gallery">
+            {/* Galería de fotos */}
+            <div className="auto-gallery-main">
+                {imagenesAuto.length > 0 ? (
+                    <>
+                        {/* Imagen principal */}
+                        <img 
+                            src={imagenSeleccionada?.url || imagenesAuto[0]?.url} 
+                            alt={imagenSeleccionada?.descripcion || 'Auto'} 
+                            className="auto-gallery-main-image"
+                        />
+                        
+                        {/* Miniaturas */}
+                        <div className="auto-gallery-thumbnails">
+                            {imagenesAuto.map((img, idx) => (
+                                <img
+                                    key={idx}
+                                    src={img.url}
+                                    alt={img.descripcion}
+                                    className={`auto-gallery-thumbnail ${imagenSeleccionada?.id === img.id ? 'active' : ''}`}
+                                    onClick={() => setImagenSeleccionada(img)}
+                                />
+                            ))}
+                        </div>
+                        
+                        {/* Descripción de imagen seleccionada */}
+                        {imagenSeleccionada?.descripcion && (
+                            <div className="auto-gallery-image-description">
+                                {imagenSeleccionada.descripcion}
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div className="auto-gallery-no-images">
+                        <span className="auto-gallery-no-images-icon">🚗</span>
+                        <div className="auto-gallery-no-images-title">Sin imágenes</div>
+                        <div className="auto-gallery-no-images-subtitle">No hay imágenes disponibles para este auto</div>
+                    </div>
+                )}
+            </div>
+
+            {/* Detalles del auto */}
+            <div className="auto-modal-details">
+                {/* Información básica */}
+                <div className="auto-modal-section">
+                    <h3>Información General</h3>
+                    <div className="auto-modal-info-grid">
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Modelo</span>
+                            <span className="auto-modal-info-value">{auto.modelo}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Año</span>
+                            <span className="auto-modal-info-value">{auto.anio}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Marca</span>
+                            <span className="auto-modal-info-value">{marca}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Categoría</span>
+                            <span className="auto-modal-badge">{auto.categoria}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Precio */}
+                <div className="auto-modal-section">
+                    <h3>Precio</h3>
+                    <div className="auto-modal-price">${Number(auto.precio).toLocaleString()}</div>
+                </div>
+
+                {/* Especificaciones */}
+                <div className="auto-modal-section">
+                    <h3>Especificaciones</h3>
+                    <div className="auto-modal-info-grid">
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Kilometraje</span>
+                            <span className="auto-modal-info-value">{Number(auto.kilometraje).toLocaleString()} km</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Color</span>
+                            <span className="auto-modal-info-value">{auto.color}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Puertas</span>
+                            <span className="auto-modal-info-value">{auto.puertas}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Combustible</span>
+                            <span className="auto-modal-badge combustible">{auto.tipoCombustible}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Ubicación e identificación */}
+                <div className="auto-modal-section">
+                    <h3>Ubicación e Identificación</h3>
+                    <div className="auto-modal-info-grid">
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Ciudad</span>
+                            <span className="auto-modal-info-value">{auto.ciudad}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Matrícula</span>
+                            <span className="auto-modal-info-value">{auto.matricula}</span>
+                        </div>
+                        <div className="auto-modal-info-item full-width">
+                            <span className="auto-modal-info-label">VIN</span>
+                            <span className="auto-modal-info-value monospace">{auto.codigoVIN}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Estado y fecha */}
+                <div className="auto-modal-section">
+                    <h3>Estado</h3>
+                    <div className="auto-modal-info-grid">
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Disponibilidad</span>
+                            <span className={`auto-modal-badge ${auto.estaDisponible ? 'disponible' : 'no-disponible'}`}>
+                                {auto.estaDisponible ? '✓ Disponible' : '✗ No disponible'}
+                            </span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Fecha Registro</span>
+                            <span className="auto-modal-info-value">{auto.fechaRegistro}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Descripción */}
+                {auto.descripcion && (
+                    <div className="auto-modal-section">
+                        <h3>Descripción</h3>
+                        <div className="auto-modal-description">
+                            {auto.descripcion}
+                        </div>
+                    </div>
+                )}
+
+                {/* Botones de acción */}
+                <div className="auto-modal-section">
+                    <div className="flex gap-3 justify-center mt-4">
+                        <Button 
+                            onClick={handlePreguntar}
+                            theme="primary"
+                            className="auto-btn-chat"
+                        >
+                            💬 Preguntar
+                        </Button>
+                        <Button 
+                            onClick={handleVenta}
+                            theme="success primary"
+                            className="auto-btn-venta"
+                        >
+                            🏷️ Venta
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar, abrirDetalleAuto, modoUsuario, usuarioActual, isAdmin }: any) {
+    const marca = marcas.find((m: any) => m.id === Number(auto.idMarca))?.nombre || auto.idMarca;
+    
+    // Buscar imágenes de este auto
+    const imagenesDelAuto = imagenes.filter((img: any) => Number(img.idAuto) === Number(auto.id));
+    
+    // Buscar la imagen principal con detección mejorada
+    const imagenPrincipal = imagenesDelAuto.find((img: any) => {
+        // Manejar diferentes tipos de valores para esPrincipal
+        const esPrincipal = img.esPrincipal === 'true' || 
+                           img.esPrincipal === true || 
+                           img.esPrincipal === 1 || 
+                           img.esPrincipal === '1';
+        
+        return esPrincipal;
+    });
+    
+    // Si no hay imagen principal, usar la primera imagen del auto
+    const imagenMostrar = imagenPrincipal || imagenesDelAuto[0];
+    
+    const handleAgregarFavorito = async (idAuto: number) => {
+        try {
+            await FavoritoService.create(
+                new Date().toISOString().split('T')[0],
+                idAuto,
+                1
+            );
+            Notification.show('Agregado a favoritos', { duration: 2000, position: 'top-center', theme: 'success' });
+        } catch (error: any) {
+            Notification.show('Error al agregar a favoritos', { duration: 3000, position: 'top-center', theme: 'error' });
+        }
+    };
+
+    const handleClickTarjeta = (e: React.MouseEvent) => {
+        // Evitar que el click en botones abra el modal
+        if ((e.target as HTMLElement).closest('vaadin-button')) {
+            return;
+        }
+        abrirDetalleAuto(auto);
+    };
+
+    return (
+        <div 
+            className="card-bordered auto-card-uniform auto-card-spacing flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg bg-card w-full mx-auto relative cursor-pointer"
+            onClick={handleClickTarjeta}
+        >
+            {/* Botón de favoritos en esquina superior derecha */}
+            <Button
+                theme="primary"
+                className="favorito-button-circular"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleAgregarFavorito(auto.id);
+                }}
+            >
+                <span className="favorito-button-icon">❤️</span>
+            </Button>
+            
+            <div className="card-image-container-400x300 mb-3 flex flex-row gap-2 overflow-x-auto">
+                {imagenMostrar ? (
+                    <img src={imagenMostrar.url} alt={auto.modelo} className="card-image-400x300 object-cover rounded-t-lg" />
                 ) : (
                     <div className="card-image-400x300 flex items-center justify-center bg-muted rounded-t-lg text-muted-foreground text-4xl">
                         <span role="img" aria-label="Sin imagen">🚗</span>
                     </div>
                 )}
             </div>
-            <div className="flex flex-col flex-grow px-3 pb-3 gap-1 items-center text-center">
+            <div className="flex flex-col flex-grow px-4 pb-4 gap-2 items-center text-center">
                 <div className="font-headline text-lg mb-0.5 break-words flex flex-col items-center gap-1 w-full">
                     <span>{auto.modelo}</span>
-                    <span className="text-xs font-semibold text-secondary-foreground bg-secondary rounded px-2 py-0.5 whitespace-nowrap mt-0.5">{auto.categoria}</span>
+                    <span className="auto-badge-category whitespace-nowrap mt-0.5">{auto.categoria}</span>
                 </div>
                 <div className="text-xs text-muted-foreground mb-1">Año {auto.anio}</div>
-                <div className="text-primary font-bold text-xl mb-1">${Number(auto.precio).toLocaleString()}</div>
+                <div className="auto-price-highlight mb-1">${Number(auto.precio).toLocaleString()}</div>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-muted-foreground mb-2 w-full">
                     <div className="flex items-center gap-1.5 justify-center">
                         <span className="font-semibold">KM:</span> {Number(auto.kilometraje).toLocaleString()}
@@ -529,10 +973,57 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
                         <span className="font-semibold">Color:</span> {auto.color}
                     </div>
                 </div>
-                <span className="inline-block bg-secondary text-secondary-foreground rounded px-2 py-0.5 text-xs font-semibold mb-2 w-max">{auto.tipoCombustible}</span>
+                <span className="auto-badge-fuel mb-2 w-max">{auto.tipoCombustible}</span>
                 <div className="text-xs text-muted-foreground truncate w-full">Matrícula: {auto.matricula}</div>
                 <div className="flex gap-2 mt-2 justify-center">
-                    <Button onClick={() => { setDialogOpened(true); setModoEdicion(true); setAutoEditar(auto); }}>Editar</Button>
+                    {/* Botones para Administrador - ve todos los controles */}
+                    {isAdmin && (
+                        <Button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setDialogOpened(true); 
+                                setModoEdicion(true); 
+                                setAutoEditar(auto);
+                            }}
+                            className="auto-btn-primary"
+                        >
+                            Editar
+                        </Button>
+                    )}
+                    
+                    {/* Botones para Vendedor - solo puede editar sus propios autos */}
+                    {modoUsuario === 'vendedor' && !isAdmin && Number(auto.idVendedor) === Number(usuarioActual?.id) && (
+                        <Button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setDialogOpened(true); 
+                                setModoEdicion(true); 
+                                setAutoEditar(auto);
+                            }}
+                            className="auto-btn-primary"
+                        >
+                            Editar
+                        </Button>
+                    )}
+                    
+                    {/* Botón para Comprador - agregar a favoritos */}
+                    {modoUsuario === 'comprador' && !isAdmin && (
+                        <Button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleAgregarFavorito(auto.id);
+                            }}
+                            className="auto-btn-success"
+                            theme="primary"
+                        >
+                            ❤️ Favorito
+                        </Button>
+                    )}
+                    
+                    {/* Si es vendedor pero no es su auto, mostrar info */}
+                    {modoUsuario === 'vendedor' && !isAdmin && Number(auto.idVendedor) !== Number(usuarioActual?.id) && (
+                        <span className="text-xs text-gray-500 italic">Auto de otro vendedor</span>
+                    )}
                 </div>
             </div>
         </div>

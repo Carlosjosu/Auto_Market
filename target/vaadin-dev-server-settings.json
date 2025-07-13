@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/frontend/generated/jar-resources",
+  "staticOutput": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/classes/META-INF/VAADIN/config",
+  "frontendBundleOutput": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/classes/META-INF/VAADIN/webapp",
+  "devBundleOutput": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/dev-bundle/webapp",
+  "devBundleStatsOutput": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/dev-bundle/config",
+  "jarResourcesFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/frontend/generated/jar-resources",
+  "themeName": "default",
+  "clientServiceWorkerSource": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}

@@ -1,0 +1,19 @@
+{
+  "productionMode": false,
+  "eagerServerLoad": false,
+  "npmFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market",
+  "node.version": "v22.14.0",
+  "frontend.hotdeploy": true,
+  "node.download.root": "https://nodejs.org/dist/",
+  "frontendFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/frontend",
+  "connect.javaSourceFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/java",
+  "javaResourceFolder": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/resources",
+  "connect.applicationProperties": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/resources/application.properties",
+  "connect.openApiFile": "/home/carlos/Documentos/Git Kraken/Auto_Market/target/generated-resources/openapi.json",
+  "project.frontend.generated": "/home/carlos/Documentos/Git Kraken/Auto_Market/src/main/frontend/generated",
+  "pnpm.enable": false,
+  "bun.enable": false,
+  "require.home.node": false,
+  "build.folder": "target",
+  "react.enable": true
+}

@@ -55,22 +55,42 @@ public class ImagenService {
     }
 
     public void marcarComoPrincipal(Integer idImagen, Integer idAuto) throws Exception {
-        // Obtener todas las imágenes del auto
+        System.out.println("Marcando imagen " + idImagen + " como principal para auto " + idAuto);
+
+        // Obtener todas las imágenes del auto y procesarlas
         int len = db.all().getLength();
         for (int i = 0; i < len; i++) {
             HashMap<String, String> imgMap = db.all().get(i);
             Integer imgId = Integer.valueOf(imgMap.get("id"));
             Integer autoId = Integer.valueOf(imgMap.get("idAuto"));
+
             if (autoId.equals(idAuto)) {
-                // Buscar la imagen en la base de datos
-                Imagen img = db.listAll().get(i);
-                if (imgId.equals(idImagen)) {
-                    img.setEsPrincipal(true);
-                } else {
-                    img.setEsPrincipal(false);
+                // Encontrar el índice correcto de esta imagen en listAll()
+                int correctIndex = -1;
+                for (int j = 0; j < db.listAll().getLength(); j++) {
+                    if (db.listAll().get(j).getId().equals(imgId)) {
+                        correctIndex = j;
+                        break;
+                    }
                 }
-                db.update(img, i);
+
+                if (correctIndex != -1) {
+                    Imagen img = db.listAll().get(correctIndex);
+                    if (imgId.equals(idImagen)) {
+                        System.out.println("Marcando imagen " + imgId + " como PRINCIPAL");
+                        img.setEsPrincipal(true);
+                    } else {
+                        System.out.println("Marcando imagen " + imgId + " como NO principal");
+                        img.setEsPrincipal(false);
+                    }
+                    db.setObj(img);
+                    db.update(correctIndex);
+                    System.out.println("Actualizada imagen " + imgId + " en índice " + correctIndex);
+                } else {
+                    System.out.println("ERROR: No se encontró el índice para imagen " + imgId);
+                }
             }
         }
+        System.out.println("Finalizado el marcado de imagen principal");
     }
 }

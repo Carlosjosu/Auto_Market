@@ -123,12 +123,14 @@ public class CuentaService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        return new UserInfo(auth.getName(), authorities);
+        Integer userId = Integer.parseInt(auth.getCredentials().toString());
+        return new UserInfo(auth.getName(), authorities, userId);
     }
 
     public record UserInfo(
             @NonNull String name,
-            @NonNull Collection<String> authorities) {
+            @NonNull Collection<String> authorities,
+            @NonNull Integer id) {
     }
 
     public HashMap<String, Object> login(String email, String password) throws Exception {
@@ -145,6 +147,7 @@ public class CuentaService {
                     .toList();
             mapa.put("name", auth.getName());
             mapa.put("authorities", authorities);
+            mapa.put("id", Integer.parseInt(auth.getCredentials().toString()));
             mapa.put("message", "OK");
             mapa.put("estado", "true");
         } catch (Exception e) {
@@ -200,41 +203,41 @@ public class CuentaService {
     }
 
     public static void main(String[] args) {
-    try {
-        CuentaService cuentaService = new CuentaService();
-        cuentaService.createRoles();
-        cuentaService.createUsuarios();
-        HashMap<String, Object> loginResponse = cuentaService.login("admin@gmail.com", "12345");
-        if (loginResponse.get("estado").equals("true")) {
-            System.out.println("Login successful: " + loginResponse);
+        try {
+            CuentaService cuentaService = new CuentaService();
+            cuentaService.createRoles();
+            cuentaService.createUsuarios();
+            HashMap<String, Object> loginResponse = cuentaService.login("admin@gmail.com", "12345");
+            if (loginResponse.get("estado").equals("true")) {
+                System.out.println("Login successful: " + loginResponse);
 
-            // Prueba getUserInfo
-            UserInfo userInfo = cuentaService.getUserInfo();
-            System.out.println("getUserInfo() devuelve:");
-            System.out.println("  name: " + userInfo.name());
-            System.out.println("  authorities: " + userInfo.authorities());
+                // Prueba getUserInfo
+                UserInfo userInfo = cuentaService.getUserInfo();
+                System.out.println("getUserInfo() devuelve:");
+                System.out.println("  name: " + userInfo.name());
+                System.out.println("  authorities: " + userInfo.authorities());
 
-            // Prueba el mapa de login
-            System.out.println("login() devuelve:");
-            System.out.println("  name: " + loginResponse.get("name"));
-            System.out.println("  authorities: " + loginResponse.get("authorities"));
+                // Prueba el mapa de login
+                System.out.println("login() devuelve:");
+                System.out.println("  name: " + loginResponse.get("name"));
+                System.out.println("  authorities: " + loginResponse.get("authorities"));
 
-            // Prueba getAuthentication
-            Authentication auth = cuentaService.getAuthentication();
-            if (auth != null) {
-                System.out.println("getAuthentication() devuelve: " + auth.getName());
-                System.out.println("Authorities (roles) del usuario:");
-                auth.getAuthorities().forEach(a -> System.out.println(" - " + a.getAuthority()));
+                // Prueba getAuthentication
+                Authentication auth = cuentaService.getAuthentication();
+                if (auth != null) {
+                    System.out.println("getAuthentication() devuelve: " + auth.getName());
+                    System.out.println("Authorities (roles) del usuario:");
+                    auth.getAuthorities().forEach(a -> System.out.println(" - " + a.getAuthority()));
+                } else {
+                    System.out.println("getAuthentication() devuelve null");
+                }
+
             } else {
-                System.out.println("getAuthentication() devuelve null");
+                System.out.println("Login failed: " + loginResponse.get("message"));
             }
-
-        } else {
-            System.out.println("Login failed: " + loginResponse.get("message"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
     }
-}
 
 }

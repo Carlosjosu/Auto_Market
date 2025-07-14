@@ -85,4 +85,3 @@ public class VentaService {
         return Arrays.asList(da.all().toArray());
     }
 }
-

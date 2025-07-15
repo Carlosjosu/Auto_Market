@@ -13,12 +13,15 @@ import org.springframework.stereotype.Component;
 public class DaoMensaje extends AdapterDao<Mensaje> {
     private Mensaje obj;
 
+<<<<<<< HEAD
     // Cola específica para mensajes no leídos
     private LinkedList<Mensaje> colaMensajesNoLeidos = new LinkedList<>();
 
     // Grafo de comunicación entre usuarios
     private HashMap<Integer, LinkedList<Integer>> grafoComunicacion = new HashMap<>();
 
+=======
+>>>>>>> origin/feature/Tayron_ModuloMensajes
     public DaoMensaje() {
         super(Mensaje.class);
     }
@@ -33,6 +36,7 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
         this.obj = obj;
     }
 
+<<<<<<< HEAD
     // Agrega mensaje usando cola FIFO
     public void addMensaje(Mensaje mensaje) throws Exception {
         mensaje.setId(getAllAsList().size() + 1);
@@ -135,5 +139,17 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
             }
         }
         return lista;
+=======
+    // Agrega mensaje (FIFO)
+    public void addMensaje(Mensaje mensaje) throws Exception {
+        mensaje.setId(getAllAsList().size() + 1);
+        mensaje.setFechaEnvio(new Date());
+        addFIFO(mensaje);
+    }
+
+    // Obtiene mensajes por idConversacion (FIFO)
+    public List<Mensaje> getMensajesPorConversacion(Integer idConversacion) {
+        return filter(m -> m.getIdConversacion().equals(idConversacion));
+>>>>>>> origin/feature/Tayron_ModuloMensajes
     }
 }

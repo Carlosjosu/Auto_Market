@@ -13,12 +13,15 @@ import org.springframework.stereotype.Repository;
 public class DaoConversacion extends AdapterDao<Conversacion> {
     private Conversacion obj;
 
+<<<<<<< HEAD
     // Pila para conversaciones recientes (LIFO)
     private LinkedList<Conversacion> pilaConversacionesRecientes = new LinkedList<>();
 
     // Grafo de conexiones entre usuarios
     private HashMap<Integer, LinkedList<Integer>> grafoUsuarios = new HashMap<>();
 
+=======
+>>>>>>> origin/feature/Tayron_ModuloMensajes
     public DaoConversacion() {
         super(Conversacion.class);
     }
@@ -33,6 +36,7 @@ public class DaoConversacion extends AdapterDao<Conversacion> {
         this.obj = obj;
     }
 
+<<<<<<< HEAD
     // Agrega conversación usando pila LIFO
     public void addConversacion(Conversacion conversacion) throws Exception {
         conversacion.setId(getAllAsList().size() + 1);
@@ -158,5 +162,25 @@ public class DaoConversacion extends AdapterDao<Conversacion> {
         stats.put("conversacionesRecientes", pilaConversacionesRecientes.getLength());
 
         return stats;
+=======
+    // Agrega conversación (FIFO)
+    public void addConversacion(Conversacion conversacion) throws Exception {
+        conversacion.setId(getAllAsList().size() + 1);
+        conversacion.setFechaInicio(new Date());
+        addFIFO(conversacion);
+    }
+
+    // Busca conversación entre dos usuarios
+    public Conversacion findConversacion(Integer idEmisor, Integer idReceptor) {
+        return getAllAsList().stream()
+            .filter(c -> (c.getIdEmisor().equals(idEmisor) && c.getIdReceptor().equals(idReceptor)) ||
+                         (c.getIdEmisor().equals(idReceptor) && c.getIdReceptor().equals(idEmisor)))
+            .findFirst().orElse(null);
+    }
+
+    // Obtiene todas las conversaciones de un usuario
+    public List<Conversacion> getConversacionesPorUsuario(Integer usuarioId) {
+        return filter(c -> c.getIdEmisor().equals(usuarioId) || c.getIdReceptor().equals(usuarioId));
+>>>>>>> origin/feature/Tayron_ModuloMensajes
     }
 }

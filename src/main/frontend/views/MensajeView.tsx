@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { MessageInput } from "@vaadin/react-components/MessageInput";
 import { Avatar } from "@vaadin/react-components/Avatar";
 import { Notification } from "@vaadin/react-components/Notification";
+<<<<<<< HEAD
 import { Button } from "@vaadin/react-components/Button";
+=======
+>>>>>>> origin/feature/Tayron_ModuloMensajes
 import "../themes/default/mensaje-view.css";
 
 // Importar los servicios de Spring Boot
@@ -24,7 +27,11 @@ interface Conversacion {
   idEmisor: number;
   idReceptor: number;
   fechaInicio: string;
+<<<<<<< HEAD
   estaActiva?: boolean;
+=======
+  estaActiva: boolean;
+>>>>>>> origin/feature/Tayron_ModuloMensajes
 }
 
 interface Mensaje {
@@ -35,11 +42,53 @@ interface Mensaje {
   fechaEnvio: string;
 }
 
+<<<<<<< HEAD
 interface EstadisticasMensajes {
   totalMensajes: number;
   mensajesNoLeidos: number;
   conversacionesActivas: number;
 }
+=======
+const API_URL = "http://localhost:4000/api";
+
+// Fetch usuarios reales
+const fetchUsuarios = async (): Promise<Usuario[]> => {
+  const res = await fetch(`${API_URL}/usuarios`);
+  if (!res.ok) return [];
+  return await res.json();
+};
+
+// Buscar o crear conversación
+const fetchConversacion = async (idEmisor: number, idReceptor: number): Promise<Conversacion | null> => {
+  const res = await fetch(`${API_URL}/conversaciones`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idEmisor, idReceptor }),
+  });
+  if (!res.ok) return null;
+  return await res.json();
+};
+
+// Obtener mensajes de una conversación
+const fetchMensajes = async (idConversacion: number): Promise<Mensaje[]> => {
+  const res = await fetch(`${API_URL}/mensajes?conversacionId=${idConversacion}`);
+  if (!res.ok) return [];
+  return await res.json();
+};
+
+// Enviar mensaje
+const enviarMensajeApi = async (
+  idConversacion: number,
+  idRemitente: number,
+  contenido: string
+): Promise<void> => {
+  await fetch(`${API_URL}/mensajes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idConversacion, idRemitente, contenido }),
+  });
+};
+>>>>>>> origin/feature/Tayron_ModuloMensajes
 
 const MensajesView: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -55,6 +104,7 @@ const MensajesView: React.FC = () => {
 
   // Cargar usuarios al inicio
   useEffect(() => {
+<<<<<<< HEAD
     cargarUsuarios();
   }, []);
 
@@ -123,12 +173,29 @@ const MensajesView: React.FC = () => {
   useEffect(() => {
     if (usuarioActual && usuarioDestino) {
       buscarOCrearConversacion();
+=======
+    fetchUsuarios().then(us => {
+      setUsuarios(us);
+      setUsuarioActual(us[0] || null);
+    });
+  }, []);
+
+  // Cambia de usuario o conversación
+  useEffect(() => {
+    if (usuarioActual && usuarioDestino) {
+      fetchConversacion(usuarioActual.id, usuarioDestino.id).then(conv => {
+        setConversacion(conv);
+        if (conv) fetchMensajes(conv.id).then(setMensajes);
+        else setMensajes([]);
+      });
+>>>>>>> origin/feature/Tayron_ModuloMensajes
     } else {
       setConversacion(null);
       setMensajes([]);
     }
   }, [usuarioDestino, usuarioActual]);
 
+<<<<<<< HEAD
   const buscarOCrearConversacion = async () => {
     if (!usuarioActual || !usuarioDestino) return;
     
@@ -180,6 +247,9 @@ const MensajesView: React.FC = () => {
   };
 
   // Polling para mensajes en tiempo real
+=======
+  // Polling para mensajes en tiempo real (cada 1.5 segundos)
+>>>>>>> origin/feature/Tayron_ModuloMensajes
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (conversacion) {
@@ -199,6 +269,7 @@ const MensajesView: React.FC = () => {
 
   const enviarMensaje = async (e: CustomEvent) => {
     const contenido = e.detail.value;
+<<<<<<< HEAD
     if (!conversacion || !usuarioActual || !contenido.trim()) return;
 
     try {
@@ -241,6 +312,12 @@ const MensajesView: React.FC = () => {
       return await ConversacionService.usuariosEstaConnectados(usuarioActual.id, usuarioId);
     } catch {
       return false;
+=======
+    if (conversacion && usuarioActual && contenido.trim()) {
+      await enviarMensajeApi(conversacion.id, usuarioActual.id, contenido);
+      setNotificacion("Mensaje enviado");
+      // El polling traerá el mensaje nuevo automáticamente
+>>>>>>> origin/feature/Tayron_ModuloMensajes
     }
   };
 
@@ -267,7 +344,11 @@ const MensajesView: React.FC = () => {
             onChange={e => {
               const nuevo = usuarios.find(u => u.id === Number(e.target.value));
               setUsuarioActual(nuevo || null);
+<<<<<<< HEAD
               setUsuarioDestino(null);
+=======
+              setUsuarioDestino(null); // Reinicia el chat al cambiar de usuario
+>>>>>>> origin/feature/Tayron_ModuloMensajes
             }}
             style={{background: "#222", color: "#fff", border: "none", borderRadius: 4, padding: 4}}
           >
@@ -309,6 +390,7 @@ const MensajesView: React.FC = () => {
 
         {/* Lista de usuarios */}
         <div style={{flex: 1, overflowY: "auto"}}>
+<<<<<<< HEAD
           {usuarios.filter(u => u.id !== usuarioActual?.id).map(u => {
             const estaConectado = usuariosConectados.includes(u.id);
             return (
@@ -346,6 +428,26 @@ const MensajesView: React.FC = () => {
                     {estaConectado ? "🟢 Conectado" : "Haz clic para chatear"}
                   </div>
                 </div>
+=======
+          {usuarios.filter(u => u.id !== usuarioActual?.id).map(u => (
+            <div
+              key={u.id}
+              onClick={() => setUsuarioDestino(u)}
+              style={{
+                cursor: "pointer",
+                padding: "12px 16px",
+                background: usuarioDestino?.id === u.id ? "#2a3942" : "transparent",
+                borderBottom: "1px solid #222",
+                display: "flex",
+                alignItems: "center",
+                gap: 10
+              }}
+            >
+              <Avatar name={u.nombre} />
+              <div>
+                <div style={{fontWeight: 600}}>{u.nombre}</div>
+                <div style={{fontSize: 12, color: "#aebac1"}}>Haz clic para chatear</div>
+>>>>>>> origin/feature/Tayron_ModuloMensajes
               </div>
             );
           })}
@@ -402,11 +504,18 @@ const MensajesView: React.FC = () => {
           flexDirection: "column",
           gap: 10
         }}>
+<<<<<<< HEAD
           {conversacion && mensajes.map((m: any, i: number) => {
             const remitente = usuarios.find(u => u.id === Number(m.idRemitente));
             const esActual = Number(m.idRemitente) === usuarioActual?.id;
             const userColorIndex = (Number(m.idRemitente) % 5) + 1;
 
+=======
+          {conversacion && mensajes.map((m, i) => {
+            const remitente = usuarios.find(u => u.id === m.idRemitente);
+            const esActual = m.idRemitente === usuarioActual?.id;
+            const userColorIndex = (m.idRemitente % 5) + 1;
+>>>>>>> origin/feature/Tayron_ModuloMensajes
             return (
               <div
                 key={`${m.id}-${i}`}

@@ -37,6 +37,10 @@ public class UsuarioService {
         if (nickname.trim().length() > 0 && nombre.trim().length() > 0 && apellido.trim().length() > 0
                 && cedula.trim().length() > 0
                 && telefono.trim().length() > 0 && idCuenta > 0 && idRol > 0) {
+            LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(du.all(), "nickname", nickname, 0);
+            if (!resultado.isEmpty()) {
+                throw new Exception("El nickname ya está registrado");
+            }
             du.getObj().setNickname(nickname);
             du.getObj().setNombre(nombre);
             du.getObj().setApellido(apellido);
@@ -49,16 +53,14 @@ public class UsuarioService {
         }
     }
 
-    public void update(Integer id, @NotEmpty String nickname, @NotEmpty String nombre, @NotEmpty String apellido,
-            @NotEmpty String cedula, @NotEmpty String telefono) throws Exception {
-        if (id != null && id > 0 && nickname.trim().length() > 0 && nombre.trim().length() > 0
-                && apellido.trim().length() > 0
-                && cedula.trim().length() > 0 && telefono.trim().length() > 0) {
+    public void update(Integer id, @NotEmpty String nickname, @NotEmpty String telefono) throws Exception {
+        if (id != null && id > 0 && nickname.trim().length() > 0 && telefono.trim().length() > 0) {
             du.setObj(du.listAll().get(id - 1));
+            LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(du.all(), "nickname", nickname, 0);
+            if (!resultado.isEmpty() && !du.getObj().getNickname().equals(nickname)) {
+                throw new Exception("El nickname ya está registrado");
+            }
             du.getObj().setNickname(nickname);
-            du.getObj().setNombre(nombre);
-            du.getObj().setApellido(apellido);
-            du.getObj().setCedula(cedula);
             du.getObj().setTelefono(telefono);
             if (!du.update(id - 1))
                 throw new Exception("No se pudo modificar los datos del usuario");

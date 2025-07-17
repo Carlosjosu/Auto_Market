@@ -13,7 +13,7 @@ import {
   SideNavItem,
 } from '@vaadin/react-components';
 import { Suspense } from 'react';
-import { createMenuItems } from '@vaadin/hilla-file-router/runtime.js';
+import { menuConfig } from 'Frontend/config/menu_config';
 import { CuentaService } from 'Frontend/generated/endpoints';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 
@@ -30,12 +30,15 @@ function Header() {
 function MainMenu() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { state } = useAuth();
+  const roles = (state.user?.authorities ?? []).map(auth => auth ? (typeof auth === 'string' ? auth : auth.authority) : undefined).filter(Boolean);
+  const menuItems = menuConfig.filter(item =>
+    !item.roles || item.roles.some(role => roles.includes(role))
+  );
   return (
     <SideNav className="mx-m" onNavigate={({ path }) => path != null && navigate(path)} location={location}>
-      {createMenuItems().map(({ to, icon, title }) => (
+      {menuItems.map(({ to, title }) => (
         <SideNavItem path={to} key={to}>
-          {icon && <Icon icon={icon} slot="prefix" />}
           {title}
         </SideNavItem>
       ))}
@@ -49,6 +52,8 @@ function UserMenu() {
   // TODO Replace with real user information and actions
   const { state, logout } = useAuth();
   const nickname = state.user?.name || 'ERROR';
+  console.log('Auth state:', state);
+  console.log('Usuario:', state.user);
   const items: Array<UserMenuItem> = [
     {
       component: (

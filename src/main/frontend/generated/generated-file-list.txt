@@ -8,7 +8,6 @@ ValoracionService.ts
 VentaService.ts
 TaskService.ts
 org/springframework/security/core/Authentication.ts
-com/unl/sistema/base/controller/services/CuentaService/UserInfo.ts
 com/unl/sistema/base/models/Favorito.ts
 com/unl/sistema/base/models/Valoracion.ts
 com/vaadin/hilla/mappedtypes/Pageable.ts
@@ -22,7 +21,6 @@ org/springframework/data/domain/Sort/NullHandling.ts
 connect-client.default.ts
 endpoints.ts
 org/springframework/security/core/AuthenticationModel.ts
-com/unl/sistema/base/controller/services/CuentaService/UserInfoModel.ts
 com/unl/sistema/base/models/FavoritoModel.ts
 com/unl/sistema/base/models/ValoracionModel.ts
 com/vaadin/hilla/mappedtypes/PageableModel.ts

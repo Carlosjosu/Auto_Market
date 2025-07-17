@@ -81,32 +81,10 @@
         "params": {}
       },
       {
-        "route": "marca-list",
-        "title": "Marca",
-        "menu": {
-          "icon": "vaadin:tag",
-          "order": 3,
-          "title": "Marca"
-        },
-        "flowLayout": false,
-        "params": {}
-      },
-      {
         "route": "MensajeView",
         "flowLayout": false,
         "params": {},
         "title": "Mensajes"
-      },
-      {
-        "route": "task-list",
-        "title": "Task List",
-        "menu": {
-          "icon": "vaadin:clipboard-check",
-          "order": 1,
-          "title": "Task List"
-        },
-        "flowLayout": false,
-        "params": {}
       },
       {
         "route": "usuario-list",

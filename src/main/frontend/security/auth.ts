@@ -2,7 +2,7 @@ import { configureAuth } from '@vaadin/hilla-react-auth';
 import { CuentaService } from 'Frontend/generated/endpoints';
 
 const auth = configureAuth(CuentaService.getAuthentication, {
-    getRoles: (user) => user.authorities?.map((v) => v ?? ''),
+    getRoles: (user) => user.authorities?.map((v) => v ?? '')
 });
 
 export const useAuth = auth.useAuth;

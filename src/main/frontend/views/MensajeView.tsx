@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Component } from "react";
 import { MessageInput } from "@vaadin/react-components/MessageInput";
 import { Avatar } from "@vaadin/react-components/Avatar";
 import { Notification } from "@vaadin/react-components/Notification";
@@ -8,11 +8,13 @@ import { Tab } from "@vaadin/react-components/Tab";
 import { ViewConfig } from "@vaadin/hilla-file-router/types.js";
 import "../themes/default/mensaje-view.css";
 import { useLocation } from 'react-router-dom';
+import { useAuth } from 'Frontend/security/auth';
 
 // Services usando LinkedList y grafos
 import { MensajeService } from "Frontend/generated/endpoints";
 import { ConversacionService } from "Frontend/generated/endpoints";  
 import { UsuarioService } from "Frontend/generated/endpoints";
+import { CuentaService } from "Frontend/generated/endpoints";
 
 // Configuración del menú con ícono
 export const config: ViewConfig = {
@@ -23,7 +25,36 @@ export const config: ViewConfig = {
   },
 };
 
-// Clases para LinkedList (sin usar arrays)
+// ErrorBoundary para capturar errores de React
+class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Error capturado por ErrorBoundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{padding: 20, textAlign: 'center'}}>
+          <h2>Algo salió mal</h2>
+          <p>Ha ocurrido un error. Por favor, recarga la página.</p>
+          <button onClick={() => window.location.reload()}>Recargar</button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 class NodoUsuario {
   usuario: any;
   siguiente: NodoUsuario | null;
@@ -102,7 +133,6 @@ class LinkedListUsuarios {
   }
 }
 
-// Clase para LinkedList de chats
 class NodoChat {
   chat: any;
   siguiente: NodoChat | null;
@@ -147,6 +177,10 @@ class LinkedListChats {
     return null;
   }
 
+  existeUsuario(idUsuario: number): boolean {
+    return this.buscarPorUsuario(idUsuario) !== null;
+  }
+
   buscarPorTexto(texto: string): any[] {
     const resultados: any[] = [];
     let actual = this.cabeza;
@@ -180,7 +214,6 @@ class LinkedListChats {
   }
 }
 
-// Clase para LinkedList de mensajes
 class NodoMensaje {
   mensaje: any;
   siguiente: NodoMensaje | null;
@@ -191,7 +224,6 @@ class NodoMensaje {
   }
 }
 
-// Clase para LinkedList de mensajes - CORREGIR
 class LinkedListMensajes {
   cabeza: NodoMensaje | null;
   tamaño: number;
@@ -212,7 +244,7 @@ class LinkedListMensajes {
       }
       actual.siguiente = nuevoNodo;
     }
-    this.tamaño++; // INCREMENTAR TAMAÑO
+    this.tamaño++;
   }
 
   obtenerTodos(): any[] {
@@ -225,17 +257,15 @@ class LinkedListMensajes {
     return mensajes;
   }
 
-  // AGREGAR MÉTODO FALTANTE
   obtenerTamaño(): number {
     return this.tamaño;
   }
 
   limpiar() {
     this.cabeza = null;
-    this.tamaño = 0; // RESETEAR TAMAÑO
+    this.tamaño = 0; 
   }
 
-  // MÉTODO ADICIONAL PARA BUSCAR MENSAJES
   buscarPorTexto(texto: string): any[] {
     const resultados: any[] = [];
     let actual = this.cabeza;
@@ -251,7 +281,16 @@ class LinkedListMensajes {
 }
 
 const MensajesView: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <MensajesViewContent />
+    </ErrorBoundary>
+  );
+};
+
+const MensajesViewContent: React.FC = () => {
   const location = useLocation();
+  const { state } = useAuth(); // Obtener el estado de autenticación
   
   // LinkedLists en lugar de arrays
   const [usuarios] = useState<LinkedListUsuarios>(new LinkedListUsuarios());
@@ -259,7 +298,8 @@ const MensajesView: React.FC = () => {
   const [mensajes] = useState<LinkedListMensajes>(new LinkedListMensajes());
   
   // Estados principales
-  const [usuarioActual] = useState<any>({ id: 1, nombre: "Juan", correo: "admin@gmail.com" });
+  const [usuarioActual, setUsuarioActual] = useState<any>(null);
+  const [cargandoSesion, setCargandoSesion] = useState<boolean>(true);
   const [usuarioDestino, setUsuarioDestino] = useState<any | null>(null);
   const [conversacion, setConversacion] = useState<any>(null);
   
@@ -273,6 +313,11 @@ const MensajesView: React.FC = () => {
   const [busqueda, setBusqueda] = useState<string>("");
   const [cargando, setCargando] = useState<boolean>(false);
   const [actualizarUI, setActualizarUI] = useState<number>(0);
+  const [inicializado, setInicializado] = useState<boolean>(false);
+  const [mensajeInicialEnviado, setMensajeInicialEnviado] = useState<boolean>(false);
+  
+  // ID del usuario actual desde el sistema de autenticación
+  const usuarioIdActual = state.user?.credentials || 2; // Fallback a 2 si no hay credenciales
   
   const mensajesEndRef = useRef<HTMLDivElement>(null);
 
@@ -315,28 +360,35 @@ const MensajesView: React.FC = () => {
     }
   }, []);
 
-  // Cargar usuarios usando LinkedList
   const cargarUsuarios = useCallback(async () => {
     if (cargando) return;
     
     try {
       setCargando(true);
       const usuariosData = await UsuarioService.listUsuario();
+      const cuentasData = await CuentaService.listCuenta();
       
       usuarios.limpiar();
       
       if (usuariosData) {
         for (let i = 0; i < usuariosData.length; i++) {
           const u = usuariosData[i];
-          const usuarioFormateado = {
-            id: parseInt(u.id) || 0,
-            nombre: u.nombre || u.nickname || `Usuario ${u.id}`,
-            nickname: u.nickname,
-            apellido: u.apellido,
-            telefono: u.telefono,
-            correo: u.correo
-          };
-          usuarios.agregar(usuarioFormateado);
+          if (u && typeof u.id === 'string') {
+            // Buscar cuenta asociada
+            const cuenta = Array.isArray(cuentasData) ? 
+              cuentasData.find(c => c.id === u.idCuenta) : undefined;
+            
+            const usuarioFormateado = {
+              id: parseInt(u.id) || 0,
+              nombre: u.nombre || (cuenta?.correo && typeof cuenta.correo === 'string' ? cuenta.correo.split('@')[0] : '') || u.nickname || `Usuario ${u.id}`,
+              nickname: u.nickname,
+              apellido: u.apellido,
+              telefono: u.telefono,
+              correo: cuenta?.correo || u.correo || 'sin-correo@example.com',
+              idCuenta: u.idCuenta
+            };
+            usuarios.agregar(usuarioFormateado);
+          }
         }
       }
       
@@ -347,30 +399,49 @@ const MensajesView: React.FC = () => {
     } finally {
       setCargando(false);
     }
-  }, [cargando, usuarios]);
+  }, []);
 
-  // Cargar chats usando LinkedList
+
   const cargarMisChats = useCallback(async () => {
-    if (cargando) return;
-    
+    if (cargando || !usuarioActual?.id) return; 
     try {
       setCargando(true);
-      
       if (usuarios.obtenerTamaño() === 0) {
         await cargarUsuarios();
       }
       
       const conversaciones = await ConversacionService.obtenerConversacionesPorUsuario(usuarioActual.id);
       
-      misChats.limpiar();
+      // Limpiar de forma segura
+      if (misChats && typeof misChats.limpiar === 'function') {
+        misChats.limpiar();
+      }
+      const usuariosYaProcesados = new Set<number>(); // Para evitar duplicados
       
       if (conversaciones) {
         for (let i = 0; i < conversaciones.length; i++) {
           const conv = conversaciones[i];
           try {
-            const idOtroUsuario = parseInt(conv.idEmisor) === usuarioActual.id 
-              ? parseInt(conv.idReceptor) 
-              : parseInt(conv.idEmisor);
+            if (!conv || !conv.idEmisor || !conv.idReceptor) {
+              continue;
+            }
+            const idEmisor = parseInt(conv.idEmisor ?? "0");
+            const idReceptor = parseInt(conv.idReceptor ?? "0");
+            const idOtroUsuario = idEmisor === usuarioActual.id 
+              ? idReceptor 
+              : idEmisor;
+            
+            // Filtrar conversaciones del usuario consigo mismo (LB hablando con LB)
+            if (idOtroUsuario === usuarioActual.id) {
+              console.log('Ignorando conversación del usuario consigo mismo:', usuarioActual.id);
+              continue;
+            }
+            
+            // Saltar si ya procesamos este usuario
+            if (usuariosYaProcesados.has(idOtroUsuario)) {
+              continue;
+            }
+            usuariosYaProcesados.add(idOtroUsuario);
             
             let otroUsuario = usuarios.buscarPorId(idOtroUsuario);
             
@@ -378,13 +449,19 @@ const MensajesView: React.FC = () => {
               try {
                 const usuarioData = await UsuarioService.getUsuario(idOtroUsuario);
                 if (usuarioData) {
+                  // Buscar cuenta asociada para el usuario individual
+                  const cuentasData = await CuentaService.listCuenta();
+                  const cuenta = Array.isArray(cuentasData) ? 
+                    cuentasData.find(c => c.id === usuarioData.idCuenta) : undefined;
+                  
                   otroUsuario = {
-                    id: parseInt(usuarioData.id),
-                    nombre: usuarioData.nombre || usuarioData.nickname || `Usuario ${idOtroUsuario}`,
+                    id: parseInt(usuarioData.id ?? "0"),
+                    nombre: usuarioData.nombre || (cuenta?.correo && typeof cuenta.correo === 'string' ? cuenta.correo.split('@')[0] : '') || usuarioData.nickname || `Usuario ${idOtroUsuario}`,
                     nickname: usuarioData.nickname,
                     apellido: usuarioData.apellido,
                     telefono: usuarioData.telefono,
-                    correo: usuarioData.correo
+                    correo: cuenta?.correo || usuarioData.correo || 'sin-correo@example.com',
+                    idCuenta: usuarioData.idCuenta
                   };
                   usuarios.agregar(otroUsuario);
                 }
@@ -393,38 +470,50 @@ const MensajesView: React.FC = () => {
               }
             }
             
-            const ultimosMensajes = await MensajeService.obtenerMensajesPorConversacion(parseInt(conv.id)) || [];
+            // Obtener todos los mensajes de esta conversación para estadísticas
+            const ultimosMensajes = await MensajeService.obtenerMensajesPorConversacion(parseInt(conv.id ?? "0")) || [];
             const ultimoMensaje = ultimosMensajes.length > 0 ? ultimosMensajes[ultimosMensajes.length - 1] : null;
             
-            const chat = {
-              ...conv,
-              id: conv.id || Math.random().toString(36),
-              otroUsuario: otroUsuario || { 
-                id: idOtroUsuario, 
-                nombre: `Usuario ${idOtroUsuario}` 
-              },
-              ultimoMensaje: ultimoMensaje?.contenido || 'Sin mensajes',
-              fechaUltimoMensaje: ultimoMensaje?.fechaEnvio || conv.fechaInicio,
-              totalMensajes: ultimosMensajes.length
-            };
+            console.log(`Procesando conversación con usuario ${idOtroUsuario} (${otroUsuario?.nombre}): ${ultimosMensajes.length} mensajes`);
             
-            misChats.agregar(chat);
+            // Solo agregar el chat si tiene mensajes (conversación real iniciada)
+            if (ultimosMensajes.length > 0) {
+              const chat = {
+                ...conv,
+                id: conv.id || Math.random().toString(36),
+                otroUsuario: otroUsuario || { 
+                  id: idOtroUsuario, 
+                  nombre: `Usuario ${idOtroUsuario}` 
+                },
+                ultimoMensaje: ultimoMensaje?.contenido || 'Sin mensajes',
+                fechaUltimoMensaje: ultimoMensaje?.fechaEnvio || conv.fechaInicio,
+                totalMensajes: ultimosMensajes.length
+              };
+              
+              console.log('Agregando chat:', chat.otroUsuario?.nombre, 'mensajes:', chat.totalMensajes);
+              misChats.agregar(chat);
+            } else {
+              console.log(`No se agregó chat con ${otroUsuario?.nombre} porque no tiene mensajes`);
+            }
           } catch (error) {
             console.error('Error procesando conversación:', error);
           }
         }
       }
       
+      console.log('Total de chats cargados:', misChats.obtenerTamaño());
       forzarActualizacion();
     } catch (error) {
       console.error('Error cargando mis chats:', error);
     } finally {
       setCargando(false);
     }
-  }, [usuarios, usuarioActual.id, cargando, misChats, cargarUsuarios]);
+  }, [usuarioActual?.id]); 
 
   // Cargar estadísticas
   const cargarEstadisticas = useCallback(async () => {
+    if (!usuarioActual?.id) return; 
+    
     try {
       const statsMensajes = await MensajeService.obtenerEstadisticas(usuarioActual.id).catch(() => ({}));
       const statsConversaciones = await ConversacionService.obtenerEstadisticas(usuarioActual.id).catch(() => ({}));
@@ -437,18 +526,20 @@ const MensajesView: React.FC = () => {
       console.error('Error cargando estadísticas:', error);
       setEstadisticas({});
     }
-  }, [usuarioActual.id]);
+  }, [usuarioActual?.id]); 
 
   // Cargar usuarios conectados
   const cargarUsuariosConectados = useCallback(async () => {
+    if (!usuarioActual?.id) return;
+    
     try {
       const conectados = await ConversacionService.obtenerUsuariosConectados(usuarioActual.id);
-      setUsuariosConectados(conectados || []);
+      setUsuariosConectados((conectados || []).filter((id: any) => typeof id === "number"));
     } catch (error) {
       console.error('Error cargando usuarios conectados:', error);
       setUsuariosConectados([]);
     }
-  }, [usuarioActual.id]);
+  }, [usuarioActual?.id]); 
 
   // Cargar mensajes usando LinkedList
   const cargarMensajes = useCallback(async (idConversacion: number) => {
@@ -462,6 +553,7 @@ const MensajesView: React.FC = () => {
       if (mensajesData) {
         for (let i = 0; i < mensajesData.length; i++) {
           const m = mensajesData[i];
+          if (!m) continue;
           const mensajeConId = {
             ...m,
             id: m.id || `temp-${i}-${Date.now()}`,
@@ -472,17 +564,16 @@ const MensajesView: React.FC = () => {
       }
       
       forzarActualizacion();
-      cargarEstadisticas();
     } catch (error) {
       console.error('Error cargando mensajes:', error);
       mensajes.limpiar();
       forzarActualizacion();
     }
-  }, [mensajes, cargarEstadisticas]);
+  }, [mensajes]);
 
   // Seleccionar conversación
   const seleccionarConversacion = useCallback(async (usuario: any) => {
-    if (!usuario || !usuario.id) return;
+    if (!usuario || !usuario.id || !usuarioActual?.id) return;
     
     try {
       setUsuarioDestino(usuario);
@@ -499,23 +590,23 @@ const MensajesView: React.FC = () => {
         setConversacion(conv);
         await cargarMensajes(parseInt(conv.id));
         
-        if (seccionActiva === 'explorar') {
-          setTimeout(() => {
-            cargarMisChats();
-            cargarUsuariosConectados();
-          }, 1000);
-        }
+        // Siempre actualizar las listas cuando se selecciona una conversación
+        setTimeout(() => {
+          cargarMisChats();
+          cargarUsuariosConectados();
+          forzarActualizacion();
+        }, 1000);
       }
     } catch (error) {
       console.error('Error seleccionando conversación:', error);
       setNotificacion('Error al acceder a la conversación');
     }
-  }, [usuarioActual.id, seccionActiva, cargarMensajes, cargarMisChats, cargarUsuariosConectados, mensajes]);
+  }, [usuarioActual?.id, cargarMensajes, cargarMisChats, cargarUsuariosConectados]);
 
   // Enviar mensaje
   const enviarMensaje = useCallback(async (e: CustomEvent) => {
     const contenido = e.detail.value;
-    if (!conversacion || !contenido?.trim()) return;
+    if (!conversacion || !contenido?.trim() || !usuarioActual?.id) return;
 
     try {
       const nuevoMensaje = {
@@ -531,7 +622,8 @@ const MensajesView: React.FC = () => {
         setNotificacion("Mensaje enviado");
         setTimeout(() => {
           cargarMensajes(parseInt(conversacion.id));
-          cargarMisChats();
+          cargarMisChats(); // Esto actualiza la lista de chats
+          forzarActualizacion(); // Fuerza el re-render para actualizar explorar
         }, 500);
       } else {
         setNotificacion("Error al enviar mensaje");
@@ -541,7 +633,7 @@ const MensajesView: React.FC = () => {
       console.error('Error enviando mensaje:', error);
       setNotificacion('Error al enviar mensaje');
     }
-  }, [conversacion, usuarioActual.id, cargarMensajes, cargarMisChats]);
+  }, [conversacion, usuarioActual?.id, cargarMensajes, cargarMisChats]);
 
   // Buscar mensajes
   const buscarMensajes = useCallback(async (texto: string) => {
@@ -569,12 +661,16 @@ const MensajesView: React.FC = () => {
     } catch (error) {
       console.error('Error buscando mensajes:', error);
     }
-  }, [conversacion, cargarMensajes, mensajes]);
+  }, [conversacion]);
 
-  // Iniciar chat con usuario
   const iniciarChatConUsuario = useCallback(async (usuarioId: number, contexto?: any) => {
+    if (!usuarioActual?.id) { 
+      console.error('Usuario actual no está cargado');
+      setNotificacion('Error: Usuario no está logueado');
+      return;
+    }
+    
     try {
-      // Buscar el usuario en la lista de usuarios
       let usuario = usuarios.buscarPorId(usuarioId);
       
       // Si no está en la lista, intentar cargarlo individualmente
@@ -582,13 +678,19 @@ const MensajesView: React.FC = () => {
         try {
           const usuarioData = await UsuarioService.getUsuario(usuarioId);
           if (usuarioData) {
+            // Buscar cuenta asociada
+            const cuentasData = await CuentaService.listCuenta();
+            const cuenta = Array.isArray(cuentasData) ? 
+              cuentasData.find(c => c.id === usuarioData.idCuenta) : undefined;
+            
             usuario = {
-              id: parseInt(usuarioData.id),
-              nombre: usuarioData.nombre || usuarioData.nickname || `Usuario ${usuarioId}`,
+              id: parseInt(usuarioData.id ?? "0"),
+              nombre: usuarioData.nombre || (cuenta?.correo && typeof cuenta.correo === 'string' ? cuenta.correo.split('@')[0] : '') || usuarioData.nickname || `Usuario ${usuarioId}`,
               nickname: usuarioData.nickname,
               apellido: usuarioData.apellido,
               telefono: usuarioData.telefono,
-              correo: usuarioData.correo
+              correo: cuenta?.correo || usuarioData.correo || 'sin-correo@example.com',
+              idCuenta: usuarioData.idCuenta
             };
             usuarios.agregar(usuario);
             forzarActualizacion();
@@ -605,112 +707,300 @@ const MensajesView: React.FC = () => {
         return;
       }
 
-      // Seleccionar la conversación con este usuario
-      await seleccionarConversacion(usuario);
-      
-      // Enviar mensaje inicial si hay contexto
-      if (contexto) {
-        setTimeout(async () => {
-          let mensajeInicial = '';
+      // Primero crear/buscar conversación
+      const conversacionExistente = await ConversacionService.crearOBuscarConversacion(
+        usuarioActual.id, 
+        usuarioId, 
+        null
+      );
+
+      if (conversacionExistente?.id) {
+        // Cargar la conversación
+        setConversacion(conversacionExistente);
+        setUsuarioDestino(usuario);
+        await cargarMensajes(parseInt(conversacionExistente.id));
+        
+        // Si hay contexto autoInfo, SIEMPRE enviar el mensaje (sin importar si la conversación existe)
+        if (contexto?.autoInfo) {
+          const mensajeInicial = `Hola! Me interesa el auto ${contexto.autoInfo.marca} ${contexto.autoInfo.modelo} ${contexto.autoInfo.anio} por $${contexto.autoInfo.precio}. ¿Podrías darme más información?`;
           
-          if (contexto.autoInfo) {
-            mensajeInicial = `Hola! Me interesa el auto ${contexto.autoInfo.marca} ${contexto.autoInfo.modelo} ${contexto.autoInfo.anio} por $${contexto.autoInfo.precio}. ¿Podrías darme más información?`;
-          } else if (contexto.ventaInfo) {
-            mensajeInicial = `Hola! Me interesa la venta del ${contexto.ventaInfo.auto} por $${contexto.ventaInfo.precio}. ¿Está disponible?`;
-          }
+          const nuevoMensaje = {
+            idConversacion: parseInt(conversacionExistente.id),
+            idRemitente: usuarioActual.id,
+            contenido: mensajeInicial,
+            fechaEnvio: new Date().toISOString()
+          };
 
-          if (mensajeInicial && conversacion) {
-            try {
-              const nuevoMensaje = {
-                idConversacion: parseInt(conversacion.id),
-                idRemitente: usuarioActual.id,
-                contenido: mensajeInicial,
-                fechaEnvio: new Date().toISOString()
-              };
-
-              const resultado = await MensajeService.agregarMensaje(nuevoMensaje);
-              
-
-              if (resultado?.estado === 'success') {
-                setTimeout(() => {
-                  cargarMensajes(parseInt(conversacion.id));
-                  cargarMisChats();
-                }, 500);
-              }
-            } catch (error) {
-              console.error('Error enviando mensaje inicial:', error);
+          try {
+            const resultado = await MensajeService.agregarMensaje(nuevoMensaje);
+            
+            if (resultado?.estado === 'success') {
+              setNotificacion(`Mensaje enviado a ${usuario.nombre}`);
+              // Recargar mensajes después de enviar
+              setTimeout(() => {
+                cargarMensajes(parseInt(conversacionExistente.id));
+                cargarMisChats();
+              }, 500);
             }
+          } catch (error) {
+            console.error('Error enviando mensaje inicial:', error);
+            setNotificacion('Error al enviar mensaje inicial');
           }
-        }, 1000);
+        } else {
+          setNotificacion(`Continuando chat con ${usuario.nombre}`);
+        }
+      } else {
+        // Si no existe, crear nueva conversación
+        await seleccionarConversacion(usuario);
+        setNotificacion(`Iniciando nuevo chat con ${usuario.nombre}`);
       }
 
-      setNotificacion(`Iniciando chat con ${usuario.nombre}`);
     } catch (error) {
       console.error('Error iniciando chat con usuario:', error);
       setNotificacion('Error al iniciar el chat');
     }
-  }, [usuarios, usuarioActual.id, seleccionarConversacion, conversacion, cargarMensajes, cargarMisChats]);
+  }, [usuarioActual?.id, seleccionarConversacion, cargarMensajes, cargarMisChats]);
 
-  // Cargar datos iniciales
+  const obtenerUsuarioActual = useCallback(async () => {
+    try {
+      setCargandoSesion(true);
+      
+      // Obtener todos los usuarios desde Usuario.json
+      const usuarios = await UsuarioService.listUsuario();
+      
+      // Usar el ID del usuario desde el sistema de autenticación
+      const idUsuario = usuarioIdActual;
+  
+      const usuarioEncontrado = Array.isArray(usuarios) ? 
+        usuarios.find(u => parseInt(u.id) === idUsuario) : undefined;
+      
+      if (usuarioEncontrado) {
+        // Obtener correo desde Cuenta.json
+        const cuentas = await CuentaService.listCuenta();
+        const cuenta = Array.isArray(cuentas) ? 
+          cuentas.find(c => c.id === usuarioEncontrado.idCuenta) : undefined;
+        
+        setUsuarioActual({
+          id: parseInt(String(usuarioEncontrado.id)),
+          nombre: usuarioEncontrado.nombre || usuarioEncontrado.nickname || (cuenta?.correo && typeof cuenta.correo === 'string' ? cuenta.correo.split('@')[0] : '') || 'Usuario',
+          correo: cuenta?.correo || 'sin-correo@gmail.com',
+          nickname: usuarioEncontrado.nickname, 
+          apellido: usuarioEncontrado.apellido, 
+          telefono: usuarioEncontrado.telefono, 
+          cedula: usuarioEncontrado.cedula,
+          idCuenta: usuarioEncontrado.idCuenta
+        });
+      } else {
+        // Usuario por defecto si no se encuentra - intentar obtener datos de la cuenta
+        try {
+          const cuentas = await CuentaService.listCuenta();
+          const cuentaActual = Array.isArray(cuentas) ? 
+            cuentas.find(c => c.id === usuarioIdActual) : undefined;
+          
+          setUsuarioActual({
+            id: usuarioIdActual,
+            nombre: cuentaActual?.correo && typeof cuentaActual.correo === 'string' ? cuentaActual.correo.split('@')[0] : "Usuario",
+            correo: cuentaActual?.correo || "usuario@gmail.com",
+            nickname: "user"
+          });
+        } catch (error) {
+          // Fallback final
+          setUsuarioActual({
+            id: usuarioIdActual,
+            nombre: "Usuario",
+            correo: "usuario@gmail.com",
+            nickname: "user"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error obteniendo usuario:', error);
+      // Usuario por defecto si falla - intentar al menos obtener el correo
+      try {
+        const cuentas = await CuentaService.listCuenta();
+        const cuentaActual = Array.isArray(cuentas) ? 
+          cuentas.find(c => c.id === usuarioIdActual) : undefined;
+        
+        setUsuarioActual({
+          id: usuarioIdActual,
+          nombre: cuentaActual?.correo && typeof cuentaActual.correo === 'string' ? cuentaActual.correo.split('@')[0] : "Usuario",
+          correo: cuentaActual?.correo || "usuario@gmail.com",
+          nickname: "user"
+        });
+      } catch (finalError) {
+        // Fallback absoluto
+        setUsuarioActual({
+          id: usuarioIdActual,
+          nombre: "Usuario",
+          correo: "usuario@gmail.com",
+          nickname: "user"
+        });
+      }
+    } finally {
+      // Siempre establecer cargandoSesion a false al final
+      setCargandoSesion(false);
+    }
+  }, [usuarioIdActual]);
+
   useEffect(() => {
-    const cargarDatosIniciales = async () => {
-      // CARGAR EN ORDEN ESPECÍFICO
-      await cargarUsuarios();        
-      await cargarMisChats();        
-      await cargarEstadisticas();    
-      await cargarUsuariosConectados(); 
-    };
-    
-    cargarDatosIniciales();
-  }, [cargarUsuarios, cargarMisChats, cargarEstadisticas, cargarUsuariosConectados]);
+    obtenerUsuarioActual();
+  }, [obtenerUsuarioActual]);
 
-  // Auto-scroll
+  // Limpiar y reiniciar estado cuando cambien las credenciales del usuario
+  useEffect(() => {
+    // Si el usuario ID cambió, limpiar todo el estado previo
+    if (usuarioActual && usuarioActual.id !== usuarioIdActual) {
+      console.log('Usuario cambió, limpiando estado previo');
+      
+      // Limpiar datos del usuario anterior de forma segura
+      setTimeout(() => {
+        usuarios.limpiar();
+        misChats.limpiar();
+        mensajes.limpiar();
+        setUsuarioDestino(null);
+        setConversacion(null);
+        setBusqueda("");
+        setEstadisticas(null);
+        setUsuariosConectados([]);
+        setInicializado(false);
+        setMensajeInicialEnviado(false);
+        
+        // Recargar con el nuevo usuario después de limpiar
+        obtenerUsuarioActual();
+      }, 100);
+    }
+  }, [usuarioIdActual]); // Removemos obtenerUsuarioActual de las dependencias para evitar bucles
+
+  useEffect(() => {
+    if (usuarioActual && !cargandoSesion && !inicializado) {
+      // Crear funciones estables para evitar bucles
+      const cargarDatosIniciales = async () => {
+        try {
+          setInicializado(true);
+          
+          // Cargar usuarios primero
+          if (usuarios.obtenerTamaño() === 0) {
+            await cargarUsuarios();
+          }
+          
+          // Luego cargar el resto de datos
+          await Promise.all([
+            cargarMisChats(),
+            cargarEstadisticas(),
+            cargarUsuariosConectados()
+          ]);
+        } catch (error) {
+          console.error('Error cargando datos iniciales:', error);
+        }
+      };
+      
+      cargarDatosIniciales();
+    }
+  }, [usuarioActual, cargandoSesion, inicializado]);
+
   useEffect(() => {
     if (mensajes && typeof mensajes.obtenerTamaño === 'function' && mensajes.obtenerTamaño() > 0) {
-      setTimeout(() => {
-        mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      const timeoutId = setTimeout(() => {
+        try {
+          if (mensajesEndRef.current && 
+              document.contains(mensajesEndRef.current) && 
+              mensajesEndRef.current.parentNode) {
+            mensajesEndRef.current.scrollIntoView({ behavior: "smooth" });
+          }
+        } catch (error) {
+          console.warn('Error en scroll de mensajes:', error);
+        }
+      }, 150); // Incrementar tiempo para dar más margen
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [mensajes, actualizarUI]);
 
-  // AGREGAR ESTE useEffect AQUÍ (no dentro del JSX)
+  // Manejar redirección automática desde otras vistas (Auto.tsx)
   useEffect(() => {
-    if (location.state?.chatConUsuario) {
-      const { chatConUsuario, autoInfo, ventaInfo } = location.state;
+    if (location.state?.iniciarChatCon && usuarioActual?.id && inicializado && !mensajeInicialEnviado) {
+      const idVendedor = location.state.iniciarChatCon;
+      const autoInfo = location.state.autoInfo;
       
-      // Esperar a que se carguen los datos iniciales
+      // Verificar que no sea el mismo usuario
+      if (idVendedor === usuarioActual.id) {
+        setNotificacion('No puedes enviarte un mensaje a ti mismo sobre tu propio vehículo');
+        return;
+      }
+
+      // Marcar que se va a enviar el mensaje inicial
+      setMensajeInicialEnviado(true);
+
+      // Iniciar chat con el vendedor
       setTimeout(() => {
-        iniciarChatConUsuario(
-          chatConUsuario.id, 
-          { autoInfo, ventaInfo }
-        );
-      }, 2000);
+        iniciarChatConUsuario(idVendedor, { autoInfo });
+      }, 1000);
 
-      // Limpiar el state para evitar repetir la acción
-      window.history.replaceState({}, document.title);
+      // Limpiar el state para evitar que se ejecute múltiples veces
+      if (window.history.replaceState) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     }
-  }, [location.state, iniciarChatConUsuario]);
+  }, [usuarioActual?.id, inicializado, location.state, iniciarChatConUsuario, mensajeInicialEnviado]);
 
-  // Obtener usuarios para explorar (sin arrays)
   const obtenerUsuariosParaExplorar = (): any[] => {
+    if (!usuarioActual?.id) return []; // Retornar array vacío en lugar de undefined
+    
     const todosUsuarios = usuarios.obtenerTodos();
     const usuariosParaExplorar: any[] = [];
     
-    for (let i = 0; i < todosUsuarios.length; i++) {
-      const u = todosUsuarios[i];
-      if (u.id === usuarioActual.id) continue;
-      
-      const yaEstaEnMisChats = misChats.buscarPorUsuario(u.id) !== null;
-      
-      if (!yaEstaEnMisChats) {
-        usuariosParaExplorar.push(u);
+    // Obtener IDs de usuarios con los que ya tengo conversaciones con mensajes
+    const usuariosConConversacion = new Set<number>();
+    const chatsExistentes = misChats.obtenerTodos();
+    
+    console.log('=== DEPURACIÓN EXPLORAR ===');
+    console.log('Usuario actual:', usuarioActual.id, usuarioActual.nombre);
+    console.log('Total usuarios registrados:', todosUsuarios.length);
+    console.log('Chats existentes:', chatsExistentes.length);
+    
+    // Debug: ver qué chats existen
+    chatsExistentes.forEach((chat, index) => {
+      console.log(`Chat ${index + 1}:`, {
+        otroUsuarioId: chat.otroUsuario?.id,
+        otroUsuarioNombre: chat.otroUsuario?.nombre,
+        totalMensajes: chat.totalMensajes,
+        valido: chat.otroUsuario?.id && chat.totalMensajes > 0
+      });
+    });
+    
+    for (let i = 0; i < chatsExistentes.length; i++) {
+      const chat = chatsExistentes[i];
+      if (chat.otroUsuario?.id && chat.totalMensajes > 0 && chat.otroUsuario.id !== usuarioActual.id) {
+        usuariosConConversacion.add(chat.otroUsuario.id);
+        console.log('Agregando usuario con conversación:', chat.otroUsuario.id, chat.otroUsuario.nombre);
       }
     }
+    
+    console.log('Usuarios con conversación activa:', Array.from(usuariosConConversacion));
+    
+    for (let i = 0; i < todosUsuarios.length; i++) {
+      const u = todosUsuarios[i];
+      if (u.id === usuarioActual.id) {
+        console.log('Saltando usuario actual:', u.id, u.nombre);
+        continue; // Excluir al usuario actual
+      }
+      
+      // Solo agregar usuarios con los que NO tengo conversaciones con mensajes
+      if (!usuariosConConversacion.has(u.id)) {
+        usuariosParaExplorar.push(u);
+        console.log('Agregando para explorar:', u.id, u.nombre);
+      } else {
+        console.log('Excluyendo de explorar (tiene conversación):', u.id, u.nombre);
+      }
+    }
+    
+    console.log('Usuarios para explorar final:', usuariosParaExplorar.length);
+    usuariosParaExplorar.forEach(u => console.log('- Para explorar:', u.id, u.nombre));
+    console.log('=== FIN DEPURACIÓN ===');
     
     return usuariosParaExplorar;
   };
 
-  // Obtener chats filtrados
   const obtenerChatsFiltrados = (): any[] => {
     if (!busqueda) {
       return misChats.obtenerTodos();
@@ -719,7 +1009,6 @@ const MensajesView: React.FC = () => {
     }
   };
 
-  // Obtener usuarios filtrados para explorar
   const obtenerUsuariosFiltradosParaExplorar = (): any[] => {
     const usuariosParaExplorar = obtenerUsuariosParaExplorar();
     
@@ -738,6 +1027,23 @@ const MensajesView: React.FC = () => {
     
     return filtrados;
   };
+
+  if (cargandoSesion && !usuarioActual) {
+    return (
+      <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>
+        <div>Cargando usuario...</div>
+      </div>
+    );
+  }
+
+  // Si no hay usuario autenticado, mostrar mensaje diferente
+  if (!usuarioActual) {
+    return (
+      <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>
+        <div>No hay usuario autenticado. Por favor, inicia sesión.</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -828,7 +1134,7 @@ const MensajesView: React.FC = () => {
             misChats.obtenerTamaño() > 0 ? (
               obtenerChatsFiltrados().map((chat, index) => (
                 <div
-                  key={`chat-${chat.id}-${index}`}
+                  key={`chat-${chat.otroUsuario?.id || chat.id}-${usuarioActual?.id || ''}`}
                   onClick={() => seleccionarConversacion(chat.otroUsuario)}
                   style={{
                     cursor: "pointer",
@@ -880,7 +1186,7 @@ const MensajesView: React.FC = () => {
                       {chat.ultimoMensaje}
                     </div>
                     <div style={{fontSize: 10, color: "#999", marginTop: 2}}>
-                      {chat.totalMensajes} mensajes
+                      {chat.totalMensajes} mensajes • Continuar conversación
                     </div>
                   </div>
                 </div>
@@ -895,11 +1201,11 @@ const MensajesView: React.FC = () => {
               </div>
             )
           ) : (
-            // EXPLORAR
+
             obtenerUsuariosParaExplorar().length > 0 ? (
               obtenerUsuariosFiltradosParaExplorar().map((u, index) => (
                 <div
-                  key={`user-${u.id}-${index}`}
+                  key={`user-${u.id}-${usuarioActual?.id || ''}`}
                   onClick={() => seleccionarConversacion(u)}
                   style={{
                     cursor: "pointer",
@@ -916,7 +1222,7 @@ const MensajesView: React.FC = () => {
                   <div style={{flex: 1}}>
                     <div style={{fontWeight: 600, fontSize: 14, color: "#000"}}>{u.nombre}</div>
                     <div style={{fontSize: 12, color: "#666"}}>
-                      {u.correo || "Sin correo"}
+                      {u.correo || "Sin correo"} • {usuariosConectados.includes(u.id) ? "🟢 Conectado" : "⚫ Disponible"}
                     </div>
                     <div style={{fontSize: 10, color: "#4caf50", marginTop: 2}}>
                       Iniciar conversación
@@ -927,9 +1233,9 @@ const MensajesView: React.FC = () => {
             ) : (
               <div style={{padding: 20, textAlign: "center", color: "#666"}}>
                 <div style={{fontSize: 48}}>🌍</div>
-                <div>Ya tienes conversaciones con todos los usuarios</div>
+                <div>Todos los usuarios ya tienen conversaciones activas</div>
                 <div style={{fontSize: 12, marginTop: 8}}>
-                  Ve a "Mis Chats" para continuar conversaciones
+                  Los usuarios con conversaciones aparecen en "Mis Chats"
                 </div>
               </div>
             )
@@ -1009,7 +1315,7 @@ const MensajesView: React.FC = () => {
             mensajes.obtenerTodos().map((m: any, index: number) => {
               const remitente = usuarios.buscarPorId(parseInt(m.idRemitente));
               const esActual = parseInt(m.idRemitente) === usuarioActual.id;
-              const nombreRemitente = remitente?.nombre || 'Usuario Desconocido';
+              const nombreRemitente = esActual ? usuarioActual.nombre : (remitente?.nombre || `Usuario ${m.idRemitente}`);
 
               return (
                 <div
@@ -1044,7 +1350,6 @@ const MensajesView: React.FC = () => {
                       alignItems: "center",
                       color: "#666"
                     }}>
-                      <span>{nombreRemitente}</span>
                       <span>{formatearFecha(m.fechaEnvio)}</span>
                     </div>
                   </div>
@@ -1097,7 +1402,6 @@ const MensajesView: React.FC = () => {
                 color: "#000",
                 background: "#fff"
               }}
-              placeholder={`Escribir mensaje a ${usuarioDestino?.nombre}...`}
             />
           </div>
         )}

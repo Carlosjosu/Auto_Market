@@ -407,7 +407,7 @@ export default function VentaView() {
                             >
                                 <span style={{ fontSize: 20, marginRight: 8, display: "flex", alignItems: "center" }}>❤️</span>
                             </Button>
-                            <Button theme="secondary" style={{ flex: 1 }}>Chat</Button>
+                            {/* <Button theme="secondary" style={{ flex: 1 }}>Chat</Button> */}
                             <Button theme="primary" style={{ flex: 1 }} onClick={() => {
                                 setVentaEditar(venta);
                                 setModoEdicion(true);
@@ -424,8 +424,7 @@ export default function VentaView() {
                                 }}
                             >
                                 Valorar
-                            </Button>
-                        </div>
+                            </Button>                        </div>
                     </div>
                 ))}
             </div>

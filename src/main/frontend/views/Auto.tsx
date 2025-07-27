@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Button, Dialog, Notification, Checkbox, TextArea, TextField, VerticalLayout, HorizontalLayout, ComboBox, RadioGroup, RadioButton } from '@vaadin/react-components';
+import { Button, Dialog, Notification, Checkbox, TextArea, TextField, VerticalLayout, HorizontalLayout, ComboBox, RadioGroup, RadioButton, CustomField } from '@vaadin/react-components';
 import { AutoService, MarcaService, ImagenService, FavoritoService, CuentaService } from 'Frontend/generated/endpoints';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import { CheckboxGroup } from '@vaadin/react-components/CheckboxGroup';
-import { useAuth } from 'Frontend/security/auth';
+import { useAuth, role } from 'Frontend/security/auth';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -163,8 +163,9 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
             if (!autoEditar) return;
             
             // Validaciones de permisos usando el backend
-            const isAdminFromBackend = await CuentaService.isCurrentUserAdmin();
-            if (!isAdminFromBackend && Number(autoEditar.idVendedor) !== Number(usuarioActual?.id)) {
+            const rolResponse = await role();
+            const esAdmin = rolResponse?.rol === 'ROLE_admin';
+            if (!esAdmin && Number(autoEditar.idVendedor) !== Number(usuarioActual?.id)) {
                 Notification.show('No tienes permisos para editar este auto', { duration: 5000, position: 'top-center', theme: 'error' });
                 return;
             }
@@ -409,8 +410,8 @@ export default function AutoView() {
     const [imagenes, setImagenes] = useState<any[]>([]);
     const [busqueda, setBusqueda] = useState('');
     const [resultadoBusqueda, setResultadoBusqueda] = useState<any | null>(null);
-    const [categoriaBusqueda, setCategoriaBusqueda] = useState('');
-    const [resultadoCategoria, setResultadoCategoria] = useState<any[] | null>(null);
+    const [opcionesBusqueda, setOpcionesBusqueda] = useState<any[]>([]);
+    // Eliminados estados de búsqueda por categoría
     const [renderKey, setRenderKey] = useState(0);
     
     // Estados para el modal de detalles
@@ -418,74 +419,54 @@ export default function AutoView() {
     const [autoSeleccionado, setAutoSeleccionado] = useState<AutoItem | null>(null);
     
     // Estados para manejo de roles y modos
-    const [modoUsuario, setModoUsuario] = useState<'vendedor' | 'comprador'>('comprador');
     const [usuarioActual, setUsuarioActual] = useState<any>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [mostrarSoloMios, setMostrarSoloMios] = useState(false);
 
     const callData = () => {
-        // Incrementar la key para forzar re-renderizado
         setRenderKey(prev => prev + 1);
-        
-        // Cargar información del usuario actual
-        CuentaService.getCurrentUserInfo().then(userInfo => {
-            setUsuarioActual(userInfo);
-            
-            // Verificar si es admin usando el backend
-            CuentaService.isCurrentUserAdmin().then(isAdminFromBackend => {
-                setIsAdmin(Boolean(isAdminFromBackend));
-                
-                // Actualizar autos según el modo y rol
-                let autoPromise;
-                if (Boolean(isAdminFromBackend)) {
-                    // Admin ve todos los autos
-                    autoPromise = AutoService.listAuto();
-                } else if (modoUsuario === 'vendedor' && userInfo?.id) {
-                    // Vendedor ve solo sus autos
-                    autoPromise = AutoService.listAutosByVendedor(Number(userInfo.id));
-                } else if (modoUsuario === 'comprador' && userInfo?.id) {
-                    // Comprador ve autos de otros (disponibles)
-                    autoPromise = AutoService.listAutosForComprador(Number(userInfo.id));
-                } else {
-                    // Por defecto, mostrar todos disponibles
-                    autoPromise = AutoService.listAuto();
-                }
-                
-                autoPromise.then(data => {
-                    const autosData = (data ?? [])
-                        .filter(Boolean)
-                        .map((item: any) => ({
-                            id: item.id,
-                            modelo: item.modelo ?? '',
-                            anio: item.anio ?? '',
-                            puertas: Number(item.puertas) || 0,
-                            color: item.color ?? '',
-                            kilometraje: Number(item.kilometraje) || 0,
-                            ciudad: item.ciudad ?? '',
-                            precio: Number(item.precio) || 0,
-                            matricula: item.matricula ?? '',
-                            codigoVIN: item.codigoVIN ?? '',
-                            descripcion: item.descripcion ?? '',
-                            fechaRegistro: item.fechaRegistro ?? '',
-                            estaDisponible: item.estaDisponible === 'true',
-                            idVenta: Number(item.idVenta) || 0,
-                            idMarca: Number(item.idMarca) || 0,
-                            idVendedor: Number(item.idVendedor) || 0,
-                            tipoCombustible: item.tipoCombustible ?? '',
-                            categoria: item.categoria ?? ''
-                        }));
-                    setItems(autosData);
-                }).catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
-            }).catch(() => {
-                // Si falla la verificación del backend, usar false por seguridad
-                setIsAdmin(false);
-                Notification.show('Error al verificar permisos de administrador', { duration: 3000, position: 'top-center', theme: 'error' });
-            });
+        const userId = state.user?.credentials;
+        if (userId) setUsuarioActual({ id: userId });
+        role().then((rolResponse) => {
+            const esAdmin = rolResponse?.rol === 'ROLE_admin';
+            setIsAdmin(esAdmin);
+            let autoPromise;
+            if (esAdmin) {
+                autoPromise = AutoService.listAuto();
+            } else if (mostrarSoloMios && userId) {
+                autoPromise = AutoService.listAutosByVendedor(Number(userId));
+            } else {
+                autoPromise = AutoService.listAuto();
+            }
+            autoPromise.then(data => {
+                const autosData = (data ?? [])
+                    .filter(Boolean)
+                    .map((item: any) => ({
+                        id: item.id,
+                        modelo: item.modelo ?? '',
+                        anio: item.anio ?? '',
+                        puertas: Number(item.puertas) || 0,
+                        color: item.color ?? '',
+                        kilometraje: Number(item.kilometraje) || 0,
+                        ciudad: item.ciudad ?? '',
+                        precio: Number(item.precio) || 0,
+                        matricula: item.matricula ?? '',
+                        codigoVIN: item.codigoVIN ?? '',
+                        descripcion: item.descripcion ?? '',
+                        fechaRegistro: item.fechaRegistro ?? '',
+                        estaDisponible: item.estaDisponible === 'true',
+                        idVenta: Number(item.idVenta) || 0,
+                        idMarca: Number(item.idMarca) || 0,
+                        idVendedor: Number(item.idVendedor) || 0,
+                        tipoCombustible: item.tipoCombustible ?? '',
+                        categoria: item.categoria ?? ''
+                    }));
+                setItems(autosData);
+            }).catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
+        }).catch(() => {
+            setIsAdmin(false);
+            Notification.show('Error al verificar rol de usuario', { duration: 3000, position: 'top-center', theme: 'error' });
         });
-        
-        // Actualizar otros datos - estas líneas se ejecutan en useEffect por separado
-        // MarcaService, tiposCombustible y categorias se cargan en useEffect
-        
-        // También actualizar las imágenes cuando se actualicen los autos
         ImagenService.listImagen().then((data: any) => {
             const imagenesData = (data ?? []).filter(Boolean);
             setImagenes(imagenesData);
@@ -494,41 +475,41 @@ export default function AutoView() {
         });
     };
 
-    // Función para verificar permisos de administrador desde el backend
-    const verificarPermisosAdmin = async (): Promise<boolean> => {
-        try {
-            const isAdminFromBackend = await CuentaService.isCurrentUserAdmin();
-            return Boolean(isAdminFromBackend);
-        } catch (error) {
-            console.error('Error verificando permisos de administrador:', error);
-            return false;
-        }
-    };
-
-    const buscarAuto = async () => {
-        if (!busqueda.trim()) {
+    const buscarAuto = async (modelo?: string) => {
+        const texto = (typeof modelo === 'string' ? modelo : busqueda).trim();
+        if (!texto) {
             setResultadoBusqueda(null);
             Notification.show('Ingrese un modelo para buscar', { duration: 3000, position: 'top-center', theme: 'error' });
             return;
         }
-        const result = await AutoService.buscarPorAtributo('modelo', busqueda)  ;
-        if (result) {
-            setResultadoBusqueda(result);
+        const resultados = await AutoService.buscarPorModeloFlexible(texto);
+        if (resultados && resultados.length > 0) {
+            // Si se seleccionó desde el ComboBox, mostrar solo ese auto
+            if (typeof modelo === 'string') {
+                setResultadoBusqueda(resultados[0]);
+            } else {
+                setResultadoBusqueda(resultados[0]);
+            }
         } else {
             setResultadoBusqueda(null);
             Notification.show('No se encontró el auto', { duration: 4000, position: 'top-center', theme: 'error' });
         }
     };
 
-    const buscarPorCategoria = (categoria: string) => {
-        setCategoriaBusqueda(categoria);
-        if (!categoria) {
-            setResultadoCategoria(null);
+    // Autocompletado: cargar sugerencias mientras se escribe
+    const handleInputBusqueda = async (e: any) => {
+        const value = e.detail.value;
+        setBusqueda(value);
+        if (value.trim().length === 0) {
+            setOpcionesBusqueda([]);
+            setResultadoBusqueda(null);
             return;
         }
-        const filtrados = items.filter(auto => (auto.categoria || '').toLowerCase() === categoria.toLowerCase());
-        setResultadoCategoria(filtrados);
+        const resultados = await AutoService.buscarPorModeloFlexible(value);
+        setOpcionesBusqueda(resultados ?? []);
     };
+
+    // Eliminada función de búsqueda por categoría
 
     const abrirDetalleAuto = (auto: AutoItem) => {
         setAutoSeleccionado(auto);
@@ -555,56 +536,60 @@ export default function AutoView() {
         });
     }, []);
 
-    // useEffect para responder a cambios de modo
+    // useEffect para responder a cambios de filtro
     useEffect(() => {
-        callData(); // Recargar datos cuando cambie el modo
-    }, [modoUsuario]);
+        callData(); // Recargar datos cuando cambie el filtro
+    }, [mostrarSoloMios]);
 
     return (
         <main className="auto-main-background w-full h-full flex flex-col gap-2 md:gap-4 p-4 md:p-6 lg:p-8">
-            <ViewToolbar title="Lista de Autos">
-                <Group>
-                    {!isAdmin && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium"></span>
-                            <RadioGroup
-                                value={modoUsuario}
-                                onValueChanged={(e) => setModoUsuario(e.detail.value as 'vendedor' | 'comprador')}
-                                theme="horizontal"
-                            >
-                                <RadioButton value="comprador" label="Comprar" />
-                                <RadioButton value="vendedor" label="Vender" />
-                            </RadioGroup>
-                        </div>
-                    )}
-                    {isAdmin && (
-                        <span className="text-sm text-gray-600">👑 Modo Administrador</span>
-                    )}
-                </Group>
-            </ViewToolbar>
+            <ViewToolbar title="Lista de Autos" />
             <div className="auto-toolbar-row">
-                <div className="auto-search-group">
-                    <ComboBox
-                        label="Categoría"
-                        items={categorias}
-                        value={categoriaBusqueda}
-                        onValueChanged={e => buscarPorCategoria(e.detail.value)}
-                        placeholder="Categoría"
-                        clearButtonVisible
-                        className="auto-category-combo"
-                    />
-                    <TextField
-                        label="Buscar auto por modelo"
-                        value={busqueda}
-                        onValueChanged={e => setBusqueda(e.detail.value)}
-                        placeholder="Ej: Corolla"
-                        className="auto-search-textfield"
-                        autocomplete="off"
-                    />
-                    <Button onClick={buscarAuto} className="auto-btn-primary">Buscar</Button>
-                    <Button onClick={() => { setBusqueda(''); setCategoriaBusqueda(''); setResultadoBusqueda(null); setResultadoCategoria(null); }} className="auto-clear-btn">Limpiar</Button>
-                    {(isAdmin || modoUsuario === 'vendedor') && (
-                        <Button onClick={() => { setDialogOpened(true); setModoEdicion(false); setAutoEditar(null); }} className="auto-btn-success auto-add-btn">Agregar auto</Button>
+                <div className="auto-search-group flex flex-row items-center gap-2 w-full">
+                    {/* Eliminado ComboBox de categoría */}
+                    <div className="auto-search-dropdown-container relative flex-1 min-w-[220px] max-w-xs">
+                        <TextField
+                            label="Buscar auto por modelo"
+                            value={busqueda}
+                            onValueChanged={e => {
+                                setBusqueda(e.detail.value);
+                                handleInputBusqueda({ detail: { value: e.detail.value } });
+                            }}
+                            placeholder="Ej: Corolla"
+                            className="auto-search-textfield"
+                            clearButtonVisible
+                            autocomplete="off"
+                        />
+                        {busqueda && opcionesBusqueda.length > 0 && (
+                            <div className="auto-search-suggestions-dropdown">
+                                {opcionesBusqueda.map((auto, idx) => (
+                                    <div
+                                        key={auto.id || idx}
+                                        className="auto-search-suggestion-item"
+                                        onMouseDown={() => {
+                                            setBusqueda(auto.modelo);
+                                            buscarAuto(auto.modelo);
+                                            setOpcionesBusqueda([]);
+                                        }}
+                                    >
+                                        {auto.modelo}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <Button onClick={() => buscarAuto()} className="auto-btn-primary">Buscar</Button>
+                    {/* Botón agregar auto para todos los usuarios */}
+                    <Button onClick={() => { setDialogOpened(true); setModoEdicion(false); setAutoEditar(null); }} className="auto-btn-success auto-add-btn">Agregar auto</Button>
+                    {/* Toggle "Mis autos" como botón visual tipo toggle */}
+                    {!isAdmin && (
+                        <button
+                            type="button"
+                            className={`auto-toggle-btn-mis-autos${mostrarSoloMios ? ' active' : ''}`}
+                            onClick={() => setMostrarSoloMios(v => !v)}
+                        >
+                            {mostrarSoloMios ? '✓ Mis autos' : 'Mis autos'}
+                        </button>
                     )}
                 </div>
             </div>
@@ -619,30 +604,10 @@ export default function AutoView() {
                         setModoEdicion={setModoEdicion} 
                         setAutoEditar={setAutoEditar} 
                         abrirDetalleAuto={abrirDetalleAuto}
-                        modoUsuario={modoUsuario}
                         usuarioActual={usuarioActual}
                         isAdmin={isAdmin}
+                        mostrarSoloMios={mostrarSoloMios}
                     />
-                </div>
-            ) : resultadoCategoria ? (
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10 px-6 md:px-8 lg:px-10 py-6">
-                    {resultadoCategoria.length === 0 ? (
-                        <div className="col-span-full text-center text-muted-foreground py-10">No hay autos para esta categoría.</div>
-                    ) : resultadoCategoria.map((auto, idx) => (
-                        <AutoCard 
-                            key={`cat-${renderKey}-${idx}`} 
-                            auto={auto} 
-                            marcas={marcas} 
-                            imagenes={imagenes} 
-                            setDialogOpened={setDialogOpened} 
-                            setModoEdicion={setModoEdicion} 
-                            setAutoEditar={setAutoEditar} 
-                            abrirDetalleAuto={abrirDetalleAuto}
-                            modoUsuario={modoUsuario}
-                            usuarioActual={usuarioActual}
-                            isAdmin={isAdmin}
-                        />
-                    ))}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10 px-6 md:px-8 lg:px-10 py-6">
@@ -660,9 +625,9 @@ export default function AutoView() {
                             setModoEdicion={setModoEdicion} 
                             setAutoEditar={setAutoEditar} 
                             abrirDetalleAuto={abrirDetalleAuto}
-                            modoUsuario={modoUsuario}
                             usuarioActual={usuarioActual}
                             isAdmin={isAdmin}
+                            mostrarSoloMios={mostrarSoloMios}
                         />
                     ))}
                 </div>
@@ -700,14 +665,14 @@ export default function AutoView() {
                     </div>
                 }
             >
-                {autoSeleccionado && <AutoDetailModal auto={autoSeleccionado} marcas={marcas} imagenes={imagenes} navigate={navigate} />}
+                {autoSeleccionado && <AutoDetailModal auto={autoSeleccionado} marcas={marcas} imagenes={imagenes} navigate={navigate} usuarioActual={usuarioActual} />}
             </Dialog>
         </main>
     );
 }
 
 // Componente para el modal de detalles con galería moderna
-function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem, marcas: any[], imagenes: any[], navigate: any }) {
+function AutoDetailModal({ auto, marcas, imagenes, navigate, usuarioActual }: { auto: AutoItem, marcas: any[], imagenes: any[], navigate: any, usuarioActual: any }) {
     const [imagenSeleccionada, setImagenSeleccionada] = useState<any>(null);
     const imagenesAuto = imagenes.filter(img => Number(img.idAuto) === Number(auto.id));
     
@@ -719,44 +684,32 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem,
 
     const marca = marcas.find(m => m.id === auto.idMarca)?.nombre || 'N/A';
 
-    const handlePreguntar = async () => {
-        try {
-            // Obtener información del vendedor del auto
-            const vendedorId = auto.idVendedor;
-            
-            if (!vendedorId) {
-                Notification.show('No se pudo identificar al vendedor', { 
-                    duration: 3000, 
-                    position: 'top-center', 
-                    theme: 'error' 
-                });
-                return;
-            }
-
-            // Navegar al chat con el ID del vendedor
-            navigate('/mensaje', { 
-                state: { 
-                    chatConUsuario: {
-                        id: vendedorId,
-                        motivo: 'consulta_auto'
-                    },
-                    autoInfo: {
-                        modelo: auto.modelo,
-                        marca: marca,
-                        anio: auto.anio,
-                        precio: auto.precio,
-                        id: auto.id
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error al iniciar chat:', error);
-            Notification.show('Error al iniciar el chat', { 
-                duration: 3000, 
+    const handlePreguntar = () => {
+        // Verificar si el usuario actual es el mismo que el vendedor del auto
+        if (usuarioActual?.id === auto.idVendedor) {
+            // Mostrar notificación de que es su propio vehículo
+            Notification.show('Este vehículo en venta es tuyo, no puedes enviarte un mensaje a ti mismo.', { 
+                duration: 4000, 
                 position: 'top-center', 
-                theme: 'error' 
+                theme: 'contrast' 
             });
+            return;
         }
+
+        // Navegar al chat con el vendedor del auto
+        navigate('/MensajeView', { 
+            state: { 
+                iniciarChatCon: auto.idVendedor,
+                autoInfo: {
+                    modelo: auto.modelo,
+                    marca: marca,
+                    anio: auto.anio,
+                    precio: auto.precio,
+                    id: auto.id,
+                    idVendedor: auto.idVendedor
+                }
+            }
+        });
     };
 
     const handleVenta = () => {
@@ -814,6 +767,31 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem,
             <div className="auto-modal-details">
                 {/* Información básica */}
                 <div className="auto-modal-section">
+                    <h3>Información General</h3>
+                    <div className="auto-modal-info-grid">
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Modelo</span>
+                            <span className="auto-modal-info-value">{auto.modelo}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Año</span>
+                            <span className="auto-modal-info-value">{auto.anio}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Marca</span>
+                            <span className="auto-modal-info-value">{marca}</span>
+                        </div>
+                        <div className="auto-modal-info-item">
+                            <span className="auto-modal-info-label">Categoría</span>
+                            <span className="auto-modal-badge">{auto.categoria}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Precio */}
+                <div className="auto-modal-section">
+                    <h3>Precio</h3>
+                    <div className="auto-modal-price">${Number(auto.precio).toLocaleString()}</div>
                 </div>
 
                 {/* Especificaciones */}
@@ -909,7 +887,7 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem,
     );
 }
 
-function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar, abrirDetalleAuto, modoUsuario, usuarioActual, isAdmin }: any) {
+function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar, abrirDetalleAuto, usuarioActual, isAdmin, mostrarSoloMios }: any) {
     const marca = marcas.find((m: any) => m.id === Number(auto.idMarca))?.nombre || auto.idMarca;
     
     // Buscar imágenes de este auto
@@ -994,8 +972,8 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
                 <span className="auto-badge-fuel mb-2 w-max">{auto.tipoCombustible}</span>
                 <div className="text-xs text-muted-foreground truncate w-full">Matrícula: {auto.matricula}</div>
                 <div className="flex gap-2 mt-2 justify-center">
-                    {/* Botones para Administrador - ve todos los controles */}
-                    {isAdmin && (
+                    {/* Botón Editar para admin o para user en 'Mis autos' */}
+                    {isAdmin || (mostrarSoloMios && Number(auto.idVendedor) === Number(usuarioActual?.id)) ? (
                         <Button 
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -1007,41 +985,8 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
                         >
                             Editar
                         </Button>
-                    )}
-                    
-                    {/* Botones para Vendedor - solo puede editar sus propios autos */}
-                    {modoUsuario === 'vendedor' && !isAdmin && Number(auto.idVendedor) === Number(usuarioActual?.id) && (
-                        <Button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setDialogOpened(true); 
-                                setModoEdicion(true); 
-                                setAutoEditar(auto);
-                            }}
-                            className="auto-btn-primary"
-                        >
-                            Editar
-                        </Button>
-                    )}
-                    
-                    {/* Botón para Comprador - agregar a favoritos */}
-                    {modoUsuario === 'comprador' && !isAdmin && (
-                        <Button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleAgregarFavorito(auto.id);
-                            }}
-                            className="auto-btn-success"
-                            theme="primary"
-                        >
-                            ❤️ Favorito
-                        </Button>
-                    )}
-                    
-                    {/* Si es vendedor pero no es su auto, mostrar info */}
-                    {modoUsuario === 'vendedor' && !isAdmin && Number(auto.idVendedor) !== Number(usuarioActual?.id) && (
-                        <span className="text-xs text-gray-500 italic">Auto de otro vendedor</span>
-                    )}
+                    ) : null}
+                    {/* Botón para agregar a favoritos eliminado */}
                 </div>
             </div>
         </div>

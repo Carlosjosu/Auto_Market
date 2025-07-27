@@ -15,6 +15,7 @@ import com.unl.sistema.base.controller.dao.dao_models.DaoUsuario;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Cuenta;
 import com.unl.sistema.base.models.Rol;
+import com.unl.sistema.base.models.Usuario;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 

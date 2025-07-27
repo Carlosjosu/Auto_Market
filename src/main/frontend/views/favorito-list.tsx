@@ -46,14 +46,19 @@ export default function FavoritoView() {
         }
     };
 
+    // Nueva función para recargar imágenes
+    const cargarImagenes = async () => {
+        fetch('/api/imagenes')
+            .then(res => res.json())
+            .then(data => setImagenes(data ?? []));
+    };
+
     useEffect(() => {
         cargarFavoritos();
         AutoService.listAuto().then((data) => {
             setAutos((data ?? []).filter(Boolean));
         });
-        fetch('/api/imagenes')
-            .then(res => res.json())
-            .then(data => setImagenes(data ?? []));
+        cargarImagenes();
         VentaService.listVenta().then((data) => setVentas((data ?? []).filter(Boolean)));
     }, []);
 
@@ -80,6 +85,7 @@ export default function FavoritoView() {
             await FavoritoService.delete(favorito.id!);
             Notification.show('Eliminado de favoritos', { duration: 2000, position: 'top-center', theme: 'success' });
             await cargarFavoritos();
+            await cargarImagenes(); // Recarga imágenes después de quitar favorito
         } catch (error: any) {
             console.error(error);
             Notification.show('Error al quitar de favoritos', { duration: 3000, position: 'top-center', theme: 'error' });

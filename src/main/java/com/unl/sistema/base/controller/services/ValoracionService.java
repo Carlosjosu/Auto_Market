@@ -48,12 +48,4 @@ public class ValoracionService {
     public List<HashMap<String, String>> listValoracion() {
         return Arrays.asList(da.all().toArray());
     }
-<<<<<<< HEAD
 }
-=======
-}
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/develop
->>>>>>> origin/feature/Tayron_ModuloMensajes

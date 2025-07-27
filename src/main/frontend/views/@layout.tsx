@@ -48,8 +48,7 @@ type UserMenuItem = MenuBarItem<{ action?: () => void }>;
 function UserMenu() {
   // TODO Replace with real user information and actions
   const { state, logout } = useAuth();
-  // Cambiar de 'name' a 'username' o 'correo'
-  const nickname = state.user?.username || state.user?.correo || 'ERROR';
+  const nickname = state.user?.name || 'ERROR';
   const items: Array<UserMenuItem> = [
     {
       component: (
@@ -61,15 +60,9 @@ function UserMenu() {
         { text: 'View Profile', action: () => console.log('View Profile') },
         { text: 'Manage Settings', action: () => console.log('Manage Settings') },
         { text: 'Cerrar Sesion', action: () => 
-          (async () => {
-            try {
-              await CuentaService.logout();
-              await logout();
-            } catch (error) {
-              console.error('Error logout:', error);
-              await logout(); // Forzar logout local
-            }
-          })() },
+          (async () => CuentaService.logout().then(async function(){
+            await logout();
+          }))() },
       ],
     },
   ];

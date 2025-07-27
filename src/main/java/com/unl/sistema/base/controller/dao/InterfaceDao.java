@@ -12,5 +12,4 @@ public interface InterfaceDao<T> {
     public void update_by_id(T object, Integer id) throws Exception;
 
     public T get(Integer id) throws Exception;
-
 }

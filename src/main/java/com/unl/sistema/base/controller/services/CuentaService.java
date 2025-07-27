@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -124,83 +123,131 @@ public class CuentaService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        Integer userId = Integer.parseInt(auth.getCredentials().toString());
-        return new UserInfo(auth.getName(), authorities, userId);
+        return new UserInfo(auth.getName(), authorities);
     }
 
     public record UserInfo(
             @NonNull String name,
-            @NonNull Collection<String> authorities,
-            @NonNull Integer id) {
+            @NonNull Collection<String> authorities) {
     }
 
-    public ResponseEntity<Map<String, String>> login(String correo, String clave) {
-        Map<String, String> out = new HashMap<>();
-        try {
-            // Debug - agregar logs
-            System.out.println("=== LOGIN DEBUG ===");
-            System.out.println("Correo recibido: " + correo);
-            System.out.println("Clave recibida: " + clave);
+    /**
+     * Obtiene el ID del usuario actual logueado
+     */
+    public Integer getUserId() {
+        Authentication auth = context.getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            try {
+                // El password contiene el ID de la cuenta
+                String accountId = auth.getCredentials().toString();
 
-            // Verificar que los parámetros no sean null
-            if (correo == null || clave == null) {
-                out.put("message", "Correo y clave son requeridos");
-                out.put("estado", "false");
-                return ResponseEntity.ok(out);
-            }
-
-            // Cargar datos y verificar
-            dc.setObj(new Cuenta());
-            List<Cuenta> cuentas = dc.listAll().toList();
-            System.out.println("Total cuentas en DB: " + cuentas.size());
-
-            // Buscar cuenta
-            Cuenta cuentaEncontrada = null;
-            for (Cuenta cuenta : cuentas) {
-                System.out.println("Comparando con cuenta ID: " + cuenta.getId() +
-                        ", Correo: " + cuenta.getCorreo() +
-                        ", Clave: " + cuenta.getClave());
-
-                if (cuenta.getCorreo() != null && cuenta.getCorreo().equals(correo) &&
-                        cuenta.getClave() != null && cuenta.getClave().equals(clave)) {
-                    cuentaEncontrada = cuenta;
-                    break;
+                // Buscar el usuario por ID de cuenta
+                DaoUsuario du = new DaoUsuario();
+                for (int i = 0; i < du.listAll().getLength(); i++) {
+                    if (du.listAll().get(i).getIdCuenta().toString().equals(accountId)) {
+                        return du.listAll().get(i).getId();
+                    }
                 }
+            } catch (Exception e) {
+                System.err.println("Error obteniendo ID del usuario: " + e.getMessage());
             }
+        }
+        return null;
+    }
 
-            if (cuentaEncontrada != null) {
-                // Login exitoso
-                System.out.println("Login exitoso para cuenta ID: " + cuentaEncontrada.getId());
+    /**
+     * Obtiene la información completa del usuario actual
+     */
+    public HashMap<String, Object> getCurrentUserInfo() {
+        HashMap<String, Object> result = new HashMap<>();
+        Authentication auth = context.getAuthentication();
 
-                // Crear authorities
-                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        if (auth != null && auth.isAuthenticated()) {
+            try {
+                String accountId = auth.getCredentials().toString();
+                DaoUsuario du = new DaoUsuario();
 
-                // Crear Authentication
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(correo,
-                        null, authorities);
+                for (int i = 0; i < du.listAll().getLength(); i++) {
+                    if (du.listAll().get(i).getIdCuenta().toString().equals(accountId)) {
+                        var usuario = du.listAll().get(i);
+                        result.put("id", usuario.getId());
+                        result.put("nickname", usuario.getNickname());
+                        result.put("nombre", usuario.getNombre());
+                        result.put("apellido", usuario.getApellido());
+                        result.put("idRol", usuario.getIdRol());
+                        result.put("idCuenta", usuario.getIdCuenta());
 
-                // Establecer en SecurityContext
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                out.put("message", "Inicio de sesión exitoso");
-                out.put("estado", "true");
-                out.put("correo", cuentaEncontrada.getCorreo());
-                out.put("id", cuentaEncontrada.getId().toString());
-            } else {
-                System.out.println("Credenciales incorrectas");
-                out.put("message", "Su clave o usuario son incorrectos");
-                out.put("estado", "false");
+                        // Obtener rol
+                        DaoRol dr = new DaoRol();
+                        if (usuario.getIdRol() != null && usuario.getIdRol() > 0) {
+                            var rol = dr.get(usuario.getIdRol() - 1);
+                            if (rol != null) {
+                                result.put("rol", rol.getNombre());
+                            }
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error obteniendo información del usuario: " + e.getMessage());
             }
-
-        } catch (Exception e) {
-            System.err.println("Error en login: " + e.getMessage());
-            e.printStackTrace();
-            out.put("message", "Error interno del servidor");
-            out.put("estado", "false");
         }
 
-        return ResponseEntity.ok(out);
+        return result;
+    }
+
+    /**
+     * Verifica si el usuario actual es administrador
+     */
+    public Boolean isCurrentUserAdmin() {
+        Authentication auth = context.getAuthentication();
+
+        if (auth != null && auth.isAuthenticated()) {
+            // Verificar por authorities (más seguro)
+            boolean hasAdminRole = auth.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_admin"));
+
+            if (hasAdminRole) {
+                return true;
+            }
+
+            // Verificación adicional por información del usuario
+            try {
+                HashMap<String, Object> userInfo = getCurrentUserInfo();
+                String rol = (String) userInfo.get("rol");
+                return "admin".equals(rol);
+            } catch (Exception e) {
+                System.err.println("Error verificando rol de administrador: " + e.getMessage());
+            }
+        }
+
+        return false;
+    }
+
+    public HashMap<String, Object> login(String email, String password) throws Exception {
+        HashMap<String, Object> mapa = new HashMap<>();
+        try {
+            HashMap<String, Object> aux = dc.login(email, password);
+            if (aux != null) {
+                context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                        aux.get("usuario").toString(), aux.get("id").toString(), getAuthorities(aux)));
+            }
+            Authentication auth = context.getAuthentication();
+            final List<String> authorities = auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+            mapa.put("name", auth.getName());
+            mapa.put("authorities", authorities);
+            mapa.put("message", "OK");
+            mapa.put("estado", "true");
+        } catch (Exception e) {
+            mapa.put("user", new HashMap<>());
+            mapa.put("message", "Credenciales incorrectas");
+            mapa.put("estado", "false");
+            context.setAuthentication(null);
+            System.out.println(e);
+        }
+        return mapa;
     }
 
     public HashMap<String, String> logout() {

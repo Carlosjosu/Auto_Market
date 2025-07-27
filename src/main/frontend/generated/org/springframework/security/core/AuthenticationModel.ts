@@ -6,9 +6,6 @@ class AuthenticationModel<T extends Authentication_1 = Authentication_1> extends
     get principal(): ObjectModel_1 {
         return this[_getPropertyModel_1]("principal", (parent, key) => new ObjectModel_1(parent, key, false, { meta: { javaType: "java.lang.Object" } }));
     }
-    get credentials(): ObjectModel_1 {
-        return this[_getPropertyModel_1]("credentials", (parent, key) => new ObjectModel_1(parent, key, false, { meta: { javaType: "java.lang.Object" } }));
-    }
     get details(): ObjectModel_1 {
         return this[_getPropertyModel_1]("details", (parent, key) => new ObjectModel_1(parent, key, false, { meta: { javaType: "java.lang.Object" } }));
     }
@@ -17,6 +14,9 @@ class AuthenticationModel<T extends Authentication_1 = Authentication_1> extends
     }
     get authorities(): ArrayModel_1<GrantedAuthorityModel_1> {
         return this[_getPropertyModel_1]("authorities", (parent, key) => new ArrayModel_1(parent, key, true, (parent, key) => new GrantedAuthorityModel_1(parent, key, true), { meta: { javaType: "java.util.Collection" } }));
+    }
+    get credentials(): ObjectModel_1 {
+        return this[_getPropertyModel_1]("credentials", (parent, key) => new ObjectModel_1(parent, key, false, { meta: { javaType: "java.lang.Object" } }));
     }
 }
 export default AuthenticationModel;

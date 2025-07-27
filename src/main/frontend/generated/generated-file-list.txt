@@ -17,7 +17,6 @@ com/unl/sistema/base/models/Mensaje.ts
 com/unl/sistema/base/models/Valoracion.ts
 com/vaadin/hilla/mappedtypes/Pageable.ts
 com/unl/sistema/taskmanagement/domain/Task.ts
-com/unl/sistema/base/models/Usuario.ts
 org/springframework/security/core/GrantedAuthority.ts
 com/vaadin/hilla/mappedtypes/Sort.ts
 com/unl/sistema/base/domain/AbstractEntity.ts
@@ -34,7 +33,6 @@ com/unl/sistema/base/models/MensajeModel.ts
 com/unl/sistema/base/models/ValoracionModel.ts
 com/vaadin/hilla/mappedtypes/PageableModel.ts
 com/unl/sistema/taskmanagement/domain/TaskModel.ts
-com/unl/sistema/base/models/UsuarioModel.ts
 org/springframework/security/core/GrantedAuthorityModel.ts
 com/vaadin/hilla/mappedtypes/SortModel.ts
 com/unl/sistema/base/domain/AbstractEntityModel.ts

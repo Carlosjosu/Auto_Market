@@ -112,4 +112,20 @@ public class UsuarioService {
         return Arrays.asList(du.all().toArray());
     }
 
+    public HashMap<String, String> getUsuario(Integer id) throws Exception {
+        if (id == null) {
+            throw new Exception("ID de usuario requerido");
+        }
+
+        try {
+            Usuario usuario = du.findById(id);
+            if (usuario == null) {
+                throw new Exception("Usuario no encontrado");
+            }
+
+            return du.toDict(usuario);
+        } catch (Exception e) {
+            throw new Exception("Error al buscar usuario: " + e.getMessage());
+        }
+    }
 }

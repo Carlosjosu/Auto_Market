@@ -82,6 +82,11 @@
       },
       {
         "route": "MensajeView",
+        "menu": {
+          "order": 8,
+          "icon": "vaadin:chat",
+          "title": "Mensajes"
+        },
         "flowLayout": false,
         "params": {},
         "title": "Mensajes"

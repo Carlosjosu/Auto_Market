@@ -54,12 +54,4 @@ public class FavoritoService {
     public List<HashMap<String, String>> listFavorito() {
         return Arrays.asList(da.all().toArray());
     }
-<<<<<<< HEAD
 }
-=======
-}
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/develop
->>>>>>> origin/feature/Tayron_ModuloMensajes

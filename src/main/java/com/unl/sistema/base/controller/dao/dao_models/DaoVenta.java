@@ -122,10 +122,3 @@ public class DaoVenta extends AdapterDao<Venta> {
         return Utiles.busquedaLineal(lista, atributo, texto, 0);
     }
 }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/develop
->>>>>>> origin/feature/Tayron_ModuloMensajes

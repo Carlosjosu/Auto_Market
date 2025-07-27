@@ -38,7 +38,7 @@ export const config = {
     },
 };
 
-function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombustible, categorias, onCancel, autoEditar, modoEdicion, onAutoEditado, onDataRefresh, usuarioActual, isAdmin }: {
+function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombustible, categorias, onCancel, autoEditar, modoEdicion, onAutoEditado, onDataRefresh, usuarioActual }: {
     onAutoCreated?: () => void,
     marcas: { id: number, nombre: string }[],
     setMarcas: React.Dispatch<React.SetStateAction<{ id: number, nombre: string }[]>>,
@@ -50,8 +50,7 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
     modoEdicion?: boolean,
     onAutoEditado?: () => void,
     onDataRefresh?: () => void,
-    usuarioActual?: any,
-    isAdmin?: boolean
+    usuarioActual?: any
 }) {
     const [autoForm, setAutoForm] = useState({
         modelo: '', anio: '', puertas: '', color: '', kilometraje: '', ciudad: '', precio: '', matricula: '', codigoVIN: '', descripcion: '', fechaRegistro: '', estaDisponible: true, idVenta: '', idMarca: '', tipoCombustible: '', categoria: ''
@@ -163,8 +162,9 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
         try {
             if (!autoEditar) return;
             
-            // Validaciones de permisos
-            if (!isAdmin && Number(autoEditar.idVendedor) !== Number(usuarioActual?.id)) {
+            // Validaciones de permisos usando el backend
+            const isAdminFromBackend = await CuentaService.isCurrentUserAdmin();
+            if (!isAdminFromBackend && Number(autoEditar.idVendedor) !== Number(usuarioActual?.id)) {
                 Notification.show('No tienes permisos para editar este auto', { duration: 5000, position: 'top-center', theme: 'error' });
                 return;
             }
@@ -429,49 +429,57 @@ export default function AutoView() {
         // Cargar información del usuario actual
         CuentaService.getCurrentUserInfo().then(userInfo => {
             setUsuarioActual(userInfo);
-            setIsAdmin(userInfo?.rol === 'admin');
             
-            // Actualizar autos según el modo y rol
-            let autoPromise;
-            if (userInfo?.rol === 'admin') {
-                // Admin ve todos los autos
-                autoPromise = AutoService.listAuto();
-            } else if (modoUsuario === 'vendedor' && userInfo?.id) {
-                // Vendedor ve solo sus autos
-                autoPromise = AutoService.listAutosByVendedor(Number(userInfo.id));
-            } else if (modoUsuario === 'comprador' && userInfo?.id) {
-                // Comprador ve autos de otros (disponibles)
-                autoPromise = AutoService.listAutosForComprador(Number(userInfo.id));
-            } else {
-                // Por defecto, mostrar todos disponibles
-                autoPromise = AutoService.listAuto();
-            }
-            
-            autoPromise.then(data => {
-                const autosData = (data ?? [])
-                    .filter(Boolean)
-                    .map((item: any) => ({
-                        id: item.id,
-                        modelo: item.modelo ?? '',
-                        anio: item.anio ?? '',
-                        puertas: Number(item.puertas) || 0,
-                        color: item.color ?? '',
-                        kilometraje: Number(item.kilometraje) || 0,
-                        ciudad: item.ciudad ?? '',
-                        precio: Number(item.precio) || 0,
-                        matricula: item.matricula ?? '',
-                        codigoVIN: item.codigoVIN ?? '',
-                        descripcion: item.descripcion ?? '',
-                        fechaRegistro: item.fechaRegistro ?? '',
-                        estaDisponible: item.estaDisponible === 'true',
-                        idVenta: Number(item.idVenta) || 0,
-                        idMarca: Number(item.idMarca) || 0,
-                        idVendedor: Number(item.idVendedor) || 0,
-                        tipoCombustible: item.tipoCombustible ?? '',
-                        categoria: item.categoria ?? ''
-                    }));
-                setItems(autosData);
-            }).catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
+            // Verificar si es admin usando el backend
+            CuentaService.isCurrentUserAdmin().then(isAdminFromBackend => {
+                setIsAdmin(Boolean(isAdminFromBackend));
+                
+                // Actualizar autos según el modo y rol
+                let autoPromise;
+                if (Boolean(isAdminFromBackend)) {
+                    // Admin ve todos los autos
+                    autoPromise = AutoService.listAuto();
+                } else if (modoUsuario === 'vendedor' && userInfo?.id) {
+                    // Vendedor ve solo sus autos
+                    autoPromise = AutoService.listAutosByVendedor(Number(userInfo.id));
+                } else if (modoUsuario === 'comprador' && userInfo?.id) {
+                    // Comprador ve autos de otros (disponibles)
+                    autoPromise = AutoService.listAutosForComprador(Number(userInfo.id));
+                } else {
+                    // Por defecto, mostrar todos disponibles
+                    autoPromise = AutoService.listAuto();
+                }
+                
+                autoPromise.then(data => {
+                    const autosData = (data ?? [])
+                        .filter(Boolean)
+                        .map((item: any) => ({
+                            id: item.id,
+                            modelo: item.modelo ?? '',
+                            anio: item.anio ?? '',
+                            puertas: Number(item.puertas) || 0,
+                            color: item.color ?? '',
+                            kilometraje: Number(item.kilometraje) || 0,
+                            ciudad: item.ciudad ?? '',
+                            precio: Number(item.precio) || 0,
+                            matricula: item.matricula ?? '',
+                            codigoVIN: item.codigoVIN ?? '',
+                            descripcion: item.descripcion ?? '',
+                            fechaRegistro: item.fechaRegistro ?? '',
+                            estaDisponible: item.estaDisponible === 'true',
+                            idVenta: Number(item.idVenta) || 0,
+                            idMarca: Number(item.idMarca) || 0,
+                            idVendedor: Number(item.idVendedor) || 0,
+                            tipoCombustible: item.tipoCombustible ?? '',
+                            categoria: item.categoria ?? ''
+                        }));
+                    setItems(autosData);
+                }).catch(() => Notification.show('Error al cargar autos', { duration: 5000, position: 'top-center', theme: 'error' }));
+            }).catch(() => {
+                // Si falla la verificación del backend, usar false por seguridad
+                setIsAdmin(false);
+                Notification.show('Error al verificar permisos de administrador', { duration: 3000, position: 'top-center', theme: 'error' });
+            });
         });
         
         // Actualizar otros datos - estas líneas se ejecutan en useEffect por separado
@@ -484,6 +492,17 @@ export default function AutoView() {
         }).catch(() => {
             console.error('Error al cargar imágenes en callData');
         });
+    };
+
+    // Función para verificar permisos de administrador desde el backend
+    const verificarPermisosAdmin = async (): Promise<boolean> => {
+        try {
+            const isAdminFromBackend = await CuentaService.isCurrentUserAdmin();
+            return Boolean(isAdminFromBackend);
+        } catch (error) {
+            console.error('Error verificando permisos de administrador:', error);
+            return false;
+        }
     };
 
     const buscarAuto = async () => {
@@ -667,7 +686,6 @@ export default function AutoView() {
                     onAutoEditado={() => { callData(); setDialogOpened(false); setModoEdicion(false); setAutoEditar(null); }}
                     onDataRefresh={callData}
                     usuarioActual={usuarioActual}
-                    isAdmin={isAdmin}
                 />
             </Dialog>
             
@@ -701,19 +719,44 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem,
 
     const marca = marcas.find(m => m.id === auto.idMarca)?.nombre || 'N/A';
 
-    const handlePreguntar = () => {
-        // Navegar al chat con información del auto
-        navigate('/mensaje', { 
-            state: { 
-                autoInfo: {
-                    modelo: auto.modelo,
-                    marca: marca,
-                    anio: auto.anio,
-                    precio: auto.precio,
-                    id: auto.id
-                }
+    const handlePreguntar = async () => {
+        try {
+            // Obtener información del vendedor del auto
+            const vendedorId = auto.idVendedor;
+            
+            if (!vendedorId) {
+                Notification.show('No se pudo identificar al vendedor', { 
+                    duration: 3000, 
+                    position: 'top-center', 
+                    theme: 'error' 
+                });
+                return;
             }
-        });
+
+            // Navegar al chat con el ID del vendedor
+            navigate('/mensaje', { 
+                state: { 
+                    chatConUsuario: {
+                        id: vendedorId,
+                        motivo: 'consulta_auto'
+                    },
+                    autoInfo: {
+                        modelo: auto.modelo,
+                        marca: marca,
+                        anio: auto.anio,
+                        precio: auto.precio,
+                        id: auto.id
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error al iniciar chat:', error);
+            Notification.show('Error al iniciar el chat', { 
+                duration: 3000, 
+                position: 'top-center', 
+                theme: 'error' 
+            });
+        }
     };
 
     const handleVenta = () => {
@@ -771,31 +814,6 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate }: { auto: AutoItem,
             <div className="auto-modal-details">
                 {/* Información básica */}
                 <div className="auto-modal-section">
-                    <h3>Información General</h3>
-                    <div className="auto-modal-info-grid">
-                        <div className="auto-modal-info-item">
-                            <span className="auto-modal-info-label">Modelo</span>
-                            <span className="auto-modal-info-value">{auto.modelo}</span>
-                        </div>
-                        <div className="auto-modal-info-item">
-                            <span className="auto-modal-info-label">Año</span>
-                            <span className="auto-modal-info-value">{auto.anio}</span>
-                        </div>
-                        <div className="auto-modal-info-item">
-                            <span className="auto-modal-info-label">Marca</span>
-                            <span className="auto-modal-info-value">{marca}</span>
-                        </div>
-                        <div className="auto-modal-info-item">
-                            <span className="auto-modal-info-label">Categoría</span>
-                            <span className="auto-modal-badge">{auto.categoria}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Precio */}
-                <div className="auto-modal-section">
-                    <h3>Precio</h3>
-                    <div className="auto-modal-price">${Number(auto.precio).toLocaleString()}</div>
                 </div>
 
                 {/* Especificaciones */}

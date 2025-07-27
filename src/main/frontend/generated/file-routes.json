@@ -92,12 +92,12 @@
         "title": "Mensajes"
       },
       {
-        "route": "task-list",
-        "title": "Task List",
+        "route": "usuario-list",
+        "title": "Usuario",
         "menu": {
-          "icon": "vaadin:clipboard-check",
-          "order": 1,
-          "title": "Task List"
+          "icon": "vaadin:users",
+          "order": 2,
+          "title": "Usuario"
         },
         "flowLayout": false,
         "params": {}

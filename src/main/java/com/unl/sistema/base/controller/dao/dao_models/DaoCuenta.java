@@ -1,13 +1,11 @@
 package com.unl.sistema.base.controller.dao.dao_models;
 
 import java.util.HashMap;
-import java.lang.reflect.Field;
 
 import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Cuenta;
-import com.unl.sistema.base.models.Usuario;
 
 public class DaoCuenta extends AdapterDao<Cuenta> {
     private Cuenta obj;

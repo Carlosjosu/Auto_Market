@@ -23,9 +23,6 @@ import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
-import io.micrometer.common.lang.NonNull;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.security.PermitAll;
 import jakarta.validation.constraints.NotEmpty;
 
 @BrowserCallable
@@ -115,6 +112,7 @@ public class CuentaService {
         return list;
     }
 
+<<<<<<< HEAD
     @PermitAll
     @Nonnull
     public UserInfo getUserInfo() {
@@ -224,6 +222,8 @@ public class CuentaService {
         return false;
     }
 
+=======
+>>>>>>> origin/develop
     public HashMap<String, Object> login(String email, String password) throws Exception {
         HashMap<String, Object> mapa = new HashMap<>();
         try {
@@ -238,6 +238,7 @@ public class CuentaService {
                     .toList();
             mapa.put("name", auth.getName());
             mapa.put("authorities", authorities);
+            mapa.put("id", Integer.parseInt(auth.getCredentials().toString()));
             mapa.put("message", "OK");
             mapa.put("estado", "true");
         } catch (Exception e) {
@@ -259,6 +260,10 @@ public class CuentaService {
 
     public void create(@NotEmpty String correo, @NotEmpty String clave) throws Exception {
         if (correo.trim().length() > 0 && clave.trim().length() > 0) {
+            LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(dc.all(), "correo", correo, 0);
+            if (!resultado.isEmpty()) {
+                throw new Exception("El correo ya está registrado");
+            }
             dc.getObj().setCorreo(correo);
             dc.getObj().setClave(clave);
             if (!dc.save())
@@ -266,10 +271,13 @@ public class CuentaService {
         }
     }
 
-    public void update(Integer id, @NotEmpty String clave) throws Exception {
-        if (id != null && id > 0 && clave.trim().length() > 0) {
+    public void update(Integer id, @NotEmpty String clave, @NotEmpty String claveNueva ) throws Exception {
+        if (id != null && id > 0 && clave.trim().length() > 0 && claveNueva.trim().length() > 0) {
             dc.setObj(dc.listAll().get(id - 1));
-            dc.getObj().setClave(clave);
+            if (!dc.getObj().getClave().equals(clave)) {
+                throw new Exception("La clave anterior no es correcta");
+            }
+            dc.getObj().setClave(claveNueva);
             if (!dc.save())
                 throw new Exception("No se pudo modificar la clave de la cuenta");
         }
@@ -292,6 +300,7 @@ public class CuentaService {
         return Arrays.asList(dc.all().toArray());
     }
 
+<<<<<<< HEAD
     public static void main(String[] args) {
         try {
             CuentaService cuentaService = new CuentaService();
@@ -331,3 +340,6 @@ public class CuentaService {
     }
 
 }
+=======
+}
+>>>>>>> origin/develop

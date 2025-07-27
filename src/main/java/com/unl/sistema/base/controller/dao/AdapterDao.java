@@ -137,6 +137,7 @@ public class AdapterDao<T> implements InterfaceDao<T> {
             pilaConversaciones.delete(0);
         }
     }
+<<<<<<< HEAD
 
     // Obtener conversación más reciente
     public T obtenerConversacionReciente() throws Exception {
@@ -258,13 +259,64 @@ public class AdapterDao<T> implements InterfaceDao<T> {
                     }
                 }
             }
+=======
+    
+    private Object getMethod(String attribute, T obj) throws Exception {
+        return obj.getClass().getMethod("get" + attribute).invoke(obj);
+    }
+
+    public HashMap<String, Object> buscarAtributo(HashMap<String, Object> datos[], int inicio, int fin, String atributo, String valor) throws Exception {
+        if (inicio > fin) {
+            return null;
+        }
+
+        int mitad = (inicio + fin) / 2;
+
+        if (datos[mitad].get(atributo).toString().equals(valor)) {
+            return datos[mitad];
+        } else if (datos[mitad].get(atributo).toString().compareTo(valor) > 0) {
+            return buscarAtributo(datos, inicio, mitad - 1, atributo, valor);
+        } else {
+            return buscarAtributo(datos, mitad + 1, fin, atributo, valor);
+        }
+    }
+
+    public LinkedList<HashMap<String, String>> ordenarAtributo(LinkedList<HashMap<String, String>> lista,
+            String atributo, Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            String[] valores = new String[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = arreglo[i].get(atributo).toString();
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+>>>>>>> origin/develop
         }
         return lista;
     }
 
+<<<<<<< HEAD
     // ================= MÉTODOS AUXILIARES EXISTENTES =================
+=======
+    public LinkedList<HashMap<String, String>> ordenarNumero(LinkedList<HashMap<String, String>> lista, String atributo,
+            Integer type) {
+        if (!lista.isEmpty()) {
+            HashMap<String, String> arreglo[] = lista.toArray();
+            int n = arreglo.length;
+            Integer[] valores = new Integer[n];
+            for (int i = 0; i < n; i++) {
+                valores[i] = Integer.parseInt(arreglo[i].get(atributo));
+            }
+            Utiles.quickSort(valores, 0, n - 1, type);
+            lista.toList(arreglo);
+        }
+        return lista;
+    }
+>>>>>>> origin/develop
 
-    // Agrega un elemento (FIFO)
+     // Agrega un elemento (FIFO)
     public void addFIFO(T obj) throws Exception {
         LinkedList<T> list = listAll();
         list.add(obj);
@@ -293,6 +345,7 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         return filtered;
     }
 
+<<<<<<< HEAD
     public T busquedaBinaria(T datos[], int inicio, int fin, Integer num) throws Exception {
         if (inicio > fin) {
             return null;
@@ -359,4 +412,6 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         }
         return lista;
     }
+=======
+>>>>>>> origin/develop
 }

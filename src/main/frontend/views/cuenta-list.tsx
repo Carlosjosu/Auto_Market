@@ -79,6 +79,11 @@ function CuentaEntryForm(props: CuentaEntryFormProps) {
                     <TextField
                         label="clave"
                         value={clave.value}
+<<<<<<< HEAD
+=======
+                        minlength={8}
+                        maxlength={8}
+>>>>>>> origin/develop
                         onValueChanged={(evt: CustomEvent<{ value: string }>) => (clave.value = evt.detail.value)}
                     />
                 </VerticalLayout>
@@ -91,16 +96,28 @@ function CuentaEntryForm(props: CuentaEntryFormProps) {
 function CuentaEntryFormUpdate(props: CuentaEntryFormUpdateProps) {
     const correo = useSignal(props.arguments.correo);
     const clave = useSignal('');
+<<<<<<< HEAD
+=======
+    const claveNueva = useSignal('');
+>>>>>>> origin/develop
     const ident = useSignal(props.arguments.id);
     const dialogOpened = useSignal(false);
 
     const updateCuenta = async () => {
         try {
             if (clave.value.trim()) {
+<<<<<<< HEAD
                 await CuentaService.update(parseInt(ident.value), clave.value);
                 if (props.onCuentaUpdated) props.onCuentaUpdated();
                 correo.value = '';
                 clave.value = '';
+=======
+                await CuentaService.update(parseInt(ident.value), clave.value, claveNueva.value);
+                if (props.onCuentaUpdated) props.onCuentaUpdated();
+                correo.value = '';
+                clave.value = '';
+                claveNueva.value = '';
+>>>>>>> origin/develop
                 dialogOpened.value = false;
                 Notification.show('Cuenta modificada', { duration: 5000, position: 'bottom-end', theme: 'success' });
             } else {
@@ -140,10 +157,26 @@ function CuentaEntryFormUpdate(props: CuentaEntryFormUpdateProps) {
                         onValueChanged={(evt: CustomEvent<{ value: string }>) => (correo.value = evt.detail.value)}
                     />
                     <TextField
+<<<<<<< HEAD
                         label="clave"
                         value={clave.value}
                         onValueChanged={(evt: CustomEvent<{ value: string }>) => (clave.value = evt.detail.value)}
                     />
+=======
+                        label="Clave"
+                        value={clave.value}
+                        minlength={8}
+                        maxlength={8}
+                        onValueChanged={(evt: CustomEvent<{ value: string }>) => (clave.value = evt.detail.value)}
+                    />
+                    <TextField
+                        label="Clave Nueva"
+                        value={claveNueva.value}
+                        minlength={8}
+                        maxlength={8}
+                        onValueChanged={(evt: CustomEvent<{ value: string }>) => (claveNueva.value = evt.detail.value)}
+                    />
+>>>>>>> origin/develop
                 </VerticalLayout>
             </Dialog>
             <Button onClick={() => (dialogOpened.value = true)} theme="tertiary-inline" style={{
@@ -201,6 +234,13 @@ export default function CuentaView() {
             value: 'correo',
         },
         {
+<<<<<<< HEAD
+=======
+            label: 'Usuario',
+            value: 'usuario',
+        },
+        {
+>>>>>>> origin/develop
             label: 'Rol',
             value: 'idRol',
         },
@@ -264,8 +304,14 @@ export default function CuentaView() {
             </HorizontalLayout>
             <Grid items={items}>
                 <GridColumn renderer={indexIndex} header="Numero" />
+<<<<<<< HEAD
                 <GridSortColumn path="correo" header="Correo" onDirectionChanged={(e) => order(e, 'nombre')} />
                 <GridSortColumn path="idRol" header="Rol" onDirectionChanged={(e) => order(e, 'idRol')} />
+=======
+                <GridSortColumn path="correo" header="Correo" onDirectionChanged={(e) => order(e, 'correo')} />
+                <GridSortColumn path="usuario" header="Usuario" onDirectionChanged={(e) => order(e, 'usuario')} renderer={({ item }) => <span>{item.usuario || 'Sin usuario'}</span>} />
+                <GridSortColumn path="idRol" header="Rol" onDirectionChanged={(e) => order(e, 'idRol')} renderer={({ item }) => <span>{item.idRol || 'Sin rol'}</span>} />
+>>>>>>> origin/develop
                 <GridColumn header="Acciones" renderer={indexLink} />
             </Grid>
         </main>

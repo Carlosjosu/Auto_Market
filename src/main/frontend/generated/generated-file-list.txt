@@ -11,7 +11,6 @@ VentaService.ts
 TaskService.ts
 com/unl/sistema/base/models/Conversacion.ts
 org/springframework/security/core/Authentication.ts
-com/unl/sistema/base/controller/services/CuentaService/UserInfo.ts
 com/unl/sistema/base/models/Favorito.ts
 com/unl/sistema/base/models/Mensaje.ts
 com/unl/sistema/base/models/Valoracion.ts
@@ -27,7 +26,6 @@ connect-client.default.ts
 endpoints.ts
 com/unl/sistema/base/models/ConversacionModel.ts
 org/springframework/security/core/AuthenticationModel.ts
-com/unl/sistema/base/controller/services/CuentaService/UserInfoModel.ts
 com/unl/sistema/base/models/FavoritoModel.ts
 com/unl/sistema/base/models/MensajeModel.ts
 com/unl/sistema/base/models/ValoracionModel.ts

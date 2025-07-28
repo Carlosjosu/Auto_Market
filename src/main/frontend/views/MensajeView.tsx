@@ -722,7 +722,12 @@ const MensajesViewContent: React.FC = () => {
         
         // Si hay contexto autoInfo, SIEMPRE enviar el mensaje (sin importar si la conversación existe)
         if (contexto?.autoInfo) {
-          const mensajeInicial = `Hola! Me interesa el auto ${contexto.autoInfo.marca} ${contexto.autoInfo.modelo} ${contexto.autoInfo.anio} por $${contexto.autoInfo.precio}. ¿Podrías darme más información?`;
+          // Construir el nombre del vehículo evitando duplicación de marca
+          const nombreVehiculo = contexto.autoInfo.modelo.toLowerCase().includes(contexto.autoInfo.marca.toLowerCase()) 
+            ? contexto.autoInfo.modelo 
+            : `${contexto.autoInfo.marca} ${contexto.autoInfo.modelo}`;
+            
+          const mensajeInicial = `Hola! Me interesa el auto ${nombreVehiculo} ${contexto.autoInfo.anio} por $${contexto.autoInfo.precio}. ¿Podrías darme más información?`;
           
           const nuevoMensaje = {
             idConversacion: parseInt(conversacionExistente.id),

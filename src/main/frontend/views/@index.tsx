@@ -1,5 +1,7 @@
 // TODO Replace with your own main view.
 
+
+import { Navigate } from 'react-router-dom';
 import {ViewConfig} from "@vaadin/hilla-file-router/types.js";
 
 export const config: ViewConfig = {
@@ -8,10 +10,7 @@ export const config: ViewConfig = {
     },
 };
 
+// Redirigir automáticamente a /autos
 export default function MainView() {
-    return (
-        <main className="p-m">
-            Please select a view from the menu on the left.
-        </main>
-    );
+    return <Navigate to="/Auto" replace />;
 }

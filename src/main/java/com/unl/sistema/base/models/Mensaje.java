@@ -1,13 +1,7 @@
 package com.unl.sistema.base.models;
 
 import java.util.Date;
-<<<<<<< HEAD
 
-=======
-import org.springframework.stereotype.Repository;
-
-@Repository
->>>>>>> origin/develop
 public class Mensaje {
 
     private Integer id;
@@ -15,7 +9,6 @@ public class Mensaje {
     private Date fechaEnvio;
     private Integer idRemitente;
     private Integer idConversacion;
-<<<<<<< HEAD
     private boolean leido;
 
     public Mensaje() {
@@ -33,13 +26,6 @@ public class Mensaje {
     // Getters y Setters
     public Integer getId() {
         return id;
-=======
-    // Agrega este campo si quieres almacenar el objeto Usuario (opcional)
-    private Usuario remitente;
-
-    public Integer getId() {
-        return this.id;
->>>>>>> origin/develop
     }
 
     public void setId(Integer id) {
@@ -47,11 +33,7 @@ public class Mensaje {
     }
 
     public String getContenido() {
-<<<<<<< HEAD
         return contenido;
-=======
-        return this.contenido;
->>>>>>> origin/develop
     }
 
     public void setContenido(String contenido) {
@@ -59,11 +41,7 @@ public class Mensaje {
     }
 
     public Date getFechaEnvio() {
-<<<<<<< HEAD
         return fechaEnvio;
-=======
-        return this.fechaEnvio;
->>>>>>> origin/develop
     }
 
     public void setFechaEnvio(Date fechaEnvio) {
@@ -71,11 +49,7 @@ public class Mensaje {
     }
 
     public Integer getIdRemitente() {
-<<<<<<< HEAD
         return idRemitente;
-=======
-        return this.idRemitente;
->>>>>>> origin/develop
     }
 
     public void setIdRemitente(Integer idRemitente) {
@@ -83,18 +57,13 @@ public class Mensaje {
     }
 
     public Integer getIdConversacion() {
-<<<<<<< HEAD
         return idConversacion;
-=======
-        return this.idConversacion;
->>>>>>> origin/develop
     }
 
     public void setIdConversacion(Integer idConversacion) {
         this.idConversacion = idConversacion;
     }
 
-<<<<<<< HEAD
     public boolean isLeido() {
         return leido;
     }
@@ -114,23 +83,4 @@ public class Mensaje {
                 ", leido=" + leido +
                 '}';
     }
-=======
-    // Getter para remitente
-    public Usuario getRemitente() {
-        return this.remitente;
-    }
-
-    // Setter para remitente
-    public void setRemitente(Usuario remitente) {
-        this.remitente = remitente;
-        if (remitente != null) {
-            this.idRemitente = remitente.getId().intValue();
-        }
-    }
-
-    public void setConversacion(Conversacion conversacion) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
->>>>>>> origin/develop
 }

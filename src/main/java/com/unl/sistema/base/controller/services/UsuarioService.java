@@ -15,7 +15,6 @@ import com.unl.sistema.base.controller.dao.dao_models.DaoUsuario;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Cuenta;
 import com.unl.sistema.base.models.Rol;
-import com.unl.sistema.base.models.Usuario;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -115,20 +114,4 @@ public class UsuarioService {
         return Arrays.asList(du.all().toArray());
     }
 
-    public HashMap<String, String> getUsuario(Integer id) throws Exception {
-        if (id == null) {
-            throw new Exception("ID de usuario requerido");
-        }
-
-        try {
-            Usuario usuario = du.findById(id);
-            if (usuario == null) {
-                throw new Exception("Usuario no encontrado");
-            }
-
-            return du.toDict(usuario);
-        } catch (Exception e) {
-            throw new Exception("Error al buscar usuario: " + e.getMessage());
-        }
-    }
 }

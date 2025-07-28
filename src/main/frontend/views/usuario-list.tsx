@@ -100,11 +100,8 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
           <TextField
             label="Nickname"
             value={nickname.value}
-<<<<<<< HEAD
-=======
             minlength={8}
             maxlength={16}
->>>>>>> origin/develop
             onValueChanged={(evt: CustomEvent<{ value: string }>) => (nickname.value = evt.detail.value)}
           />
           <TextField
@@ -119,21 +116,15 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
           />
           <TextField
             label="Cedula"
-<<<<<<< HEAD
-=======
             minlength={10}
             maxlength={10}
->>>>>>> origin/develop
             value={cedula.value}
             onValueChanged={(evt: CustomEvent<{ value: string }>) => (cedula.value = evt.detail.value)}
           />
           <TextField
             label="Telefono"
-<<<<<<< HEAD
-=======
             minlength={10}
             maxlength={10}
->>>>>>> origin/develop
             value={telefono.value}
             onValueChanged={(evt: CustomEvent<{ value: string }>) => (telefono.value = evt.detail.value)}
           />
@@ -162,32 +153,16 @@ function UsuarioEntryForm(props: UsuarioEntryFormProps) {
 
 function UsuarioEntryFormUpdate(props: UsuarioEntryFormUpdateProps) {
   const nickname = useSignal(props.arguments.nickname);
-<<<<<<< HEAD
-  const nombre = useSignal(props.arguments.nombre);
-  const apellido = useSignal(props.arguments.apellido);
-  const cedula = useSignal(props.arguments.cedula);
-=======
->>>>>>> origin/develop
   const telefono = useSignal(props.arguments.telefono);
   const ident = useSignal(props.arguments.id);
   const dialogOpened = useSignal(false);
 
   const updateUsuario = async () => {
     try {
-<<<<<<< HEAD
-      if (nickname.value && nombre.value && apellido.value && cedula.value && telefono.value) {
-        await UsuarioService.update(parseInt(ident.value), nickname.value, nombre.value, apellido.value, cedula.value, telefono.value);
-        if (props.onUsuarioUpdated) props.onUsuarioUpdated();
-        nickname.value = '';
-        nombre.value = '';
-        apellido.value = '';
-        cedula.value = '';
-=======
       if (nickname.value && telefono.value) {
         await UsuarioService.update(parseInt(ident.value), nickname.value, telefono.value);
         if (props.onUsuarioUpdated) props.onUsuarioUpdated();
         nickname.value = '';
->>>>>>> origin/develop
         telefono.value = '';
         dialogOpened.value = false;
         Notification.show('Usuario creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
@@ -219,28 +194,6 @@ function UsuarioEntryFormUpdate(props: UsuarioEntryFormUpdateProps) {
           <TextField
             label="Nickname"
             value={nickname.value}
-<<<<<<< HEAD
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (nickname.value = evt.detail.value)}
-          />
-          <TextField
-            label="Nombre"
-            value={nombre.value}
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (nombre.value = evt.detail.value)}
-          />
-          <TextField
-            label="Apellido"
-            value={apellido.value}
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (apellido.value = evt.detail.value)}
-          />
-          <TextField
-            label="Cedula"
-            value={cedula.value}
-            onValueChanged={(evt: CustomEvent<{ value: string }>) => (cedula.value = evt.detail.value)}
-          />
-          <TextField
-            label="Telefono"
-            value={telefono.value}
-=======
             minlength={8}
             maxlength={16}
             onValueChanged={(evt: CustomEvent<{ value: string }>) => (nickname.value = evt.detail.value)}
@@ -250,7 +203,6 @@ function UsuarioEntryFormUpdate(props: UsuarioEntryFormUpdateProps) {
             value={telefono.value}
             minlength={10}
             maxlength={10}
->>>>>>> origin/develop
             onValueChanged={(evt: CustomEvent<{ value: string }>) => (telefono.value = evt.detail.value)}
           />
         </VerticalLayout>

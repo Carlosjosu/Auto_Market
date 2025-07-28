@@ -9,7 +9,6 @@ public class Conversacion {
     private Integer idReceptor;
     private Integer idAuto;
     private Date fechaInicio;
-<<<<<<< HEAD
     private boolean estaActiva;
 
     public Conversacion() {
@@ -27,12 +26,6 @@ public class Conversacion {
     // Getters y Setters
     public Integer getId() {
         return id;
-=======
-    private boolean estaActiva = true;
-
-    public Integer getId() {
-        return this.id;
->>>>>>> origin/develop
     }
 
     public void setId(Integer id) {
@@ -40,11 +33,7 @@ public class Conversacion {
     }
 
     public Integer getIdEmisor() {
-<<<<<<< HEAD
         return idEmisor;
-=======
-        return this.idEmisor;
->>>>>>> origin/develop
     }
 
     public void setIdEmisor(Integer idEmisor) {
@@ -52,11 +41,7 @@ public class Conversacion {
     }
 
     public Integer getIdReceptor() {
-<<<<<<< HEAD
         return idReceptor;
-=======
-        return this.idReceptor;
->>>>>>> origin/develop
     }
 
     public void setIdReceptor(Integer idReceptor) {
@@ -64,11 +49,7 @@ public class Conversacion {
     }
 
     public Integer getIdAuto() {
-<<<<<<< HEAD
         return idAuto;
-=======
-        return this.idAuto;
->>>>>>> origin/develop
     }
 
     public void setIdAuto(Integer idAuto) {
@@ -76,11 +57,7 @@ public class Conversacion {
     }
 
     public Date getFechaInicio() {
-<<<<<<< HEAD
         return fechaInicio;
-=======
-        return this.fechaInicio;
->>>>>>> origin/develop
     }
 
     public void setFechaInicio(Date fechaInicio) {
@@ -88,18 +65,13 @@ public class Conversacion {
     }
 
     public boolean isEstaActiva() {
-<<<<<<< HEAD
         return estaActiva;
-=======
-        return this.estaActiva;
->>>>>>> origin/develop
     }
 
     public void setEstaActiva(boolean estaActiva) {
         this.estaActiva = estaActiva;
     }
 
-<<<<<<< HEAD
     @Override
     public String toString() {
         return "Conversacion{" +
@@ -111,16 +83,4 @@ public class Conversacion {
                 ", estaActiva=" + estaActiva +
                 '}';
     }
-=======
-    public void setUsuario1(Usuario usuario1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUsuario1'");
-    }
-
-    public void setUsuario2(Usuario usuario2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUsuario2'");
-    }
-
->>>>>>> origin/develop
 }

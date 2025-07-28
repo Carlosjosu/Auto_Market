@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Dialog, Notification, NumberField, DatePicker, ComboBox, VerticalLayout, Select, TextField } from '@vaadin/react-components';
 import { VentaService, AutoService, FavoritoService, ValoracionService } from 'Frontend/generated/endpoints';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
+import { useLocation } from 'react-router-dom';
 
 export const config: ViewConfig = {
     title: 'Venta',
@@ -38,13 +39,15 @@ export function VentaEntryForm({
     ventaEditar,
     modoEdicion,
     onCancel,
-    onVentaEditada
+    onVentaEditada,
+    autoPreseleccionado
 }: {
     onVentaCreated?: () => void,
     ventaEditar?: VentaItem | null,
     modoEdicion?: boolean,
     onCancel?: () => void,
-    onVentaEditada?: () => void
+    onVentaEditada?: () => void,
+    autoPreseleccionado?: any
 }) {
     const [ventaForm, setVentaForm] = useState({
         precioFinal: '',
@@ -65,9 +68,16 @@ export function VentaEntryForm({
                 idAuto: ventaEditar.idAuto ? String(ventaEditar.idAuto) : ''
             });
         } else if (!modoEdicion) {
-            setVentaForm({ precioFinal: '', fecha: '', idAuto: '' });
+            // Si hay un auto preseleccionado, usarlo
+            const autoId = autoPreseleccionado ? String(autoPreseleccionado.id) : '';
+            const precio = autoPreseleccionado ? String(autoPreseleccionado.precio) : '';
+            setVentaForm({ 
+                precioFinal: precio, 
+                fecha: '', 
+                idAuto: autoId 
+            });
         }
-    }, [ventaEditar, modoEdicion]);
+    }, [ventaEditar, modoEdicion, autoPreseleccionado]);
 
     const handleChange = (field: string, value: any) => {
         setVentaForm(prev => ({ ...prev, [field]: value }));
@@ -155,6 +165,7 @@ export function VentaEntryForm({
 }
 
 export default function VentaView() {
+    const location = useLocation();
     const [dialogOpened, setDialogOpened] = useState(false);
     const [modoEdicion, setModoEdicion] = useState(false);
     const [ventaEditar, setVentaEditar] = useState<VentaItem | null>(null);
@@ -180,18 +191,23 @@ export default function VentaView() {
         { label: 'Marca', value: 'marca' },
     ];
 
-    const handleAgregarFavorito = async (venta: VentaItem) => {
-        try {
-            await FavoritoService.create(
-                new Date().toISOString().split('T')[0],
-                venta.idAuto,
-                1
-            );
-            Notification.show('Agregado a favoritos', { duration: 2000, position: 'top-center', theme: 'success' });
-        } catch (error: any) {
-            Notification.show('Error al agregar a favoritos', { duration: 3000, position: 'top-center', theme: 'error' });
+    // Detectar si viene un auto preseleccionado desde la vista de autos
+    useEffect(() => {
+        const autoSeleccionado = location.state?.autoSeleccionado;
+        if (autoSeleccionado) {
+            // Mostrar notificación de que el auto está preseleccionado
+            Notification.show(`Auto ${autoSeleccionado.modelo} preseleccionado para venta`, {
+                duration: 4000,
+                position: 'top-center',
+                theme: 'success'
+            });
+            
+            // Abrir automáticamente el formulario de venta con el auto preseleccionado
+            setDialogOpened(true);
+            setModoEdicion(false);
+            setVentaEditar(null);
         }
-    };
+    }, [location.state]);
 
     useEffect(() => {
         AutoService.listAuto().then((data: any) => {
@@ -390,24 +406,6 @@ export default function VentaView() {
                             display: "flex",
                             gap: 8
                         }}>
-                            <Button
-                                theme="primary"
-                                style={{
-                                    background: "#ffa000",
-                                    color: "#fff",
-                                    fontWeight: 600,
-                                    borderRadius: 8,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 8,
-                                    flex: 1,
-                                    justifyContent: "center"
-                                }}
-                                onClick={() => handleAgregarFavorito(venta)}
-                            >
-                                <span style={{ fontSize: 20, marginRight: 8, display: "flex", alignItems: "center" }}>❤️</span>
-                            </Button>
-                            {/* <Button theme="secondary" style={{ flex: 1 }}>Chat</Button> */}
                             <Button theme="primary" style={{ flex: 1 }} onClick={() => {
                                 setVentaEditar(venta);
                                 setModoEdicion(true);
@@ -424,7 +422,8 @@ export default function VentaView() {
                                 }}
                             >
                                 Valorar
-                            </Button>                        </div>
+                            </Button>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -440,6 +439,7 @@ export default function VentaView() {
                     modoEdicion={modoEdicion}
                     onCancel={() => setDialogOpened(false)}
                     onVentaEditada={() => { setDialogOpened(false); setModoEdicion(false); setVentaEditar(null); cargarVentas(); }}
+                    autoPreseleccionado={location.state?.autoSeleccionado}
                 />
             </Dialog>
             {/* Diálogo de valoración */}

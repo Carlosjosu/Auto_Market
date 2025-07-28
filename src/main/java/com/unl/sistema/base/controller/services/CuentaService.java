@@ -112,118 +112,6 @@ public class CuentaService {
         return list;
     }
 
-<<<<<<< HEAD
-    @PermitAll
-    @Nonnull
-    public UserInfo getUserInfo() {
-        Authentication auth = context.getAuthentication();
-        final List<String> authorities = auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
-        return new UserInfo(auth.getName(), authorities);
-    }
-
-    public record UserInfo(
-            @NonNull String name,
-            @NonNull Collection<String> authorities) {
-    }
-
-    /**
-     * Obtiene el ID del usuario actual logueado
-     */
-    public Integer getUserId() {
-        Authentication auth = context.getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            try {
-                // El password contiene el ID de la cuenta
-                String accountId = auth.getCredentials().toString();
-
-                // Buscar el usuario por ID de cuenta
-                DaoUsuario du = new DaoUsuario();
-                for (int i = 0; i < du.listAll().getLength(); i++) {
-                    if (du.listAll().get(i).getIdCuenta().toString().equals(accountId)) {
-                        return du.listAll().get(i).getId();
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error obteniendo ID del usuario: " + e.getMessage());
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Obtiene la información completa del usuario actual
-     */
-    public HashMap<String, Object> getCurrentUserInfo() {
-        HashMap<String, Object> result = new HashMap<>();
-        Authentication auth = context.getAuthentication();
-
-        if (auth != null && auth.isAuthenticated()) {
-            try {
-                String accountId = auth.getCredentials().toString();
-                DaoUsuario du = new DaoUsuario();
-
-                for (int i = 0; i < du.listAll().getLength(); i++) {
-                    if (du.listAll().get(i).getIdCuenta().toString().equals(accountId)) {
-                        var usuario = du.listAll().get(i);
-                        result.put("id", usuario.getId());
-                        result.put("nickname", usuario.getNickname());
-                        result.put("nombre", usuario.getNombre());
-                        result.put("apellido", usuario.getApellido());
-                        result.put("idRol", usuario.getIdRol());
-                        result.put("idCuenta", usuario.getIdCuenta());
-
-                        // Obtener rol
-                        DaoRol dr = new DaoRol();
-                        if (usuario.getIdRol() != null && usuario.getIdRol() > 0) {
-                            var rol = dr.get(usuario.getIdRol() - 1);
-                            if (rol != null) {
-                                result.put("rol", rol.getNombre());
-                            }
-                        }
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error obteniendo información del usuario: " + e.getMessage());
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Verifica si el usuario actual es administrador
-     */
-    public Boolean isCurrentUserAdmin() {
-        Authentication auth = context.getAuthentication();
-
-        if (auth != null && auth.isAuthenticated()) {
-            // Verificar por authorities (más seguro)
-            boolean hasAdminRole = auth.getAuthorities().stream()
-                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_admin"));
-
-            if (hasAdminRole) {
-                return true;
-            }
-
-            // Verificación adicional por información del usuario
-            try {
-                HashMap<String, Object> userInfo = getCurrentUserInfo();
-                String rol = (String) userInfo.get("rol");
-                return "admin".equals(rol);
-            } catch (Exception e) {
-                System.err.println("Error verificando rol de administrador: " + e.getMessage());
-            }
-        }
-
-        return false;
-    }
-
-=======
->>>>>>> origin/develop
     public HashMap<String, Object> login(String email, String password) throws Exception {
         HashMap<String, Object> mapa = new HashMap<>();
         try {
@@ -271,7 +159,7 @@ public class CuentaService {
         }
     }
 
-    public void update(Integer id, @NotEmpty String clave, @NotEmpty String claveNueva ) throws Exception {
+    public void update(Integer id, @NotEmpty String clave, @NotEmpty String claveNueva) throws Exception {
         if (id != null && id > 0 && clave.trim().length() > 0 && claveNueva.trim().length() > 0) {
             dc.setObj(dc.listAll().get(id - 1));
             if (!dc.getObj().getClave().equals(clave)) {
@@ -300,46 +188,4 @@ public class CuentaService {
         return Arrays.asList(dc.all().toArray());
     }
 
-<<<<<<< HEAD
-    public static void main(String[] args) {
-        try {
-            CuentaService cuentaService = new CuentaService();
-            cuentaService.createRoles();
-            cuentaService.createUsuarios();
-            HashMap<String, Object> loginResponse = cuentaService.login("admin@gmail.com", "12345");
-            if (loginResponse.get("estado").equals("true")) {
-                System.out.println("Login successful: " + loginResponse);
-
-                // Prueba getUserInfo
-                UserInfo userInfo = cuentaService.getUserInfo();
-                System.out.println("getUserInfo() devuelve:");
-                System.out.println("  name: " + userInfo.name());
-                System.out.println("  authorities: " + userInfo.authorities());
-
-                // Prueba el mapa de login
-                System.out.println("login() devuelve:");
-                System.out.println("  name: " + loginResponse.get("name"));
-                System.out.println("  authorities: " + loginResponse.get("authorities"));
-
-                // Prueba getAuthentication
-                Authentication auth = cuentaService.getAuthentication();
-                if (auth != null) {
-                    System.out.println("getAuthentication() devuelve: " + auth.getName());
-                    System.out.println("Authorities (roles) del usuario:");
-                    auth.getAuthorities().forEach(a -> System.out.println(" - " + a.getAuthority()));
-                } else {
-                    System.out.println("getAuthentication() devuelve null");
-                }
-
-            } else {
-                System.out.println("Login failed: " + loginResponse.get("message"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }
-=======
-}
->>>>>>> origin/develop

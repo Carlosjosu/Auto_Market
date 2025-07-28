@@ -25,14 +25,51 @@ public class MensajeService {
     public HashMap<String, Object> agregarMensaje(Mensaje mensaje) {
         HashMap<String, Object> response = new HashMap<>();
         try {
+            // Validaciones básicas
+            if (mensaje == null) {
+                response.put("estado", "error");
+                response.put("mensaje", "Mensaje no puede ser null");
+                return response;
+            }
+
+            if (mensaje.getContenido() == null || mensaje.getContenido().trim().isEmpty()) {
+                response.put("estado", "error");
+                response.put("mensaje", "Contenido del mensaje no puede estar vacío");
+                return response;
+            }
+
+            if (mensaje.getIdConversacion() == null || mensaje.getIdRemitente() == null) {
+                response.put("estado", "error");
+                response.put("mensaje", "ID de conversación e ID de remitente son requeridos");
+                return response;
+            }
+
+            // Limpiar contenido
+            mensaje.setContenido(mensaje.getContenido().trim());
+
+            // Agregar mensaje
             daoMensaje.addMensaje(mensaje);
+
+            // Respuesta exitosa con múltiples formatos para compatibilidad
             response.put("estado", "success");
+            response.put("message", "success"); // Para compatibilidad
             response.put("mensaje", "Mensaje enviado exitosamente");
             response.put("data", daoMensaje.mensajeToHashMap(mensaje));
+            response.put("success", true); // Bandera adicional
+
+            System.out.println("✅ Mensaje enviado exitosamente. ID: " + mensaje.getId() +
+                    ", Conversación: " + mensaje.getIdConversacion() +
+                    ", Remitente: " + mensaje.getIdRemitente());
+
         } catch (Exception e) {
             response.put("estado", "error");
+            response.put("message", "error"); // Para compatibilidad
             response.put("mensaje", "Error al enviar mensaje: " + e.getMessage());
-            System.err.println("Error enviando mensaje: " + e.getMessage());
+            response.put("error", e.getMessage());
+            response.put("success", false);
+
+            System.err.println("❌ Error enviando mensaje: " + e.getMessage());
+            e.printStackTrace();
         }
         return response;
     }

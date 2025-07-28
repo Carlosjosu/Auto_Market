@@ -1,3 +1,14 @@
+    // Función para eliminar auto
+    const eliminarAuto = async () => {
+        if (!autoEditar || !autoEditar.id) return;
+        try {
+            await AutoService.deleteAuto(autoEditar.id);
+            Notification.show('Auto eliminado correctamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
+            if (onAutoEditado) onAutoEditado();
+        } catch (error: any) {
+            Notification.show(error?.message || 'Error al eliminar el auto', { duration: 5000, position: 'top-center', theme: 'error' });
+        }
+    };
 import { useEffect, useState } from 'react';
 import { Button, Dialog, Notification, Checkbox, TextArea, TextField, VerticalLayout, HorizontalLayout, ComboBox, RadioGroup, RadioButton, CustomField } from '@vaadin/react-components';
 import { AutoService, MarcaService, ImagenService, FavoritoService, CuentaService } from 'Frontend/generated/endpoints';
@@ -53,7 +64,7 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
     usuarioActual?: any
 }) {
     const [autoForm, setAutoForm] = useState({
-        modelo: '', anio: '', puertas: '', color: '', kilometraje: '', ciudad: '', precio: '', matricula: '', codigoVIN: '', descripcion: '', fechaRegistro: '', estaDisponible: true, idVenta: '', idMarca: '', tipoCombustible: '', categoria: ''
+        modelo: '', anio: '', puertas: '', color: '', kilometraje: '', ciudad: '', precio: '', matricula: '', codigoVIN: '', descripcion: '', fechaRegistro: '', estaDisponible: true, idVenta: '', idMarca: '', tipoCombustible: '', categoria: '', idVendedor: ''
     });
     // Estado local para imágenes subidas en la sesión de registro
     const [imagenesSesion, setImagenesSesion] = useState<any[]>([]);
@@ -97,7 +108,8 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
                 idVenta: autoEditar.idVenta ? String(autoEditar.idVenta) : '',
                 idMarca: autoEditar.idMarca ? String(autoEditar.idMarca) : '',
                 tipoCombustible: autoEditar.tipoCombustible || '',
-                categoria: autoEditar.categoria || ''
+                categoria: autoEditar.categoria || '',
+                idVendedor: autoEditar.idVendedor // SIEMPRE mantener el idVendedor original
             });
             setIdMarcaSeleccionada(autoEditar.idMarca || null);
             setImagenesSeleccionadas(imagenesAuto.map(img => String(img.id)));
@@ -207,7 +219,8 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
                 autoForm.idVenta ? Number(autoForm.idVenta) : undefined,
                 idMarcaSeleccionada,
                 autoForm.tipoCombustible,
-                autoForm.categoria
+                autoForm.categoria,
+                Number(autoEditar.idVendedor) // FORZAR el idVendedor original, nunca el del form
             );
             await ImagenService.asociarImagenesAUnAuto(Number(autoEditar.id), imagenesSeleccionadas.map(id => Number(id)));
             if (onAutoEditado) onAutoEditado();
@@ -403,6 +416,7 @@ function AutoEntryForm({ onAutoCreated, marcas, setMarcas, ventas, tiposCombusti
     return (
         <VerticalLayout>
             <div className="form-grid-3col">
+                {/* ...existing code... */}
                 <TextField label="Modelo" value={autoForm.modelo} placeholder="Ej: Corolla" onValueChanged={e => handleChange('modelo', e.detail.value)} />
                 <TextField label="Año" value={autoForm.anio} placeholder="Ej: 2020" onValueChanged={e => handleChange('anio', e.detail.value)} />
                 <TextField label="Puertas" value={autoForm.puertas} placeholder="Ej: 4" onValueChanged={e => handleChange('puertas', e.detail.value)} />
@@ -585,7 +599,6 @@ export default function AutoView() {
             setImagenes(imagenesData);
         });
     }, []);
-
     // useEffect para responder a cambios de filtro
     useEffect(() => {
         callData(); // Recargar datos cuando cambie el filtro
@@ -956,6 +969,23 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate, usuarioActual }: { 
 }
 
 function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar, abrirDetalleAuto, usuarioActual, isAdmin, mostrarSoloMios }: any) {
+    // Función para eliminar auto desde la card (flujo igual a favoritos)
+    // Handler para eliminar auto igual que favoritos
+    const handleEliminarAuto = async (auto: any) => {
+        if (!window.confirm('¿Seguro que deseas eliminar este auto?')) return;
+        try {
+            await AutoService.deleteAuto(auto.id);
+            Notification.show('Auto eliminado correctamente', { duration: 2000, position: 'top-center', theme: 'success' });
+            if (typeof window.callData === 'function') {
+                await window.callData();
+            } else if (typeof window !== 'undefined' && window.dispatchEvent) {
+                window.dispatchEvent(new Event('autoEliminado'));
+            }
+        } catch (error: any) {
+            Notification.show(error?.message || 'Error al eliminar el auto', { duration: 3000, position: 'top-center', theme: 'error' });
+        }
+    };
+
     const marca = marcas.find((m: any) => m.id === Number(auto.idMarca))?.nombre || auto.idMarca;
     
     // Buscar imágenes de este auto
@@ -1042,19 +1072,30 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
                 <div className="flex gap-2 mt-2 justify-center">
                     {/* Botón Editar para admin o para user en 'Mis autos' */}
                     {isAdmin || (mostrarSoloMios && Number(auto.idVendedor) === Number(usuarioActual?.id)) ? (
-                        <Button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setDialogOpened(true); 
-                                setModoEdicion(true); 
-                                setAutoEditar(auto);
-                            }}
-                            className="auto-btn-primary"
-                        >
-                            Editar
-                        </Button>
+                        <>
+                            <Button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDialogOpened(true); 
+                                    setModoEdicion(true); 
+                                    setAutoEditar(auto);
+                                }}
+                                className="auto-btn-primary"
+                            >
+                                Editar
+                            </Button>
+                            <Button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEliminarAuto(auto);
+                                }}
+                                theme="error"
+                                className="auto-btn-eliminar"
+                            >
+                                Eliminar
+                            </Button>
+                        </>
                     ) : null}
-                    {/* Botón para agregar a favoritos eliminado */}
                 </div>
             </div>
         </div>

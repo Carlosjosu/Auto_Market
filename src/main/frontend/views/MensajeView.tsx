@@ -26,27 +26,116 @@ export const config: ViewConfig = {
 };
 
 // ErrorBoundary para capturar errores de React
-class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean}> {
+class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true };
+    console.error('🚨 Error capturado por ErrorBoundary:', error);
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('Error capturado por ErrorBoundary:', error, errorInfo);
+    console.error('🚨 Error completo:', error, errorInfo);
+    
+    // Errores específicos que podemos ignorar o manejar automáticamente
+    const erroresIgnorables = [
+      'Cannot read properties of undefined',
+      'Cannot read property',
+      'removeChild',
+      'ResizeObserver loop limit exceeded',
+      'Non-Error promise rejection captured'
+    ];
+
+    const esErrorIgnorable = erroresIgnorables.some(patron => 
+      error.message.includes(patron)
+    );
+
+    if (esErrorIgnorable) {
+      console.warn('⚠️ Error menor ignorado, continuando...', error.message);
+      // Auto-recuperación después de un breve delay
+      setTimeout(() => {
+        this.setState({ hasError: false, error: null });
+      }, 1000);
+      return;
+    }
+
+    // Para errores críticos, mostrar la interfaz de error
+    console.error('❌ Error crítico que requiere intervención:', error);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{padding: 20, textAlign: 'center'}}>
-          <h2>Algo salió mal</h2>
-          <p>Ha ocurrido un error. Por favor, recarga la página.</p>
-          <button onClick={() => window.location.reload()}>Recargar</button>
+        <div style={{
+          padding: 20, 
+          textAlign: 'center', 
+          background: '#fff', 
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <div style={{fontSize: 64, marginBottom: 20}}>⚠️</div>
+          <h2 style={{color: '#d32f2f', marginBottom: 16}}>Error temporal en el chat</h2>
+          <p style={{marginBottom: 20, maxWidth: 400, lineHeight: 1.5}}>
+            Ha ocurrido un error temporal. Puedes intentar continuar o recargar la página.
+          </p>
+          
+          <div style={{display: 'flex', gap: 12, marginBottom: 20}}>
+            <button 
+              onClick={() => {
+                console.log('🔄 Intentando recuperación automática...');
+                this.setState({ hasError: false, error: null });
+              }}
+              style={{
+                padding: '10px 20px', 
+                backgroundColor: '#4caf50',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              ✅ Continuar sin recargar
+            </button>
+            
+            <button 
+              onClick={() => {
+                console.log('🔄 Recargando página...');
+                window.location.reload();
+              }}
+              style={{
+                padding: '10px 20px', 
+                backgroundColor: '#2196f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              🔄 Recargar página
+            </button>
+          </div>
+          
+          <details style={{marginTop: 20, textAlign: 'left', maxWidth: 600}}>
+            <summary style={{cursor: 'pointer', marginBottom: 10}}>
+              🔍 Detalles técnicos (para desarrolladores)
+            </summary>
+            <pre style={{
+              background: '#f5f5f5', 
+              padding: 15, 
+              borderRadius: 4, 
+              overflow: 'auto',
+              fontSize: 12,
+              maxHeight: 200
+            }}>
+              {this.state.error?.stack || this.state.error?.message || 'Error desconocido'}
+            </pre>
+          </details>
         </div>
       );
     }
@@ -606,32 +695,111 @@ const MensajesViewContent: React.FC = () => {
   // Enviar mensaje
   const enviarMensaje = useCallback(async (e: CustomEvent) => {
     const contenido = e.detail.value;
-    if (!conversacion || !contenido?.trim() || !usuarioActual?.id) return;
+    if (!conversacion || !contenido?.trim() || !usuarioActual?.id) {
+      console.warn('❌ Faltan datos para enviar mensaje:', { 
+        conversacion: !!conversacion, 
+        contenido: !!contenido?.trim(), 
+        usuarioActual: !!usuarioActual?.id 
+      });
+      return;
+    }
 
     try {
+      console.log('📤 Enviando mensaje:', {
+        contenido: contenido.trim(),
+        conversacion: conversacion.id,
+        remitente: usuarioActual.id,
+        fecha: new Date().toISOString()
+      });
+
       const nuevoMensaje = {
         idConversacion: parseInt(conversacion.id),
         idRemitente: usuarioActual.id,
         contenido: contenido.trim(),
-        fechaEnvio: new Date().toISOString()
+        fechaEnvio: new Date().toISOString(),
+        leido: false
       };
 
+      // Limpiar input inmediatamente para mejor UX
+      const messageInput = document.querySelector('vaadin-message-input');
+      if (messageInput) {
+        (messageInput as any).value = '';
+      }
+
       const resultado = await MensajeService.agregarMensaje(nuevoMensaje);
+      console.log('📨 Resultado del backend:', resultado);
       
-      if (resultado?.estado === 'success') {
-        setNotificacion("Mensaje enviado");
-        setTimeout(() => {
-          cargarMensajes(parseInt(conversacion.id));
-          cargarMisChats(); // Esto actualiza la lista de chats
-          forzarActualizacion(); // Fuerza el re-render para actualizar explorar
-        }, 500);
+      // Verificar múltiples formatos de respuesta exitosa
+      const esExitoso = 
+        resultado?.estado === 'success' || 
+        resultado?.message?.includes('success') ||
+        resultado?.mensaje?.includes('exitosamente') ||
+        resultado?.estado === 'ok' ||
+        !resultado?.error;
+
+      if (esExitoso) {
+        console.log('✅ Mensaje enviado correctamente');
+        
+        // Actualizar UI de forma más robusta
+        setTimeout(async () => {
+          try {
+            console.log('🔄 Iniciando actualización de UI...');
+            
+            // Recargar mensajes primero
+            await cargarMensajes(parseInt(conversacion.id));
+            console.log('✅ Mensajes recargados');
+            
+            // Luego actualizar chats
+            await cargarMisChats();
+            console.log('✅ Chats actualizados');
+            
+            // Forzar re-render
+            forzarActualizacion();
+            console.log('✅ UI actualizada completamente');
+            
+          } catch (errorActualizacion) {
+            console.error('❌ Error actualizando UI:', errorActualizacion);
+            // Mostrar mensaje de éxito pero con advertencia
+            setNotificacion("Mensaje enviado (actualización manual requerida)");
+          }
+        }, 300);
+        
+        setNotificacion("✅ Mensaje enviado");
       } else {
-        setNotificacion("Error al enviar mensaje");
+        console.error('❌ Error del backend:', resultado);
+        
+        // Restaurar contenido en el input si falló
+        if (messageInput) {
+          (messageInput as any).value = contenido;
+        }
+        
+        setNotificacion("❌ Error al enviar mensaje");
+        
+        // Mostrar detalles del error en la consola para debugging
+        console.error('Detalles del error:', {
+          resultado,
+          tipoRespuesta: typeof resultado,
+          claves: resultado ? Object.keys(resultado) : 'No hay resultado'
+        });
       }
       
     } catch (error) {
-      console.error('Error enviando mensaje:', error);
-      setNotificacion('Error al enviar mensaje');
+      console.error('❌ Error crítico enviando mensaje:', error);
+      
+      // Restaurar contenido en el input
+      const messageInput = document.querySelector('vaadin-message-input');
+      if (messageInput) {
+        (messageInput as any).value = contenido;
+      }
+      
+      setNotificacion('❌ Error de conexión al enviar mensaje');
+      
+      // Mostrar error detallado
+      Notification.show(`Error: ${error instanceof Error ? error.message : 'Desconocido'}`, {
+        duration: 4000,
+        position: 'top-center',
+        theme: 'error'
+      });
     }
   }, [conversacion, usuarioActual?.id, cargarMensajes, cargarMisChats]);
 

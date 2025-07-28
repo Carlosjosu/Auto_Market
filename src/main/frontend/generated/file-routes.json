@@ -65,6 +65,7 @@
         "menu": {
           "exclude": true
         },
+        "loginRequired": false,
         "flowLayout": false,
         "params": {},
         "title": "Login"
@@ -92,12 +93,23 @@
         "title": "Mensajes"
       },
       {
-        "route": "usuario-list",
-        "title": "Usuario",
+        "route": "register",
+        "skipLayouts": true,
         "menu": {
-          "icon": "vaadin:users",
-          "order": 2,
-          "title": "Usuario"
+          "exclude": true
+        },
+        "loginRequired": false,
+        "flowLayout": false,
+        "params": {},
+        "title": "Register"
+      },
+      {
+        "route": "task-list",
+        "title": "Task List",
+        "menu": {
+          "icon": "vaadin:clipboard-check",
+          "order": 1,
+          "title": "Task List"
         },
         "flowLayout": false,
         "params": {}

@@ -4,6 +4,8 @@ import com.unl.sistema.base.controller.Util.Utiles;
 import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Auto;
+import com.unl.sistema.base.models.Favorito;
+
 import java.util.HashMap;
 
 public class DaoAuto extends AdapterDao<Auto> {
@@ -40,6 +42,26 @@ public class DaoAuto extends AdapterDao<Auto> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
+            return false;
+        }
+    }
+    public Boolean delete(Integer id) {
+        try {
+            System.out.println("Intentando eliminar auto con id: " + id);
+            LinkedList<Auto> lista = this.listAll();
+            for (int i = 0; i < lista.getLength(); i++) {
+                Auto auto = lista.get(i);
+                System.out.println("Comparando con auto id: " + auto.getId());
+                if (auto.getId() != null && auto.getId().equals(id)) {
+                    this.delete(auto); // Elimina el auto encontrado
+                    System.out.println("Auto eliminado");
+                    return true;
+                }
+            }
+            System.out.println("No se encontró el auto");
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }

@@ -119,7 +119,9 @@ public class AutoService {
             autoExistente.setFechaRegistro(fechaRegistro);
         }
         autoExistente.setEstaDisponible(estaDisponible != null ? estaDisponible : true);
-        autoExistente.setIdVendedor(idVendedor);
+        if (idVendedor != null) {
+            autoExistente.setIdVendedor(idVendedor);
+        }
         autoExistente.setIdMarca(idMarca);
         if (tipoCombustible != null && !tipoCombustible.isEmpty())
             autoExistente.setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
@@ -130,6 +132,14 @@ public class AutoService {
             throw new Exception("No se pudo actualizar el auto");
     }
 
+    /**
+     * Elimina un auto por su id usando AdapterDao.delete
+     */
+    public void deleteAuto(Integer id) throws Exception {
+        if (!da.delete(id)) {
+            throw new Exception("No se pudo eliminar el auto");
+        }
+    }
     public List<HashMap<String, String>> ordenar(String atributo, Integer type) {
         return Arrays.asList(da.ordenarPorAtributo(atributo, type).toArray());
     }

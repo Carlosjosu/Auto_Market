@@ -65,8 +65,6 @@ function UserMenu() {
         </>
       ),
       children: [
-        { text: 'View Profile', action: () => console.log('View Profile') },
-        { text: 'Manage Settings', action: () => console.log('Manage Settings') },
         { text: 'Cerrar Sesion', action: () => 
           (async () => CuentaService.logout().then(async function(){
             await logout();

@@ -143,15 +143,6 @@ export function VentaEntryForm({
                 required
                 placeholder="Seleccione una fecha"
             />
-            <ComboBox
-                label="Auto"
-                items={autos.map((a: any) => ({ label: `${a.marca} ${a.modelo}`, value: String(a.id) }))}
-                value={ventaForm.idAuto}
-                onValueChanged={e => handleChange('idAuto', e.detail.value)}
-                placeholder="Seleccione un auto"
-                required
-                clearButtonVisible
-            />
             <div className="flex gap-2 mt-4 justify-center">
                 {onCancel && <Button onClick={onCancel}>Cancelar</Button>}
                 {modoEdicion ? (
@@ -336,13 +327,6 @@ export default function VentaView() {
                 >
                     Buscar
                 </Button>
-                <Button
-                    theme="primary"
-                    style={{ background: "#39B54A", color: "#fff", fontWeight: 600, padding: "0 24px", borderRadius: 8 }}
-                    onClick={() => { setDialogOpened(true); setModoEdicion(false); setVentaEditar(null); }}
-                >
-                    + Agregar venta
-                </Button>
             </div>
             {/* Grid de tarjetas */}
             <div style={{
@@ -442,7 +426,6 @@ export default function VentaView() {
                     autoPreseleccionado={location.state?.autoSeleccionado}
                 />
             </Dialog>
-            {/* Diálogo de valoración */}
             <Dialog
                 opened={valoracionDialogOpen}
                 headerTitle={`Valorar venta: ${ventaAValorar ? getNombreAuto(ventaAValorar) : ""}`}

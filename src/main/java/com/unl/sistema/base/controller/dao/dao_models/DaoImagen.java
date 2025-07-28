@@ -80,7 +80,9 @@ public class DaoImagen extends AdapterDao<Imagen> {
         aux.put("url", img.getUrl());
         aux.put("descripcion", img.getDescripcion());
         aux.put("idAuto", String.valueOf(img.getIdAuto()));
-        aux.put("esPrincipal", String.valueOf(img.getEsPrincipal()));
+        // Manejar correctamente el campo esPrincipal para evitar "null" strings
+        Boolean esPrincipal = img.getEsPrincipal();
+        aux.put("esPrincipal", esPrincipal != null ? esPrincipal.toString() : "false");
         return aux;
     }
 

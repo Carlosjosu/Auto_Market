@@ -119,7 +119,9 @@ public class AutoService {
             autoExistente.setFechaRegistro(fechaRegistro);
         }
         autoExistente.setEstaDisponible(estaDisponible != null ? estaDisponible : true);
-        autoExistente.setIdVendedor(idVendedor);
+        if (idVendedor != null) {
+            autoExistente.setIdVendedor(idVendedor);
+        }
         autoExistente.setIdMarca(idMarca);
         if (tipoCombustible != null && !tipoCombustible.isEmpty())
             autoExistente.setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
@@ -130,6 +132,14 @@ public class AutoService {
             throw new Exception("No se pudo actualizar el auto");
     }
 
+    /**
+     * Elimina un auto por su id usando AdapterDao.delete
+     */
+    public void deleteAuto(Integer id) throws Exception {
+        if (!da.delete(id)) {
+            throw new Exception("No se pudo eliminar el auto");
+        }
+    }
     public List<HashMap<String, String>> ordenar(String atributo, Integer type) {
         return Arrays.asList(da.ordenarPorAtributo(atributo, type).toArray());
     }
@@ -163,5 +173,85 @@ public class AutoService {
 
     public HashMap<String, String> buscarPorAtributo(String atributo, String valor) throws Exception {
         return da.buscarPorAtributo(atributo, valor);
+    }
+
+    /**
+     * Lista todos los autos del vendedor especificado
+     */
+    public List<HashMap<String, String>> listAutosByVendedor(Integer idVendedor) {
+        List<HashMap<String, String>> result = new java.util.ArrayList<>();
+        if (idVendedor == null)
+            return result;
+
+        int len = da.all().getLength();
+        for (int i = 0; i < len; i++) {
+            HashMap<String, String> auto = da.all().get(i);
+            if (auto.get("idVendedor") != null &&
+                    auto.get("idVendedor").equals(idVendedor.toString())) {
+                result.add(auto);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Lista todos los autos disponibles excluyendo los del vendedor especificado
+     * (para el modo comprador)
+     */
+    public List<HashMap<String, String>> listAutosForComprador(Integer idVendedor) {
+        List<HashMap<String, String>> result = new java.util.ArrayList<>();
+
+        int len = da.all().getLength();
+        for (int i = 0; i < len; i++) {
+            HashMap<String, String> auto = da.all().get(i);
+            // Solo mostrar autos disponibles que no sean del usuario actual
+            boolean estaDisponible = "true".equals(auto.get("estaDisponible"));
+            boolean noEsDelVendedor = !auto.get("idVendedor").equals(idVendedor.toString());
+
+            if (estaDisponible && noEsDelVendedor) {
+                result.add(auto);
+            }
+        }
+
+        // Mezclar los resultados para variedad
+        if (!result.isEmpty()) {
+            HashMap<String, String>[] arr = result.toArray(new HashMap[0]);
+            Utiles.knuthShuffle(arr);
+            result = Arrays.asList(arr);
+        }
+
+        return result;
+    }
+
+    /**
+     * Verifica si el auto pertenece al vendedor especificado
+     */
+    public Boolean esAutoDelVendedor(Integer idAuto, Integer idVendedor) {
+        if (idAuto == null || idVendedor == null)
+            return false;
+
+        try {
+            HashMap<String, String> auto = da.buscarPorAtributo("id", idAuto.toString());
+            if (auto != null) {
+                return idVendedor.toString().equals(auto.get("idVendedor"));
+            }
+        } catch (Exception e) {
+            System.err.println("Error verificando propietario del auto: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Búsqueda flexible por modelo (contiene, insensible a mayúsculas/minúsculas)
+     */
+    public List<HashMap<String, String>> buscarPorModeloFlexible(String texto) throws Exception {
+        // type = 0 para búsqueda en cualquier parte del texto
+        // Convertir el LinkedList a un List estándar
+        com.unl.sistema.base.controller.datastruct.list.LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(da.all(), "modelo", texto, 0);
+        java.util.List<HashMap<String, String>> lista = new java.util.ArrayList<>();
+        for (int i = 0; i < resultado.getLength(); i++) {
+            lista.add(resultado.get(i));
+        }
+        return lista;
     }
 }

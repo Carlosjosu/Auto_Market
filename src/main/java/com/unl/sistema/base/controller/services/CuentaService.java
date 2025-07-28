@@ -23,9 +23,6 @@ import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
-import io.micrometer.common.lang.NonNull;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.security.PermitAll;
 import jakarta.validation.constraints.NotEmpty;
 
 @BrowserCallable
@@ -115,22 +112,6 @@ public class CuentaService {
         return list;
     }
 
-    @PermitAll
-    @Nonnull
-    public UserInfo getUserInfo() {
-        Authentication auth = context.getAuthentication();
-        final List<String> authorities = auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
-        return new UserInfo(auth.getName(), authorities);
-    }
-
-    public record UserInfo(
-            @NonNull String name,
-            @NonNull Collection<String> authorities) {
-    }
-
     public HashMap<String, Object> login(String email, String password) throws Exception {
         HashMap<String, Object> mapa = new HashMap<>();
         try {
@@ -145,6 +126,7 @@ public class CuentaService {
                     .toList();
             mapa.put("name", auth.getName());
             mapa.put("authorities", authorities);
+            mapa.put("id", Integer.parseInt(auth.getCredentials().toString()));
             mapa.put("message", "OK");
             mapa.put("estado", "true");
         } catch (Exception e) {
@@ -166,6 +148,10 @@ public class CuentaService {
 
     public void create(@NotEmpty String correo, @NotEmpty String clave) throws Exception {
         if (correo.trim().length() > 0 && clave.trim().length() > 0) {
+            LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(dc.all(), "correo", correo, 0);
+            if (!resultado.isEmpty()) {
+                throw new Exception("El correo ya está registrado");
+            }
             dc.getObj().setCorreo(correo);
             dc.getObj().setClave(clave);
             if (!dc.save())
@@ -173,10 +159,13 @@ public class CuentaService {
         }
     }
 
-    public void update(Integer id, @NotEmpty String clave) throws Exception {
-        if (id != null && id > 0 && clave.trim().length() > 0) {
+    public void update(Integer id, @NotEmpty String clave, @NotEmpty String claveNueva) throws Exception {
+        if (id != null && id > 0 && clave.trim().length() > 0 && claveNueva.trim().length() > 0) {
             dc.setObj(dc.listAll().get(id - 1));
-            dc.getObj().setClave(clave);
+            if (!dc.getObj().getClave().equals(clave)) {
+                throw new Exception("La clave anterior no es correcta");
+            }
+            dc.getObj().setClave(claveNueva);
             if (!dc.save())
                 throw new Exception("No se pudo modificar la clave de la cuenta");
         }
@@ -198,43 +187,5 @@ public class CuentaService {
     public List<HashMap> listCuenta() throws Exception {
         return Arrays.asList(dc.all().toArray());
     }
-
-    public static void main(String[] args) {
-    try {
-        CuentaService cuentaService = new CuentaService();
-        cuentaService.createRoles();
-        cuentaService.createUsuarios();
-        HashMap<String, Object> loginResponse = cuentaService.login("admin@gmail.com", "12345");
-        if (loginResponse.get("estado").equals("true")) {
-            System.out.println("Login successful: " + loginResponse);
-
-            // Prueba getUserInfo
-            UserInfo userInfo = cuentaService.getUserInfo();
-            System.out.println("getUserInfo() devuelve:");
-            System.out.println("  name: " + userInfo.name());
-            System.out.println("  authorities: " + userInfo.authorities());
-
-            // Prueba el mapa de login
-            System.out.println("login() devuelve:");
-            System.out.println("  name: " + loginResponse.get("name"));
-            System.out.println("  authorities: " + loginResponse.get("authorities"));
-
-            // Prueba getAuthentication
-            Authentication auth = cuentaService.getAuthentication();
-            if (auth != null) {
-                System.out.println("getAuthentication() devuelve: " + auth.getName());
-                System.out.println("Authorities (roles) del usuario:");
-                auth.getAuthorities().forEach(a -> System.out.println(" - " + a.getAuthority()));
-            } else {
-                System.out.println("getAuthentication() devuelve null");
-            }
-
-        } else {
-            System.out.println("Login failed: " + loginResponse.get("message"));
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
 
 }

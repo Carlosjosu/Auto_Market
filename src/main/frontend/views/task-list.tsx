@@ -7,6 +7,9 @@ import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import Task from 'Frontend/generated/com/unl/sistema/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
+import { useAuth, role } from 'Frontend/security/auth';
+import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 
 export const config: ViewConfig = {
   title: 'Task List',
@@ -70,6 +73,23 @@ function TaskEntryForm(props: TaskEntryFormProps) {
 }
 
 export default function TaskListView() {
+
+  const { state } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!state.user) {
+      navigate('/login?error=true');
+      return;
+    }
+    role().then((rolResponse) => {
+      if (rolResponse?.rol !== 'ROLE_admin') {
+        Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
+        navigate('/');
+      }
+    });
+  }, [state.user, navigate]);
+
   const dataProvider = useDataProvider<Task>({
     list: (pageable) => TaskService.list(pageable),
   });

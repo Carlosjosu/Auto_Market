@@ -1,6 +1,7 @@
 [
   {
     "route": "",
+    "loginRequired": true,
     "flowLayout": false,
     "params": {},
     "title": "Main Layout",
@@ -21,6 +22,17 @@
           "icon": "vaadin:car",
           "order": 2,
           "title": "Auto"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "cuenta-list",
+        "title": "Cuenta",
+        "menu": {
+          "icon": "vaadin:wallet",
+          "order": 1,
+          "title": "Cuenta"
         },
         "flowLayout": false,
         "params": {}
@@ -49,6 +61,11 @@
       },
       {
         "route": "login",
+        "skipLayouts": true,
+        "menu": {
+          "exclude": true
+        },
+        "loginRequired": false,
         "flowLayout": false,
         "params": {},
         "title": "Login"
@@ -66,9 +83,25 @@
       },
       {
         "route": "MensajeView",
+        "menu": {
+          "order": 8,
+          "icon": "vaadin:chat",
+          "title": "Mensajes"
+        },
         "flowLayout": false,
         "params": {},
         "title": "Mensajes"
+      },
+      {
+        "route": "register",
+        "skipLayouts": true,
+        "menu": {
+          "exclude": true
+        },
+        "loginRequired": false,
+        "flowLayout": false,
+        "params": {},
+        "title": "Register"
       },
       {
         "route": "task-list",
@@ -77,6 +110,17 @@
           "icon": "vaadin:clipboard-check",
           "order": 1,
           "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
+        "route": "usuario-list",
+        "title": "Usuario",
+        "menu": {
+          "icon": "vaadin:users",
+          "order": 2,
+          "title": "Usuario"
         },
         "flowLayout": false,
         "params": {}

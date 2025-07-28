@@ -599,6 +599,10 @@ export default function AutoView() {
             setImagenes(imagenesData);
         });
     }, []);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/develop
     // useEffect para responder a cambios de filtro
     useEffect(() => {
         callData(); // Recargar datos cuando cambie el filtro
@@ -969,6 +973,7 @@ function AutoDetailModal({ auto, marcas, imagenes, navigate, usuarioActual }: { 
 }
 
 function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, setAutoEditar, abrirDetalleAuto, usuarioActual, isAdmin, mostrarSoloMios }: any) {
+<<<<<<< HEAD
     // Función para eliminar auto desde la card (flujo igual a favoritos)
     // Handler para eliminar auto igual que favoritos
     const handleEliminarAuto = async (auto: any) => {
@@ -986,6 +991,8 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
         }
     };
 
+=======
+>>>>>>> origin/develop
     const marca = marcas.find((m: any) => m.id === Number(auto.idMarca))?.nombre || auto.idMarca;
     
     // Buscar imágenes de este auto
@@ -1072,6 +1079,7 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
                 <div className="flex gap-2 mt-2 justify-center">
                     {/* Botón Editar para admin o para user en 'Mis autos' */}
                     {isAdmin || (mostrarSoloMios && Number(auto.idVendedor) === Number(usuarioActual?.id)) ? (
+<<<<<<< HEAD
                         <>
                             <Button 
                                 onClick={(e) => {
@@ -1096,6 +1104,21 @@ function AutoCard({ auto, marcas, imagenes, setDialogOpened, setModoEdicion, set
                             </Button>
                         </>
                     ) : null}
+=======
+                        <Button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setDialogOpened(true); 
+                                setModoEdicion(true); 
+                                setAutoEditar(auto);
+                            }}
+                            className="auto-btn-primary"
+                        >
+                            Editar
+                        </Button>
+                    ) : null}
+                    {/* Botón para agregar a favoritos eliminado */}
+>>>>>>> origin/develop
                 </div>
             </div>
         </div>

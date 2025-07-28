@@ -126,6 +126,17 @@
         "params": {}
       },
       {
+        "route": "usuario-list",
+        "title": "Usuario",
+        "menu": {
+          "icon": "vaadin:users",
+          "order": 2,
+          "title": "Usuario"
+        },
+        "flowLayout": false,
+        "params": {}
+      },
+      {
         "route": "valoracion-list",
         "title": "Valoracion",
         "menu": {

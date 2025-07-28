@@ -26,6 +26,7 @@ export const config: ViewConfig = {
 };
 
 // ErrorBoundary para capturar errores de React
+<<<<<<< HEAD
 class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);
@@ -64,11 +65,26 @@ class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: bo
 
     // Para errores críticos, mostrar la interfaz de error
     console.error('❌ Error crítico que requiere intervención:', error);
+=======
+class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Error capturado por ErrorBoundary:', error, errorInfo);
+>>>>>>> origin/develop
   }
 
   render() {
     if (this.state.hasError) {
       return (
+<<<<<<< HEAD
         <div style={{
           padding: 20, 
           textAlign: 'center', 
@@ -136,6 +152,12 @@ class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: bo
               {this.state.error?.stack || this.state.error?.message || 'Error desconocido'}
             </pre>
           </details>
+=======
+        <div style={{padding: 20, textAlign: 'center'}}>
+          <h2>Algo salió mal</h2>
+          <p>Ha ocurrido un error. Por favor, recarga la página.</p>
+          <button onClick={() => window.location.reload()}>Recargar</button>
+>>>>>>> origin/develop
         </div>
       );
     }
@@ -695,6 +717,7 @@ const MensajesViewContent: React.FC = () => {
   // Enviar mensaje
   const enviarMensaje = useCallback(async (e: CustomEvent) => {
     const contenido = e.detail.value;
+<<<<<<< HEAD
     if (!conversacion || !contenido?.trim() || !usuarioActual?.id) {
       console.warn('❌ Faltan datos para enviar mensaje:', { 
         conversacion: !!conversacion, 
@@ -712,10 +735,16 @@ const MensajesViewContent: React.FC = () => {
         fecha: new Date().toISOString()
       });
 
+=======
+    if (!conversacion || !contenido?.trim() || !usuarioActual?.id) return;
+
+    try {
+>>>>>>> origin/develop
       const nuevoMensaje = {
         idConversacion: parseInt(conversacion.id),
         idRemitente: usuarioActual.id,
         contenido: contenido.trim(),
+<<<<<<< HEAD
         fechaEnvio: new Date().toISOString(),
         leido: false
       };
@@ -800,6 +829,27 @@ const MensajesViewContent: React.FC = () => {
         position: 'top-center',
         theme: 'error'
       });
+=======
+        fechaEnvio: new Date().toISOString()
+      };
+
+      const resultado = await MensajeService.agregarMensaje(nuevoMensaje);
+      
+      if (resultado?.estado === 'success') {
+        setNotificacion("Mensaje enviado");
+        setTimeout(() => {
+          cargarMensajes(parseInt(conversacion.id));
+          cargarMisChats(); // Esto actualiza la lista de chats
+          forzarActualizacion(); // Fuerza el re-render para actualizar explorar
+        }, 500);
+      } else {
+        setNotificacion("Error al enviar mensaje");
+      }
+      
+    } catch (error) {
+      console.error('Error enviando mensaje:', error);
+      setNotificacion('Error al enviar mensaje');
+>>>>>>> origin/develop
     }
   }, [conversacion, usuarioActual?.id, cargarMensajes, cargarMisChats]);
 

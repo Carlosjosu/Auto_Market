@@ -30,6 +30,7 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
 
     // Agrega mensaje usando cola FIFO con LinkedList
     public void addMensaje(Mensaje mensaje) throws Exception {
+<<<<<<< HEAD
         try {
             // Validaciones
             if (mensaje == null) {
@@ -81,17 +82,33 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
             e.printStackTrace();
             throw e; // Re-lanzar para que el servicio maneje el error
         }
+=======
+        LinkedList<Mensaje> lista = listAll();
+        mensaje.setId(lista.getLength() + 1);
+        mensaje.setFechaEnvio(new Date());
+        
+        // Usar cola FIFO específica para mensajes
+        addMensajeFIFO(mensaje);
+        
+        System.out.println("Mensaje agregado con ID: " + mensaje.getId() + 
+                          " en conversación: " + mensaje.getIdConversacion());
+>>>>>>> origin/develop
     }
 
     // Obtiene mensajes por conversación usando LinkedList
     public LinkedList<Mensaje> getMensajesPorConversacion(Integer idConversacion) {
         return filtrarConLinkedList(m -> m.getIdConversacion().equals(idConversacion));
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/develop
     // Convertir LinkedList a List para compatibilidad
     public List<Mensaje> getMensajesPorConversacionList(Integer idConversacion) {
         LinkedList<Mensaje> mensajesLinked = getMensajesPorConversacion(idConversacion);
         List<Mensaje> mensajesList = new ArrayList<>();
+<<<<<<< HEAD
 
         for (int i = 0; i < mensajesLinked.getLength(); i++) {
             mensajesList.add(mensajesLinked.get(i));
@@ -106,12 +123,28 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
         LinkedList<Mensaje> todosMensajes = ordenarPorFechaLinkedList("FechaEnvio", ascendente);
         LinkedList<Mensaje> mensajesConversacion = new LinkedList<>();
 
+=======
+        
+        for (int i = 0; i < mensajesLinked.getLength(); i++) {
+            mensajesList.add(mensajesLinked.get(i));
+        }
+        
+        return mensajesList;
+    }
+    
+    // Obtener mensajes ordenados por fecha usando LinkedList
+    public LinkedList<Mensaje> getMensajesOrdenadosPorFecha(Integer idConversacion, boolean ascendente) throws Exception {
+        LinkedList<Mensaje> todosMensajes = ordenarPorFechaLinkedList("FechaEnvio", ascendente);
+        LinkedList<Mensaje> mensajesConversacion = new LinkedList<>();
+        
+>>>>>>> origin/develop
         for (int i = 0; i < todosMensajes.getLength(); i++) {
             Mensaje mensaje = todosMensajes.get(i);
             if (mensaje.getIdConversacion().equals(idConversacion)) {
                 mensajesConversacion.add(mensaje);
             }
         }
+<<<<<<< HEAD
 
         return mensajesConversacion;
     }
@@ -121,43 +154,80 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
         return filtrarConLinkedList(m -> m.getContenido().toLowerCase().contains(texto.toLowerCase()));
     }
 
+=======
+        
+        return mensajesConversacion;
+    }
+    
+    // Buscar mensajes por contenido usando LinkedList
+    public LinkedList<Mensaje> buscarMensajesPorContenido(String texto) {
+        return filtrarConLinkedList(m -> 
+            m.getContenido().toLowerCase().contains(texto.toLowerCase())
+        );
+    }
+    
+>>>>>>> origin/develop
     // Obtener últimos mensajes usando LinkedList (LIFO)
     public LinkedList<Mensaje> obtenerUltimosMensajes(Integer limite) {
         LinkedList<Mensaje> todosMensajes = listAll();
         LinkedList<Mensaje> ultimos = new LinkedList<>();
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/develop
         int inicio = Math.max(0, todosMensajes.getLength() - limite);
         for (int i = inicio; i < todosMensajes.getLength(); i++) {
             ultimos.add(todosMensajes.get(i));
         }
+<<<<<<< HEAD
 
         return ultimos;
     }
 
+=======
+        
+        return ultimos;
+    }
+    
+>>>>>>> origin/develop
     // Contar mensajes por conversación usando LinkedList
     public Integer contarMensajesPorConversacion(Integer idConversacion) {
         LinkedList<Mensaje> mensajes = getMensajesPorConversacion(idConversacion);
         return mensajes.getLength();
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/develop
     // Obtener estadísticas usando LinkedList
     public HashMap<String, Object> obtenerEstadisticas(Integer usuarioId) {
         HashMap<String, Object> stats = new HashMap<>();
         LinkedList<Mensaje> todosMensajes = listAll();
         LinkedList<Mensaje> mensajesUsuario = new LinkedList<>();
         LinkedList<Integer> conversacionesUnicas = new LinkedList<>();
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/develop
         // Filtrar mensajes del usuario y obtener conversaciones únicas
         for (int i = 0; i < todosMensajes.getLength(); i++) {
             Mensaje mensaje = todosMensajes.get(i);
             if (mensaje.getIdRemitente().equals(usuarioId)) {
                 mensajesUsuario.add(mensaje);
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> origin/develop
                 if (!conversacionesUnicas.contains(mensaje.getIdConversacion())) {
                     conversacionesUnicas.add(mensaje.getIdConversacion());
                 }
             }
         }
+<<<<<<< HEAD
 
         stats.put("totalMensajes", mensajesUsuario.getLength());
         stats.put("conversacionesActivas", conversacionesUnicas.getLength());
@@ -165,6 +235,15 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
         return stats;
     }
 
+=======
+        
+        stats.put("totalMensajes", mensajesUsuario.getLength());
+        stats.put("conversacionesActivas", conversacionesUnicas.getLength());
+        
+        return stats;
+    }
+    
+>>>>>>> origin/develop
     // Convertir mensaje a HashMap para serialización
     public HashMap<String, String> mensajeToHashMap(Mensaje mensaje) {
         HashMap<String, String> map = new HashMap<>();
@@ -173,19 +252,33 @@ public class DaoMensaje extends AdapterDao<Mensaje> {
         map.put("fechaEnvio", mensaje.getFechaEnvio().toString());
         map.put("idRemitente", mensaje.getIdRemitente().toString());
         map.put("idConversacion", mensaje.getIdConversacion().toString());
+<<<<<<< HEAD
         map.put("leido", String.valueOf(mensaje.isLeido()));
         return map;
     }
 
+=======
+        return map;
+    }
+    
+>>>>>>> origin/develop
     // Listar todos los mensajes como HashMap usando LinkedList
     public LinkedList<HashMap<String, String>> listarTodosComoHashMap() {
         LinkedList<Mensaje> mensajes = listAll();
         LinkedList<HashMap<String, String>> resultado = new LinkedList<>();
+<<<<<<< HEAD
 
         for (int i = 0; i < mensajes.getLength(); i++) {
             resultado.add(mensajeToHashMap(mensajes.get(i)));
         }
 
+=======
+        
+        for (int i = 0; i < mensajes.getLength(); i++) {
+            resultado.add(mensajeToHashMap(mensajes.get(i)));
+        }
+        
+>>>>>>> origin/develop
         return resultado;
     }
 }

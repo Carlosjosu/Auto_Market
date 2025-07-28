@@ -65,6 +65,7 @@
         "menu": {
           "exclude": true
         },
+        "loginRequired": false,
         "flowLayout": false,
         "params": {},
         "title": "Login"
@@ -82,9 +83,36 @@
       },
       {
         "route": "MensajeView",
+        "menu": {
+          "order": 8,
+          "icon": "vaadin:chat",
+          "title": "Mensajes"
+        },
         "flowLayout": false,
         "params": {},
         "title": "Mensajes"
+      },
+      {
+        "route": "register",
+        "skipLayouts": true,
+        "menu": {
+          "exclude": true
+        },
+        "loginRequired": false,
+        "flowLayout": false,
+        "params": {},
+        "title": "Register"
+      },
+      {
+        "route": "task-list",
+        "title": "Task List",
+        "menu": {
+          "icon": "vaadin:clipboard-check",
+          "order": 1,
+          "title": "Task List"
+        },
+        "flowLayout": false,
+        "params": {}
       },
       {
         "route": "usuario-list",

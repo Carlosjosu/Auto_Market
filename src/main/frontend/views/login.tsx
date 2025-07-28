@@ -7,10 +7,12 @@ import { isLogin, useAuth } from 'Frontend/security/auth';
 import { CuentaService } from 'Frontend/generated/endpoints';
 import { Notification } from '@vaadin/react-components/Notification';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@vaadin/react-components';
 
 export const config: ViewConfig = {
   skipLayouts: true,
   menu: { exclude: true },
+  loginRequired: false
 };
 
 export default function LoginView() {
@@ -57,31 +59,41 @@ export default function LoginView() {
 
 
   return (
-    <LoginOverlay
-      i18n={i18n} error={error} noForgotPassword opened no-autofocus
-      onErrorChanged={(event) => {
-        console.log(event);
-        hasError.value = event.detail.value;
-      }}
-      onLogin={async ({ detail: { username, password } }) => {
-
-        console.log('Login intentado con:', username, password);
-        const data = await CuentaService.login(username, password);
-        console.log('Login indica:', data);
-        const isLogged = await isLogin();
-        console.log('isLogin indica:', isLogged);
-        if (data?.estado === 'false') {
-          Notification.show(data?.message, { duration: 5000, position: 'top-center', theme: 'error' });
-          console.error('Login fallo:', data);
-          hasError.value = true;
-          navigate('/login?error=true', { replace: true });
-        } else {
-          Notification.show("Ingreso exitoso", { duration: 5000, position: 'top-center', theme: 'success' });
-          hasError.value = false;
-          await new Promise(res => setTimeout(res, 1000));
-          window.location.href = '/';
-        }
-      }}
-    />
+    <>
+      <LoginOverlay
+        i18n={i18n}
+        error={error}
+        noForgotPassword
+        opened
+        no-autofocus
+        onErrorChanged={(event) => {
+          console.log(event);
+          hasError.value = event.detail.value;
+        }}
+        onLogin={async ({ detail: { username, password } }) => {
+          console.log('Login intentado con:', username, password);
+          const data = await CuentaService.login(username, password);
+          console.log('Login indica:', data);
+          const isLogged = await isLogin();
+          console.log('isLogin indica:', isLogged);
+          if (data?.estado === 'false') {
+            Notification.show(data?.message, { duration: 5000, position: 'top-center', theme: 'error' });
+            console.error('Login fallo:', data);
+            hasError.value = true;
+            navigate('/login?error=true', { replace: true });
+          } else {
+            Notification.show("Ingreso exitoso", { duration: 5000, position: 'top-center', theme: 'success' });
+            hasError.value = false;
+            await new Promise(res => setTimeout(res, 1000));
+            window.location.href = '/Auto';
+          }
+        }}
+      />
+      <div style={{ marginTop: '25rem', textAlign: 'center' }}>
+        <Button theme="tertiary" onClick={() => navigate('/register')}>
+          ¿No tienes cuenta? Registrarse
+        </Button>
+      </div>
+    </>
   );
 }

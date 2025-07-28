@@ -6,30 +6,30 @@ import com.unl.sistema.base.controller.dao.AdapterDao;
 import com.unl.sistema.base.controller.datastruct.list.LinkedList;
 import com.unl.sistema.base.models.Usuario;
 
-public class DaoUsuario extends AdapterDao<Usuario>{
+public class DaoUsuario extends AdapterDao<Usuario> {
     private Usuario obj;
 
-    public DaoUsuario(){
+    public DaoUsuario() {
         super(Usuario.class);
     }
-    
+
     public Usuario getObj() {
         if (obj == null)
             this.obj = new Usuario();
         return this.obj;
     }
-    
+
     public void setObj(Usuario obj) {
         this.obj = obj;
     }
 
     public Boolean save() {
         try {
-            obj.setId(listAll().getLength()+1);
+            obj.setId(listAll().getLength() + 1);
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            //Log de error
+            // Log de error
             e.printStackTrace();
             System.out.println(e);
             return false;
@@ -39,17 +39,17 @@ public class DaoUsuario extends AdapterDao<Usuario>{
 
     public Boolean update(Integer pos) {
         try {
-            this.update(obj,pos);
+            this.update(obj, pos);
             return true;
         } catch (Exception e) {
-            //Log de error
+            // Log de error
             return false;
             // TODO: handle exception
         }
     }
 
-    public LinkedList<HashMap<String,String>> all() {
-        LinkedList<HashMap<String,String>> lista = new LinkedList<>();
+    public LinkedList<HashMap<String, String>> all() {
+        LinkedList<HashMap<String, String>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
             Usuario[] arreglo = this.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
@@ -59,8 +59,8 @@ public class DaoUsuario extends AdapterDao<Usuario>{
         return lista;
     }
 
-    public HashMap<String,String> toDict(Usuario arreglo) {
-        HashMap<String,String> aux = new HashMap<>();
+    public HashMap<String, String> toDict(Usuario arreglo) {
+        HashMap<String, String> aux = new HashMap<>();
         aux.put("id", arreglo.getId().toString());
         aux.put("nickname", arreglo.getNickname());
         aux.put("nombre", arreglo.getNombre());
@@ -70,5 +70,22 @@ public class DaoUsuario extends AdapterDao<Usuario>{
         aux.put("idCuenta", new DaoCuenta().listAll().get(arreglo.getIdCuenta() - 1).getCorreo());
         aux.put("idRol", new DaoRol().listAll().get(arreglo.getIdRol() - 1).getNombre());
         return aux;
+    }
+
+    public Usuario findById(Integer id) {
+        if (id == null)
+            return null;
+
+        LinkedList<Usuario> usuarios = this.listAll();
+        if (usuarios.isEmpty())
+            return null;
+
+        Usuario[] arrayUsuarios = usuarios.toArray();
+        for (Usuario usuario : arrayUsuarios) {
+            if (usuario.getId() != null && usuario.getId().equals(id)) {
+                return usuario;
+            }
+        }
+        return null;
     }
 }

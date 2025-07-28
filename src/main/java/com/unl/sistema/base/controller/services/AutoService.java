@@ -119,7 +119,9 @@ public class AutoService {
             autoExistente.setFechaRegistro(fechaRegistro);
         }
         autoExistente.setEstaDisponible(estaDisponible != null ? estaDisponible : true);
-        autoExistente.setIdVendedor(idVendedor);
+        if (idVendedor != null) {
+            autoExistente.setIdVendedor(idVendedor);
+        }
         autoExistente.setIdMarca(idMarca);
         if (tipoCombustible != null && !tipoCombustible.isEmpty())
             autoExistente.setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
@@ -130,6 +132,14 @@ public class AutoService {
             throw new Exception("No se pudo actualizar el auto");
     }
 
+    /**
+     * Elimina un auto por su id usando AdapterDao.delete
+     */
+    public void deleteAuto(Integer id) throws Exception {
+        if (!da.delete(id)) {
+            throw new Exception("No se pudo eliminar el auto");
+        }
+    }
     public List<HashMap<String, String>> ordenar(String atributo, Integer type) {
         return Arrays.asList(da.ordenarPorAtributo(atributo, type).toArray());
     }
@@ -229,5 +239,19 @@ public class AutoService {
             System.err.println("Error verificando propietario del auto: " + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Búsqueda flexible por modelo (contiene, insensible a mayúsculas/minúsculas)
+     */
+    public List<HashMap<String, String>> buscarPorModeloFlexible(String texto) throws Exception {
+        // type = 0 para búsqueda en cualquier parte del texto
+        // Convertir el LinkedList a un List estándar
+        com.unl.sistema.base.controller.datastruct.list.LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(da.all(), "modelo", texto, 0);
+        java.util.List<HashMap<String, String>> lista = new java.util.ArrayList<>();
+        for (int i = 0; i < resultado.getLength(); i++) {
+            lista.add(resultado.get(i));
+        }
+        return lista;
     }
 }

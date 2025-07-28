@@ -215,6 +215,7 @@ public class LinkedList<E> {
         }
     }
 
+    
     public boolean contains(E data) {
         Nodo<E> actual = head;
         while (actual != null) {

@@ -1,3 +1,4 @@
+
 package com.unl.sistema.base.models;
 
 import java.util.Date;
@@ -170,5 +171,17 @@ public class Auto {
         }
 
         this.categoria = null;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Auto other = (Auto) obj;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

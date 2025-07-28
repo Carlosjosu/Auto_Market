@@ -42,7 +42,9 @@ public class SecurityConfig extends VaadinWebSecurity {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().requestMatchers(VaadinWebSecurity.getDefaultWebSecurityIgnoreMatcher())
-                .requestMatchers(new AntPathRequestMatcher("/imagenes/**")).requestMatchers(antMatchers("static/**"));
+                .requestMatchers(new AntPathRequestMatcher("/imagenes/**"))
+                .requestMatchers(new AntPathRequestMatcher("/api/imagenes/**"))
+                .requestMatchers(antMatchers("static/**"));
         super.configure(web);
     }
 }

@@ -1,9 +1,7 @@
 package com.unl.sistema.base.models;
 
 import java.util.Date;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class Mensaje {
 
     private Integer id;
@@ -11,11 +9,23 @@ public class Mensaje {
     private Date fechaEnvio;
     private Integer idRemitente;
     private Integer idConversacion;
-    // Agrega este campo si quieres almacenar el objeto Usuario (opcional)
-    private Usuario remitente;
+    private boolean leido;
 
+    public Mensaje() {
+        this.fechaEnvio = new Date();
+        this.leido = false;
+    }
+
+    public Mensaje(String contenido, Integer idRemitente, Integer idConversacion) {
+        this();
+        this.contenido = contenido;
+        this.idRemitente = idRemitente;
+        this.idConversacion = idConversacion;
+    }
+
+    // Getters y Setters
     public Integer getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Integer id) {
@@ -23,7 +33,7 @@ public class Mensaje {
     }
 
     public String getContenido() {
-        return this.contenido;
+        return contenido;
     }
 
     public void setContenido(String contenido) {
@@ -31,7 +41,7 @@ public class Mensaje {
     }
 
     public Date getFechaEnvio() {
-        return this.fechaEnvio;
+        return fechaEnvio;
     }
 
     public void setFechaEnvio(Date fechaEnvio) {
@@ -39,7 +49,7 @@ public class Mensaje {
     }
 
     public Integer getIdRemitente() {
-        return this.idRemitente;
+        return idRemitente;
     }
 
     public void setIdRemitente(Integer idRemitente) {
@@ -47,28 +57,30 @@ public class Mensaje {
     }
 
     public Integer getIdConversacion() {
-        return this.idConversacion;
+        return idConversacion;
     }
 
     public void setIdConversacion(Integer idConversacion) {
         this.idConversacion = idConversacion;
     }
 
-    // Getter para remitente
-    public Usuario getRemitente() {
-        return this.remitente;
+    public boolean isLeido() {
+        return leido;
     }
 
-    // Setter para remitente
-    public void setRemitente(Usuario remitente) {
-        this.remitente = remitente;
-        if (remitente != null) {
-            this.idRemitente = remitente.getId().intValue();
-        }
+    public void setLeido(boolean leido) {
+        this.leido = leido;
     }
 
-    public void setConversacion(Conversacion conversacion) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @Override
+    public String toString() {
+        return "Mensaje{" +
+                "id=" + id +
+                ", contenido='" + contenido + '\'' +
+                ", fechaEnvio=" + fechaEnvio +
+                ", idRemitente=" + idRemitente +
+                ", idConversacion=" + idConversacion +
+                ", leido=" + leido +
+                '}';
     }
-
 }

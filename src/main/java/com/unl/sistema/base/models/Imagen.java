@@ -9,12 +9,14 @@ public class Imagen {
     private Boolean esPrincipal;
 
     public Imagen() {
+        this.esPrincipal = false; // Inicializar como false por defecto
     }
 
     public Imagen(String url, String descripcion, Integer idAuto) {
         this.url = url;
         this.descripcion = descripcion;
         this.idAuto = idAuto;
+        this.esPrincipal = false; // Inicializar como false por defecto
     }
 
     public Integer getId() {

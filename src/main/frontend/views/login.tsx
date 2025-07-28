@@ -79,7 +79,7 @@ export default function LoginView() {
           Notification.show("Ingreso exitoso", { duration: 5000, position: 'top-center', theme: 'success' });
           hasError.value = false;
           await new Promise(res => setTimeout(res, 1000));
-          window.location.href = '/';
+          window.location.href = '/Auto';
         }
       }}
     />

@@ -16,6 +16,8 @@ import { Suspense } from 'react';
 import { menuConfig } from 'Frontend/config/menu_config';
 import { CuentaService } from 'Frontend/generated/endpoints';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
+import { useEffect } from 'react';
+import { Notification } from '@vaadin/react-components/Notification';
 
 function Header() {
   // TODO Replace with real application logo and name
@@ -37,8 +39,9 @@ function MainMenu() {
   );
   return (
     <SideNav className="mx-m" onNavigate={({ path }) => path != null && navigate(path)} location={location}>
-      {menuItems.map(({ to, title }) => (
+      {menuItems.map(({ to, title, icon }) => (
         <SideNavItem path={to} key={to}>
+          {icon && <Icon icon={icon} className="mr-s" />}
           {title}
         </SideNavItem>
       ))}
@@ -84,6 +87,20 @@ export const config: ViewConfig = {
 }
 
 export default function MainLayout() {
+  const { state } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  useEffect(() => {
+    if (!state.user) return;
+    const roles = (state.user?.authorities ?? []).map(auth => auth ? (typeof auth === 'string' ? auth : auth.authority) : undefined).filter(Boolean);
+    const currentPath = location.pathname;
+    const menuItem = menuConfig.find(item => item.to === currentPath);
+
+    if (menuItem && menuItem.roles && !menuItem.roles.some(role => roles.includes(role))) {
+      Notification.show('No tiene permisos para acceder a esta página', { theme: 'error' });
+      navigate('/Auto', { replace: true });
+    }
+  }, [state.user, location.pathname, navigate]);
   return (
     <AppLayout primarySection="drawer">
       <Header />

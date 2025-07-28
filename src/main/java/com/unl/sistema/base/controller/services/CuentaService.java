@@ -159,7 +159,7 @@ public class CuentaService {
         }
     }
 
-    public void update(Integer id, @NotEmpty String clave, @NotEmpty String claveNueva ) throws Exception {
+    public void update(Integer id, @NotEmpty String clave, @NotEmpty String claveNueva) throws Exception {
         if (id != null && id > 0 && clave.trim().length() > 0 && claveNueva.trim().length() > 0) {
             dc.setObj(dc.listAll().get(id - 1));
             if (!dc.getObj().getClave().equals(clave)) {

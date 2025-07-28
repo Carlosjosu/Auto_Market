@@ -230,4 +230,18 @@ public class AutoService {
         }
         return false;
     }
+
+    /**
+     * Búsqueda flexible por modelo (contiene, insensible a mayúsculas/minúsculas)
+     */
+    public List<HashMap<String, String>> buscarPorModeloFlexible(String texto) throws Exception {
+        // type = 0 para búsqueda en cualquier parte del texto
+        // Convertir el LinkedList a un List estándar
+        com.unl.sistema.base.controller.datastruct.list.LinkedList<HashMap<String, String>> resultado = Utiles.busquedaLineal(da.all(), "modelo", texto, 0);
+        java.util.List<HashMap<String, String>> lista = new java.util.ArrayList<>();
+        for (int i = 0; i < resultado.getLength(); i++) {
+            lista.add(resultado.get(i));
+        }
+        return lista;
+    }
 }

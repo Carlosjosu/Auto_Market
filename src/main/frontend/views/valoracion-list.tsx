@@ -123,15 +123,32 @@ function ValoracionSearchForm(props: { onSearch: (atributo: string, valor: strin
     );
 }
 
+// Componente solo visual para mostrar estrellas
+function StarRatingView({ value }: { value: number }) {
+    return (
+        <div style={{ fontSize: 22, color: "#ffa000" }}>
+            {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star}>
+                    {star <= value ? "★" : "☆"}
+                </span>
+            ))}
+        </div>
+    );
+}
+
 export default function ValoracionView() {
     const [items, setItems] = useState<any[]>([]);
     const [ventas, setVentas] = useState<any[]>([]);
     const [autos, setAutos] = useState<any[]>([]);
+    const [imagenes, setImagenes] = useState<any[]>([]);
 
-    // Cargar ventas y autos para poder mostrar marca/modelo
+    // Cargar ventas, autos e imágenes
     useEffect(() => {
         VentaService.listVenta().then((data) => setVentas((data ?? []).filter(Boolean)));
         AutoService.listAuto().then((data) => setAutos((data ?? []).filter(Boolean)));
+        fetch('/api/imagenes')
+            .then(res => res.json())
+            .then(data => setImagenes(data ?? []));
     }, []);
 
     const callData = () => {
@@ -167,6 +184,14 @@ export default function ValoracionView() {
         const auto = autos.find((a: any) => Number(a.id) === Number(venta.idAuto));
         if (!auto) return '';
         return `${auto.marca ?? ''} ${auto.modelo ?? ''}`.trim();
+    };
+
+    // Función para obtener la URL de la imagen del auto desde idVenta
+    const getImagenAuto = (idVenta: number) => {
+        const venta = ventas.find((v: any) => Number(v.id) === Number(idVenta));
+        if (!venta) return null;
+        const img = imagenes.find((img: any) => Number(img.idAuto) === Number(venta.idAuto));
+        return img ? img.url : null;
     };
 
     return (
@@ -207,7 +232,21 @@ export default function ValoracionView() {
                     />
                     <GridColumn
                         header="Auto valorado"
-                        renderer={({ item }) => <span>{getMarcaModelo(item.idVenta)}</span>}
+                        renderer={({ item }) => (
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                {getImagenAuto(item.idVenta) && (
+                                    <img
+                                        src={getImagenAuto(item.idVenta)}
+                                        alt={getMarcaModelo(item.idVenta)}
+                                        style={{ width: 48, height: 36, objectFit: "contain", borderRadius: 6, border: "1px solid #eee" }}
+                                    />
+                                )}
+                                <div>
+                                    <div style={{ fontWeight: 600 }}>{getMarcaModelo(item.idVenta)}</div>
+                                    <StarRatingView value={item.puntuacion} />
+                                </div>
+                            </div>
+                        )}
                     />
                 </Grid>
             </div>

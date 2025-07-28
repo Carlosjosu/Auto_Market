@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* Botón eliminar auto */
 .auto-btn-eliminar {
   background-color: #d32f2f !important;
@@ -11,8 +10,6 @@
 .auto-btn-eliminar:hover {
   background-color: #b71c1c !important;
 }
-=======
->>>>>>> origin/develop
 /* Botón toggle para 'Mis autos' */
 .auto-toggle-btn-mis-autos {
   border-radius: 16px;

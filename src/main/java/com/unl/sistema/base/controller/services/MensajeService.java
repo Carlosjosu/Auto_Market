@@ -25,7 +25,6 @@ public class MensajeService {
     public HashMap<String, Object> agregarMensaje(Mensaje mensaje) {
         HashMap<String, Object> response = new HashMap<>();
         try {
-<<<<<<< HEAD
             // Validaciones básicas
             if (mensaje == null) {
                 response.put("estado", "error");
@@ -71,16 +70,6 @@ public class MensajeService {
 
             System.err.println("❌ Error enviando mensaje: " + e.getMessage());
             e.printStackTrace();
-=======
-            daoMensaje.addMensaje(mensaje);
-            response.put("estado", "success");
-            response.put("mensaje", "Mensaje enviado exitosamente");
-            response.put("data", daoMensaje.mensajeToHashMap(mensaje));
-        } catch (Exception e) {
-            response.put("estado", "error");
-            response.put("mensaje", "Error al enviar mensaje: " + e.getMessage());
-            System.err.println("Error enviando mensaje: " + e.getMessage());
->>>>>>> origin/develop
         }
         return response;
     }
